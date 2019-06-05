@@ -1,1 +1,2 @@
-./ACS/AcsVenv
+/ACS/AcsVenv
+/ACS/__pycache__/
