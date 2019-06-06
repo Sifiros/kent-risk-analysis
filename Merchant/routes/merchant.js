@@ -1,8 +1,7 @@
 const express = require('express')
 const utils = require('../utils/utils')
-const threeDSUtils = require('../utils/threeDSUtils')
+const threeDSUtils = require('../process/threeDSUtils')
 const router = express.Router()
-
 
 //handler the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
@@ -10,13 +9,11 @@ router.post('/init', (request, response) => {
         response.json(utils.jsonError('request error or card number not present'))
         return
     }
-    get3DSMethodURL(request.body)
-        .then((threeDSMethodInfo) => {
-            response.json(threeDSMethodInfo)
-            return
-        })
+    threeDSUtils.get3DSMethod(request.body.cc_number)
+        .then((formData) => response.json(formData))
 })
 
+// Payment route
 router.post('/pay', (request, response) => {
 
 })
@@ -24,12 +21,8 @@ router.post('/pay', (request, response) => {
 // Very end of the protocol, notify that everything went well
 router.post('/notification', (request, response) => {
     if (!request && !request.body) {
-        response.json({
-            'status': 'ko',
-            'message': 'request failed'
-        })
+        response.json( utils.jsonError('request failed'))
         console.log('NOTIFICATION: REQUEST FAILED');
-
         return
     }
 
