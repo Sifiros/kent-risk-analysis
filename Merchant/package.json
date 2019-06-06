@@ -1,0 +1,33 @@
+{
+  "name": "merchant_server",
+  "version": "0.0.1",
+  "description": "Poc of the merchant server for payment risk analysis",
+  "main": "app.js",
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "validator": "^11.0.0"
+  },
+  "scripts": {
+    "test": "test",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sifiros/kent-risk-analysis.git"
+  },
+  "keywords": [
+    "risk",
+    "analysis",
+    "3DS2",
+    "express"
+  ],
+  "author": "maxime.bel@epitech.eu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sifiros/kent-risk-analysis/issues"
+  },
+  "homepage": "https://github.com/Sifiros/kent-risk-analysis#readme"
+}
