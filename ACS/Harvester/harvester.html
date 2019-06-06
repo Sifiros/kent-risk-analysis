@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>tititle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./harvester.js"></script>
+    <script type="text/javascript" src="./ua-parser-js/src/ua-parser.js"></script>
+    <script src="http://www.java.com/js/deployJava.js"></script>
+</head>
+
+<body>
+
+    <script>
+        let toSend = {}
+        toSend.threeDSServerTransID = "#!3DS_TRANS_ID!#"
+        toSend.notificationMethodURL = "#!NOTIFICATION_METHOD_URL!#"
+
+
+/*        let sendFingerPrintToACS = () => {
+            return fetch('http://localhost:4242/acs/handleMethodInfo', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(toSend)
+            })
+                .then((response) => response.json())
+        }*/
+
+        let testFingerPrinter = () => {
+            /*Fingerprint2().get(function (result, components) {
+                console.log(result) // a hash, representing your device fingerprint
+                console.log(components) // an array of FP components
+                toSend.hash = result
+                sendFingerPrintToACS()
+            })*/
+            //console.log(swfobject.getFlashPlayerVersion())
+            getAllInfo(new UAParser(), deployJava)
+        }
+        testFingerPrinter(); 
+    </script>
+
+</body>
+
+</html>
