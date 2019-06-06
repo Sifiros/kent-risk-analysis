@@ -5,14 +5,23 @@ import json
 class AcsPacketFactory():
 
     @staticmethod
-    def get_PResp_json(threeDSServerRefNumber, threeDSServerTransID, threeDSServerOperatorID=None, messageVersion='2.1.0', serialNum=None):
+    def get_PResp_json(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
         pRest_packet = {
-            "messageType": "PReq",
-            "threeDSServerRefNumber": threeDSServerRefNumber, # Unique 3DSserv Identifier
-            "threeDSServerOperatorID": threeDSServerOperatorID, # Irrelevant
+            "messageType": "PRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
-            "messageVersion": messageVersion, # Irrelevant
-            "serialNum": serialNum # Irrelevant
+            "dsTransID": dsTransID, # Unique ds transaction Identifier - Irrelevant
+            "messageVersion": messageVersion,
+            "serialNum": serialNum, # Irrelevant
+            "dsStartProtocolVersion": "2.1.0", # Irrelevant
+            "dsEndProtocolVersion": "2.1.0", # Irrelevant
+            "cardRangeData": [{ # Card range
+                "startRange": "1000000000000000",
+                "endRange": "9999999999999999",
+                "actionInd": "A",
+                "acsStartProtocolVersion": "2.1.0",
+                "acsEndProtocolVersion": "2.1.0",
+                "threeDSMethodURL": "https://www.acs.com/script"
+            }]
         }
         return json.dumps(pRest_packet)
 
@@ -70,7 +79,7 @@ class AcsPacketFactory():
         return json.dumps(rReq_packet)
 
     @staticmethod
-    def get_error_json(threeDSServerTransID, acsTransID, errorCode, errorDescription, errorDetail, errorMessageType, 
+    def get_error_json(threeDSServerTransID, acsTransID, errorCode, errorDescription, errorMessageType, errorDetail=None, 
     dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', messageVersion='2.1.0'):
         error_packet = {
             "messageType": "Erro",
