@@ -5,6 +5,7 @@ import enum
 import requests
 from http.server import HTTPServer
 from AcsHttpRequestHandler import AcsHttpRequestHandler
+from transaction import TransactionController
 
 class AccessControlServer():
     def __init__(self, ip, port):
@@ -16,6 +17,8 @@ class AccessControlServer():
 
         self.m_httpd = HTTPServer((self.m_ip, self.m_port), AcsHttpRequestHandler)
         self.start_server()
+
+        self.transaction_ctrl = TransactionController()
 
     def start_server(self):
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))

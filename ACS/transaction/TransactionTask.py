@@ -1,4 +1,3 @@
-from queue import queue
 
 # A transaction task is created as soon as an auth request is received with a new transaction id
 # auth request contains profile data, fed into our AI : 

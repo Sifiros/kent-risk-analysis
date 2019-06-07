@@ -16,9 +16,9 @@ class TransactionManager():
             TransactionTask.WAITING_FINAL_VALIDATION: self.handle_final_validation,
         }
 
-	@property
-	def is_running(self):
-		return self.transaction.state != TransactionTask.VALIDATED and self.transaction.state != TransactionTask.ABORTED
+    @property
+    def is_running(self):
+        return self.transaction.state != TransactionTask.VALIDATED and self.transaction.state != TransactionTask.ABORTED
 
     def abort(self):
         self.transaction.state = TransactionTask.ABORTED
@@ -49,7 +49,7 @@ class TransactionManager():
     ########### Requests handlers ###########
 
     # WAITING_USER_PROFILE -> PROFILE_CHECKING -> (WAITING_CHALLENGE_REQUEST OR VALIDATED)
-    def check_user_profile(self, user_profile)
+    def check_user_profile(self, user_profile):
         self.on_step_completion(TransactionTask.PROFILE_CHECKING)
         print("AI checking user profile ...")
         result = {}
