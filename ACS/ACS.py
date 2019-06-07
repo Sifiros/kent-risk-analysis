@@ -15,7 +15,7 @@ class AccessControlServer(HTTPServer):
         self.m_long_polling_request_list = {}
         HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))
-        self.start_server
+        self.serve_forever()
 
     def post_data_to_endpoint(self, url, data):
         json = data
