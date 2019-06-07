@@ -1,11 +1,9 @@
 #!/usr/local/bin/python3
 
-import json
-
 class AcsPacketFactory():
 
     @staticmethod
-    def get_PResp_json(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
+    def get_PResp_packet(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
         pRest_packet = {
             "messageType": "PRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
@@ -23,10 +21,10 @@ class AcsPacketFactory():
                 "threeDSMethodURL": "https://www.acs.com/script"
             }]
         }
-        return json.dumps(pRest_packet)
+        return pRest_packet
 
     @staticmethod
-    def get_AResp_json(threeDSServerTransID, acsTransID, transStatus, acsChallengeMandated, acsURL, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', 
+    def get_AResp_packet(threeDSServerTransID, acsTransID, transStatus, acsChallengeMandated, acsURL, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', 
     acsReferenceNumber='3DS_LOA_ACS_PPFU_020100_00009', acsOperatorID='AcsOpId 4138359541', dsReferenceNumber='DS_LOA_DIS_PPFU_020100_00010',
     authenticationType='01', messageVersion='2.1.0'):
         aResp_packet = {
@@ -46,7 +44,7 @@ class AcsPacketFactory():
         return json.dumps(aResp_packet)
 
     @staticmethod
-    def get_CResp_json(threeDSServerTransID, acsTransID, challengeCompletionInd, messageVersion='2.1.0'):
+    def get_CResp_packet(threeDSServerTransID, acsTransID, challengeCompletionInd, messageVersion='2.1.0'):
         cResp_packet = {
             "messageType": "CRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
@@ -55,14 +53,27 @@ class AcsPacketFactory():
             "notificationURL": "link",
             "messageVersion": messageVersion,
         }
-        return json.dumps(cResp_packet)
+        return cResp_packet
 
     @staticmethod
-    def get_RReq_json(threeDSServerTransID, acsTransID, transStatus, acsRenderingType={"acsInterface": "01","acsUiTemplate": "01"}, authenticationMethod='02',
+    def get_SResp_packet(isValid):
+        sResp_packet = {
+            "messageType": "SRes",
+            "isValid": isValid
+        }
+        return sResp_packet
+
+    @staticmethod
+    def get_CFReq_packet():
+        pass
+
+    @staticmethod
+    def get_RReq_packet(threeDSServerTransID, acsTransID, transStatus, acsRenderingType={"acsInterface": "01","acsUiTemplate": "01"}, authenticationMethod='02',
         authenticationType='02', authenticationValue='MTIzNDU2Nzg5MDA5ODc2NTQzMjE=', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', interactionCounter='02',
         messageCategory='01', messageVersion='2.1.0'):
         rReq_packet = {
             "messageType": "RReq",
+            "messageVersion": messageVersion,
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
             "acsTransID": acsTransID, # Unique ACS transaction Identifier
             "acsRenderingType": acsRenderingType, # Irrelevant
@@ -70,16 +81,15 @@ class AcsPacketFactory():
             "authenticationType": authenticationType, # Irrelevant 
             "authenticationValue": authenticationValue, # Irrelevant 
             "dsTransID": dsTransID, # Unique ds transaction Identifier - Irrelevant
-            "eci": "05", # Payment System-specific value provided by the ACS or DS to indicate the results of the attempt to authenticate the Cardholder.
+            "eci": "05", # Payment System-specific value provided by the ACS or DS to indicate the results of the attempt to authenticate the Cardholder - Irrelevant
             "interactionCounter": interactionCounter,
-            "messageCategory": messageCategory,
-            "messageVersion": messageVersion,
+            "messageCategory": messageCategory, # Irrelevant
             "transStatus": transStatus # Indicates whether a transaction qualifies as an authenticated transaction or account verification (Y, N, U, A, C, D, R)
         }
-        return json.dumps(rReq_packet)
+        return rReq_packet
 
     @staticmethod
-    def get_error_json(threeDSServerTransID, acsTransID, errorCode, errorDescription, errorMessageType, errorDetail=None, 
+    def get_error_packet(threeDSServerTransID, acsTransID, errorCode, errorDescription, errorMessageType, errorDetail=None, 
     dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', messageVersion='2.1.0'):
         error_packet = {
             "messageType": "Erro",
@@ -93,7 +103,7 @@ class AcsPacketFactory():
             "errorMessageType": errorMessageType, # Identifies the Message Type that was identified as erroneous
             "messageVersion": messageVersion
         }
-        return json.dumps(error_packet)
+        return error_packet
 
     @staticmethod
     def get_json_from_packet(packet):
