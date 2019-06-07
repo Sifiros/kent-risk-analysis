@@ -10,10 +10,8 @@ class TransactionManager():
 
         self.request_callbacks = {
             TransactionTask.WAITING_USER_PROFILE: self.check_user_profile,
-            TransactionTask.WAITING_LONGPOLL_REQUEST: self.handle_challenge_request,
-            TransactionTask.WAITING_CHALLENGE_REQUEST: self.handle_challenge_request,
-            TransactionTask.WAITING_CHALLENGE_RESPONSE: self.check_challenge_response,
-            TransactionTask.WAITING_FINAL_VALIDATION: self.handle_final_validation,
+            TransactionTask.WAITING_AUTH_REQUEST: self.check_auth_request,
+            TransactionTask.WAITING_CHALLENGE_SOLUTION: self.check_challenge_solution,
         }
 
     @property
@@ -31,8 +29,9 @@ class TransactionManager():
             cur_state = self.transaction.state
             if not self.is_running:
                 break
-
             self.request_callbacks[cur_state](self, last_data)
+
+        print("Transaction {} finished.".format(self.transaction_id))
 
     # Feed data to be processed in this transaction
     def feed_data(self, body):
@@ -48,58 +47,26 @@ class TransactionManager():
 
     ########### Requests handlers ###########
 
-    # WAITING_USER_PROFILE -> PROFILE_CHECKING -> (WAITING_CHALLENGE_REQUEST OR VALIDATED)
+    # 1. WAITING_USER_PROFILE -> WAITING_AUTH_REQUEST
     def check_user_profile(self, user_profile):
-        self.on_step_completion(TransactionTask.PROFILE_CHECKING)
-        print("AI checking user profile ...")
-        result = {}
-        self.on_step_completion(TransactionTask.WAITING_LONGPOLL_REQUEST, result)
-        print("Checked : a chal is needed")
-        return True
+        print("RECEIVED USER PROFILE ...")
+        print(user_profile)
+        self.transaction.user_profile = user_profile
+        self.on_step_completion(TransactionTask.WAITING_AUTH_REQUEST)
 
-    # WAITING_LONGPOLL_REQUEST -> WAITING_CHALLENGE_REQUEST
-    # WAITING_CHALLENGE_REQUEST -> WAITING_CHALENGE_RESPONSE
-    # dispatch to the right handler (it is a longpoll or challenge request ?)
-    def handle_challenge_request(self, request):
-        print("Handling challenge request")
-        # Detect request type (2 different types handled by this function)
-        # assume the request type given what we still need or detect the type if we haven't received anything yet
-        remaining_steps = step([TransactionTask.WAITING_LONGPOLL_REQUEST, TransactionTask.WAITING_CHALLENGE_REQUEST]) - self.transaction.steps_done
-        if len(remaining_steps) > 1:
-            request_type = TransactionTask.WAITING_LONGPOLL_REQUEST if 'longpoll' in request else TransactionTask.WAITING_CHALLENGE_REQUEST
-        else:
-            request_type = list(remaining_steps)[0]
+    # 2. WAITING_AUTH_REQUEST -> (WAITING_CHALLENGE_SOLUTION OR VALIDATED)
+    def check_auth_request(self, purchase_info):
+        print("Received auth request")
+        print(purchase_info)
+        print("Running AI")
+        print("A chal is needed")
+        checking_result = None # is a challenge needed ? 
+        self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
-        # force current state with detected type & process request
-        self.transition.state = request_type
-        if request_type == TransactionTask.WAITING_LONGPOLL_REQUEST:
-            result = self.handle_longpoll_request(request)
-        else:            
-            result = self.handle_challenge_request(request)
-
-        # Transition on next state
-        if result is not False: # TODO error handling via different result classes
-            remaining_steps -= set([request_type])
-            next_state = list(remaining_steps)[0] if len(remaining_steps) > 0 else TransactionTask.WAITING_CHALENGE_RESPONSE
-            self.on_step_completion(next_state, result)
-    
-    def handle_longpoll_request(self, request):
-        print("Handling longpoll request")
-        return True
-
-    def handle_challenge_request(self, request):
-        print("Handling challenge front html request")
-        return True        
-
-    # WAITING_CHALLENGE_RESPONSE  -> WAITING_FINAL_VALIDATION
-    def check_challenge_response(self, response):
+    # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED
+    def check_challenge_solution(self, response):
         print("Handling CHALLENGE RESPONSE")
-        self.on_step_completion(TransactionTask.WAITING_FINAL_VALIDATION, {})
-
-    # WAITING_FINAL_VALIDATION -> VALIDATED
-    def handle_final_validation(self, validation):
-        print("Finally validated by 3DS server")
+        print(response)
+        # if invalid response, reply an error
+        # otherwise, store http request in order to reply after final validation
         self.on_step_completion(TransactionTask.VALIDATED, {})
-
-
-    
