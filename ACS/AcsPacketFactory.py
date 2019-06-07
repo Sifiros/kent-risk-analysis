@@ -69,6 +69,12 @@ class AcsPacketFactory():
     def get_CFReq_packet():
         pass
 
+    def get_hcResp_packet():
+        hcResp_packet = {
+            "messageType": "HCRes"
+        }
+        return hcResp_packet
+
     @staticmethod
     def get_RReq_packet(threeDSServerTransID, acsTransID, transStatus, acsRenderingType={"acsInterface": "01","acsUiTemplate": "01"}, authenticationMethod='02',
         authenticationType='02', authenticationValue='MTIzNDU2Nzg5MDA5ODc2NTQzMjE=', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', interactionCounter='02',
