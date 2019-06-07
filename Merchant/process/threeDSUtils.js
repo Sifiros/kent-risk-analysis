@@ -1,8 +1,9 @@
-const fetch = require('node-fetch')
-const config = require('../config')
-const utils = require('../utils/utils')
-const pMessages = require('../messages/pMessages')
-const appData = require('../utils/appData')
+const fetch         = require('node-fetch')
+const config        = require('../config')
+const utils         = require('../utils/utils')
+const pMessages     = require('../messages/pMessages')
+const appData       = require('../utils/appData')
+const userData      = require('../utils/appData').clientdata
 
 let get3DSMethod = (cc_number) => {
 
@@ -27,6 +28,7 @@ let get3DSMethod = (cc_number) => {
     }
 
     methodData.threeDSServerTransID = uuidv1()
+    userData.threeDSServerTransID = methodData.threeDSServerTransID
     methodData.notificationMethodURL = appData.baseUrl + '/threedscomponent/notificationMethod'
     return new Promise(provide => provide(methodData))
 }
