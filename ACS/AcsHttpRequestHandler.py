@@ -33,6 +33,12 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.server.on_aReq_packet_received(self, packet)
         elif self.path == '/challrequest':
             self.server.on_cReq_packet_received(self, packet)
+        elif self.path == '/harverstrequest':
+            self.server.on_hrReq_packet_received(self, packet)
+        elif self.path == '/harvestcontent':
+            self.server.on_hcReq_packet_received(self, packet)
+        elif self.path == '/challsubmition':
+            self.server.on_sReq_packet_received(self, packet)
         else:
             self.send_complete_response(101, json.dumps(AcsPacketFactory.get_error_packet(packet["threeDSServerTransID"], str(UuidUtils.get_new_uuid()), 101, 'Unknown route', packet["messageType"])))
             
