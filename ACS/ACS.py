@@ -35,10 +35,7 @@ class AccessControlServer(HTTPServer):
     def on_cReq_packet_received(self, handler, packet):
         self.m_long_polling_request_list[packet["threeDSServerTransID"]] = handler
 
-    def on_hrReq_packet_received(self, handler, packet):
-        pass
-    
-    def on_hcReq_packet_received(self, handler, packet):
+    def on_hReq_packet_received(self, handler, packet):
         pass
 
     def on_sReq_packet_received(self, handler, packet):
