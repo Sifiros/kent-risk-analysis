@@ -6,20 +6,16 @@ import requests
 from http.server import HTTPServer
 from AcsHttpRequestHandler import AcsHttpRequestHandler
 
-class AccessControlServer():
+class AccessControlServer(HTTPServer):
     def __init__(self, ip, port):
         self.m_ip = ip
         self.m_port = port
 
         self.m_request_list = {}
         self.m_long_polling_request_list = {}
-
-        self.m_httpd = HTTPServer((self.m_ip, self.m_port), AcsHttpRequestHandler)
-        self.start_server()
-
-    def start_server(self):
+        HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))
-        self.m_httpd.serve_forever()
+        self.serve_forever()
 
     def post_data_to_endpoint(self, url, data):
         json = data
