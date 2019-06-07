@@ -20,6 +20,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
 
     def send_complete_response(self, code, content):
         self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
         self.end_headers()
         response = BytesIO()
         response.write(content.encode())
