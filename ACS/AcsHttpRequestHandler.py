@@ -33,7 +33,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         # Hreq handling (harvester html code) - DONE
         elif self.path == '/harvestcontent':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hcResp_packet()))
-        # Greq handling (harvester data)
+        # Greq handling (harvester data) - DONE
         elif self.path == '/harvestrequest':
             self.server.on_gReq_packet_received(self, packet)
         # Areq handling
