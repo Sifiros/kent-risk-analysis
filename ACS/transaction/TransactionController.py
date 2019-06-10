@@ -5,8 +5,9 @@ from .TransactionManager import TransactionManager
 # Receive each transaction step result & give them back to the ACS (on_step_completion)
 class TransactionController():
 
-    def __init__(self):
+    def __init__(self, acs_callback):
         self.managers = {}
+        self.acs_callback = acs_callback
 
     # Called for each transaction request (whatever its type is)
     # Dispatch the request handling to the right thread
@@ -28,4 +29,5 @@ class TransactionController():
         print("{} has finished step {} with result {}! ".format(
             manager.transaction.id, completed_step, result
         ))
+        self.acs_callback(manager.transaction.id, result)
         

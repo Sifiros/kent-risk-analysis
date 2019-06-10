@@ -13,7 +13,7 @@ class AccessControlServer(HTTPServer):
         self.m_ip = ip
         self.m_port = port
 
-        self.transaction_ctrl = TransactionController()
+        self.transaction_ctrl = TransactionController(self.send_response)
         self.m_request_list = {}
         HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))
