@@ -1,2 +1,3 @@
 /ACS/AcsVenv
 /ACS/__pycache__/
+**/*.pyc
