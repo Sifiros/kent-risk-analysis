@@ -5,6 +5,7 @@ from io import BytesIO
 from http.server import BaseHTTPRequestHandler
 from AcsPacketFactory import AcsPacketFactory
 from AcsUtils import UuidUtils
+from AcsHttpSender import AcsHttpSender
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
 
@@ -27,22 +28,23 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(response.getvalue())
 
     def route_parser(self, packet):
-        # Preq handling - DONE
+        # Preq handler
         if self.path == '/updatepres':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_PResp_packet(packet["threeDSServerTransID"])))
-        # Hreq handling (harvester html code) - DONE
+        # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hcResp_packet()))
-        # Greq handling (harvester data) - DONE
+            AcsHttpSender.post_data_to_endpoint(None, None) # TODO : Ping notif url method with tranID in packet
+        # Greq handler (harvester data)
         elif self.path == '/harvestrequest':
             self.server.on_gReq_packet_received(self, packet)
-        # Areq handling
+        # Areq handler
         elif self.path == '/authrequest':
             self.server.on_aReq_packet_received(self, packet)
-        # Creq handling
+        # Creq handler
         elif self.path == '/challrequest':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_html_cResp_packet()))
-        # Sreq handling
+        # Sreq handler
         elif self.path == '/challsubmition':
             self.server.on_sReq_packet_received(self, packet)
         else:
