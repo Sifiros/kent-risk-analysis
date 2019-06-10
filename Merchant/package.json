@@ -11,7 +11,8 @@
     "validator": "^11.0.0"
   },
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

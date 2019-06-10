@@ -1,4 +1,17 @@
 const validator = require('validator')
+const fetch = require('node-fetch')
+const config = require('../config')
+
+let doPOST = (url, data, mime = 'application/json') => {
+    return fetch(config.origin() + url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': mime
+        },
+        body: JSON.stringify(data)
+    }).then((response) => response.json())
+        .then((response) => response)
+}
 
 let jsonError = (message) => {
     return {
@@ -22,6 +35,10 @@ let isCreditCardInRange = (cardNumber) => {
     return isCardInRange
 }
 
+let checkThreeDSVersion = (version) => {
+    return data.isVersionMatching = version === data.threeDSVersion
+}
+
 let isTransIDFormatCorrect = (transID) => {
     return validator.isUUID(transID)
 }
@@ -39,5 +56,6 @@ module.exports = {
     isCreditCardInRange,
     isTransIDFormatCorrect,
     isCardValid,
-    isEmailValid
+    isEmailValid,
+    doPost
 }

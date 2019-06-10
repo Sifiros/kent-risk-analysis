@@ -1,5 +1,8 @@
 const fetch = require('node-fetch')
 const config = require('../config')
+const utils = require('./utils')
+const pMessages = require('../messages/pMessages')
+const appData = require('../utils/appData')
 
 let requestThreeDSServerConfig = () => {
 
@@ -14,11 +17,10 @@ let requestThreeDSServerConfig = () => {
         .then((response) => response.json())
         .then((response) => {
             if (response) {
-                if (!appData.checkThreeDSVersion(response.messageVersion)) { return { 'status': 'ko' } }
+                if (!utils.checkThreeDSVersion(response.messageVersion)) { return utils.jsonError('Version not compatible') }
 
                 console.log("\n3DS SERVER: RECIEVED A PRES:");
-                console.log(JSON.stringify(response));
-                
+                console.log(response);
 
                 if (!response.cardRangeData) { // TODO check and log where does it pass
                     appData.data.isCarRanges = false

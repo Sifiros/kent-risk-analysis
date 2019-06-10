@@ -4,6 +4,7 @@ import json
 import enum
 from http.server import HTTPServer
 from AcsHttpRequestHandler import AcsHttpRequestHandler
+from transaction import TransactionController
 from AcsPacketFactory import AcsPacketFactory
 
 class AccessControlServer(HTTPServer):
@@ -11,6 +12,7 @@ class AccessControlServer(HTTPServer):
         self.m_ip = ip
         self.m_port = port
 
+        self.transaction_ctrl = TransactionController()
         self.m_request_list = {}
         HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))
@@ -27,15 +29,15 @@ class AccessControlServer(HTTPServer):
 
     def on_aReq_packet_received(self, handler, packet):
         self.m_request_list[packet["threeDSServerTransID"]] = handler
-        # TODO : Send packet to TransactionController for AI analysis
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_gReq_packet_received(self, handler, packet):
-        # TODO : Send packet to TransactionController to hydrate AI dataset
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
         handler.send_complete_response(200, json.dumps(AcsPacketFactory.get_gResp_packet()))
 
     def on_sReq_packet_received(self, handler, packet):
         self.m_request_list[packet["threeDSServerTransID"]] = handler
-        # TODO : Send packet to TransactionController for Chall validation
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)        
 
     ##### TransactionController callbacks #####
     

@@ -12,5 +12,6 @@ let acsAddr = () => {
 
 module.exports = {
     port,
-    origin
+    origin,
+    acsAddr
 }
