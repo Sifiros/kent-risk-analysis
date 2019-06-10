@@ -5,7 +5,7 @@ import json
 class AcsPacketFactory():
 
     @staticmethod
-    def get_PResp_packet(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
+    def get_pResp_packet(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
         pRest_packet = {
             "messageType": "PRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
@@ -26,7 +26,7 @@ class AcsPacketFactory():
         return pRest_packet
 
     @staticmethod
-    def get_AResp_packet(threeDSServerTransID, acsTransID, transStatus, acsChallengeMandated, acsURL, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', 
+    def get_aResp_packet(threeDSServerTransID, transStatus, acsChallengeMandated, acsURL, acsTransID='d7c1ee99-9478-44a6-b1f2-391e29c6b340', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', 
     acsReferenceNumber='3DS_LOA_ACS_PPFU_020100_00009', acsOperatorID='AcsOpId 4138359541', dsReferenceNumber='DS_LOA_DIS_PPFU_020100_00010',
     authenticationType='01', messageVersion='2.1.0'):
         aResp_packet = {
@@ -43,10 +43,10 @@ class AcsPacketFactory():
             "acsURL": acsURL, # Fully qualified URL of the ACS to be used for the challenge
             "authenticationType": authenticationType # Irrelevant
         }
-        return json.dumps(aResp_packet)
+        return aResp_packet
 
     @staticmethod
-    def get_CResp_packet(threeDSServerTransID, acsTransID, challengeCompletionInd, messageVersion='2.1.0'):
+    def get_cResp_packet(threeDSServerTransID, challengeCompletionInd, acsTransID='d7c1ee99-9478-44a6-b1f2-391e29c6b340', messageVersion='2.1.0'):
         cResp_packet = {
             "messageType": "CRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
@@ -58,7 +58,7 @@ class AcsPacketFactory():
         return cResp_packet
 
     @staticmethod
-    def get_SResp_packet(isValid):
+    def get_sResp_packet(isValid):
         sResp_packet = {
             "messageType": "SRes",
             "isValid": isValid
@@ -66,13 +66,9 @@ class AcsPacketFactory():
         return sResp_packet
 
     @staticmethod
-    def get_CFReq_packet():
-        pass
-
-    @staticmethod
-    def get_hcResp_packet():
+    def get_hResp_packet():
         hcResp_packet = {
-            "messageType": "HCRes"
+            "messageType": "HRes"
         }
         return hcResp_packet
     
@@ -86,12 +82,24 @@ class AcsPacketFactory():
     @staticmethod
     def get_gResp_packet():
         gRest_packet = {
-            "messageType": "GRes"
+            "messageType": "GRes",
+            "status": True
         }
+        return gRest_packet
 
     @staticmethod
-    def get_RReq_packet(threeDSServerTransID, acsTransID, transStatus, acsRenderingType={"acsInterface": "01","acsUiTemplate": "01"}, authenticationMethod='02',
-        authenticationType='02', authenticationValue='MTIzNDU2Nzg5MDA5ODc2NTQzMjE=', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', interactionCounter='02',
+    def get_notification_method_url_packet(threeDSTransID):
+        nmu_packet  = {
+            "methodStatus": "ok",
+            "threeDSTransID": threeDSTransID
+        }
+        return nmu_packet
+
+
+
+    @staticmethod
+    def get_rReq_packet(threeDSServerTransID, transStatus, acsTransID='d7c1ee99-9478-44a6-b1f2-391e29c6b340', acsRenderingType={"acsInterface": "01","acsUiTemplate": "01"}, authenticationMethod='02',
+    authenticationType='02', authenticationValue='MTIzNDU2Nzg5MDA5ODc2NTQzMjE=', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', interactionCounter='02',
         messageCategory='01', messageVersion='2.1.0'):
         rReq_packet = {
             "messageType": "RReq",
@@ -111,8 +119,8 @@ class AcsPacketFactory():
         return rReq_packet
 
     @staticmethod
-    def get_error_packet(threeDSServerTransID, acsTransID, errorCode, errorDescription, errorMessageType, errorDetail=None, 
-    dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', messageVersion='2.1.0'):
+    def get_error_packet(threeDSServerTransID, errorCode, errorDescription, errorMessageType, errorDetail=None, 
+    acsTransID='d7c1ee99-9478-44a6-b1f2-391e29c6b340', dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', messageVersion='2.1.0'):
         error_packet = {
             "messageType": "Erro",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
