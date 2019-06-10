@@ -12,13 +12,12 @@ class AccessControlServer(HTTPServer):
         self.m_ip = ip
         self.m_port = port
 
+        self.transaction_ctrl = TransactionController()
         self.m_request_list = {}
         self.m_long_polling_request_list = {}
         HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
         print('Launching ACS HTTP server on ' + str(self.m_ip) + ':' + str(self.m_port))
         self.serve_forever()
-
-        self.transaction_ctrl = TransactionController()
 
     def post_data_to_endpoint(self, url, data):
         json = data
@@ -31,12 +30,14 @@ class AccessControlServer(HTTPServer):
 
     def on_aReq_packet_received(self, handler, packet):
         self.m_request_list[packet["threeDSServerTransID"]] = handler
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_cReq_packet_received(self, handler, packet):
         self.m_long_polling_request_list[packet["threeDSServerTransID"]] = handler
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)        
 
     def on_hReq_packet_received(self, handler, packet):
-        pass
+        self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_sReq_packet_received(self, handler, packet):
         pass

@@ -33,7 +33,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.server.on_aReq_packet_received(self, packet)
         elif self.path == '/challrequest':
             self.server.on_cReq_packet_received(self, packet)
-        elif self.path == '/harverstrequest':
+        elif self.path == '/harvestrequest':
             self.server.on_hReq_packet_received(self, packet)
         elif self.path == '/harvestcontent':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hcResp_packet()))

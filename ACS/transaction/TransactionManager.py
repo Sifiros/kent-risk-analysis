@@ -29,9 +29,9 @@ class TransactionManager():
             cur_state = self.transaction.state
             if not self.is_running:
                 break
-            self.request_callbacks[cur_state](self, last_data)
+            self.request_callbacks[cur_state](last_data)
 
-        print("Transaction {} finished.".format(self.transaction_id))
+        print("Transaction {} finished.".format(self.transaction.id))
 
     # Feed data to be processed in this transaction
     def feed_data(self, body):
@@ -39,7 +39,7 @@ class TransactionManager():
 
     def on_step_completion(self, next_state, step_result=None):
         if step_result != None:
-            self.completion_callback(self, self.transaction.step, step_result)
+            self.completion_callback(self, self.transaction.state, step_result)
         # If current step has been successfully completed
         if next_state != TransactionTask.ERROR:
             self.transaction.validate_current_step()

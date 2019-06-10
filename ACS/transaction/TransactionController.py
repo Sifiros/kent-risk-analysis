@@ -17,7 +17,7 @@ class TransactionController():
             manager = TransactionManager(transaction_id, self.on_step_completion)
             self.managers[transaction_id] = manager
             # Run manager main loop inside a new thread
-            thread = Thread(target=manager.run, args=[manager])
+            thread = Thread(target=manager.run, args=[])
             thread.start()
         
         # Feed this request in the transaction
@@ -26,6 +26,6 @@ class TransactionController():
     # Callback called by a manager each time a step is completed, requiring its HTTP response
     def on_step_completion(self, manager, completed_step, result):
         print("{} has finished step {} with result {}! ".format(
-            manager.transaction_id, completed_step, result
+            manager.transaction.id, completed_step, result
         ))
         

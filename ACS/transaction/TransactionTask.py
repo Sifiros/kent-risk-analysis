@@ -1,3 +1,5 @@
+import queue
+
 class TransactionTask():
     # 1. a transaction task is created as soon as a USER_PROFILE request (coming from the harvester) initiates the transaction
     WAITING_USER_PROFILE = 1 # browser fingerprint
@@ -15,9 +17,9 @@ class TransactionTask():
     ERROR = 6
     
     def __init__(self, transaction_id):
-        self.state = WAITING_USER_PROFILE
+        self.state = TransactionTask.WAITING_USER_PROFILE
         self.id = transaction_id
-        self.data_queue = Queue()
+        self.data_queue = queue.Queue()
         self.steps_done = set()
         self.user_profile = None
         self.purchase = None
