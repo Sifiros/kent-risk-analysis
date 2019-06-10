@@ -27,16 +27,22 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(response.getvalue())
 
     def route_parser(self, packet):
+        # Preq handling - DONE
         if self.path == '/updatepres':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_PResp_packet(packet["threeDSServerTransID"])))
-        elif self.path == '/authrequest':
-            self.server.on_aReq_packet_received(self, packet)
-        elif self.path == '/challrequest':
-            self.server.on_cReq_packet_received(self, packet)
-        elif self.path == '/harverstrequest':
-            self.server.on_hReq_packet_received(self, packet)
+        # Hreq handling (harvester html code) - DONE
         elif self.path == '/harvestcontent':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hcResp_packet()))
+        # Greq handling (harvester data)
+        elif self.path == '/harvestrequest':
+            self.server.on_gReq_packet_received(self, packet)
+        # Areq handling
+        elif self.path == '/authrequest':
+            self.server.on_aReq_packet_received(self, packet)
+        # Creq handling
+        elif self.path == '/challrequest':
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_html_cResp_packet()))
+        # Sreq handling
         elif self.path == '/challsubmition':
             self.server.on_sReq_packet_received(self, packet)
         else:
