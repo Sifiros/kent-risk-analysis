@@ -5,7 +5,6 @@ const threeDSComponent      = require('./threeDSComponent')
 const clientData            = require('../utils/appData').clientdata
 const router                = express.Router()
 
-
 //handler the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
     if (!request.body || !request.body.cc_number) {
@@ -51,9 +50,11 @@ router.post('/pay', (request, response) => {
     }
 
     userData.paymentData = checkeddData
-    console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST");
+    userData.response = response
+    console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
 
-    threeDSComponent.startThreeDSProtocole(checkeddData, response) // TODO lancer depuis le threeDSComponent le 1er Areq et faire le handler qui attend le 3DSMEthodNotification
+    // ca existe pas (je crois)
+    // threeDSComponent.startThreeDSProtocole(checkeddData, response) // TODO lancer depuis le threeDSComponent le 1er Areq et faire le handler qui attend le 3DSMEthodNotification
 
 })
 
@@ -90,4 +91,26 @@ router.post('/requestConfirmation', (request, response) => {
     userData.confirmationResponse = response
     clients.push(userData)
     return
+})
+
+router.post('/notification', (request, response) => {
+    if (!request && !request.body) {
+        response.json({
+            'status': 'ko',
+            'message': 'request failed'
+        })
+        console.log('NOTIFICATION: REQUEST FAILED');
+        return
+    }
+
+    console.log('\nNOTIFICATION: RECIEVED: CRES :');
+    console.log(request.body);
+    
+    // ici il est probable qu'on doive repondre au client pour confirmer tout TODO
+
+    response.json({
+        'status': 'ok',
+        'message': 'ok'
+    })
+
 })

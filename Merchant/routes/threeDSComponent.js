@@ -1,12 +1,17 @@
 const fetch         = require('node-fetch')
 const express       = require('express')
+const config        = require('../config')
+const utils         = require('../utils/utils')
 const clientData    = require('../utils/appData').clientdata
+const threeDSUtils  = require('../process/threeDSUtils')
 const aRequests     = require('../messages/aRequests')
+const rMessages     = require('../messages/pMessages')
+const eMessages     = require('../messages/protocolError')
 const router        = express.Router()
 
 let startAuthentication = (aReq) => {
 
-    return threeDSSServerData.AResponseHeader = fetch(appData.baseUrl + '/ds/authrequest', {
+    return threeDSSServerData.AResponseHeader = fetch(config.acsAddr + '/authrequest', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -17,7 +22,7 @@ let startAuthentication = (aReq) => {
 
 let getAresStatus = (response) => {
 
-    if (!appData.checkThreeDSVersion(response.messageVersion)) { return 'Bad Version' }
+    if (!utils.checkThreeDSVersion(response.messageVersion)) { return 'Bad Version' }
     if (response.messageType == 'Erro') { return 'Error' }
     else if (response.transStatus == 'C') { return 'Challenge' }
     else if (response.transStatus == 'Y') { return 'Authentified' }
@@ -45,19 +50,19 @@ let doStartAuthentication = (updatedAreq, oldResponse) => {
                     threeDSUtils.respondWithError('Bad version', oldResponse, authStatus)
                     break;
                 case 'Challenge':
-                    threeDSUtils.respondChallenge(response, oldResponse, authStatus);
+                    threeDSUtils.aResponseToBrowser(response, oldResponse, authStatus);
                     break;
                 case 'Authentified':
-                    threeDSUtils.respondAuthentified(response, oldResponse, authStatus); // OK
+                    threeDSUtils.aResponseToBrowser(response, oldResponse, authStatus); // OK
                     break;
                 case 'Attempt':
-                    threeDSUtils.respondAttempt(response, oldResponse, authStatus); // Tentative d'auth, on connais pas le résultat mais ça passe il est auth
+                    threeDSUtils.aResponseToBrowser(response, oldResponse, authStatus); // Tentative d'auth, on connais pas le résultat mais ça passe il est auth
                     break;
                 case 'NonAuth': // KO
-                    threeDSUtils.respondNop(response, oldResponse, authStatus);
+                    threeDSUtils.aResponseToBrowser(response, oldResponse, authStatus);
                     break;
                 default:
-                    threeDSUtils.respondWithError(response, oldResponse, authStatus);
+                    threeDSUtils.aResponseToBrowser(response, oldResponse, authStatus);
                     break;
             }
         })
@@ -93,19 +98,19 @@ let startTransaction = (clientData, response) => {
     }
 
     let updatedAreq = getUpdatedAreq(clientData.paymentData, clientData.threeDSServerTransID)
+
+    if (updatedAreq.status === 'ko') { response.json(updatedAreq); return }
+    if (!utils.isCreditCardInRange(request.body.cc_number)) { response.json(utils.jsonError('Credit card number is not in 3DS2 range')); return }
+    if (!utils.checkThreeDSVersion(updatedAreq.messageVersion)) { response.json(utils.jsonError('Not compatible version')); return }
+
     if (clientData.methodStatus == 'ok') {
         updatedAreq.threeDSCompInd = 'Y'
     }
 
     console.log("\n3DS SERVER: RECIEVED INITIAL PAYMENT REQUEST FROM MERCHANT");
 
-    if (updatedAreq.status === 'ko') { response.json(updatedAreq); return }
-    if (!utils.isCreditCardInRange(request.body.cc_number)) { response.json(utils.jsonError('Credit card number is not in 3DS2 range')); return }
-    if (!appData.checkThreeDSVersion(updatedAreq.messageVersion)) { response.json(utils.jsonError('Not compatible version')); return }
-
     doStartAuthentication(updatedAreq, response)
 }
-
 
 //
 // Handle the 3DS Method Notification request and set methodStatus to 'Y' if OK
@@ -119,7 +124,60 @@ router.post('/notificationMethod', (request, response) => {
 
     clientData.isMethodComplete = request.body.methodStatus
     clientData.threeDSServerTransID = request.body.threeDSServerTransID
-    startTransaction(clientData, response)
+    startTransaction(clientData, clientData.response)
 
     response.json({ 'status': 'ok' })
+})
+
+//
+// Handle the RREq and return a RREs
+//
+router.post('/resrequest', (request, response) => {
+
+    let Rres = rMessages.getRResponse()
+    let eMessage = eMessages.getGenericFormatError()
+    eMessage.errorMessageType = 'RReq'
+
+    if (request && request.body) {
+        if (!utils.checkThreeDSVersion(request.body.messageVersion)) {
+            eMessage.errorDescription = 'Bad version'
+            response.json(eMessage)
+            return
+        } else if (request.body.messageType !== 'RReq') {
+            response.json(utils.jsonError('Wrong messageType'))
+            return
+        }
+
+        console.log("\n3DS SERVER: RECIEVED RREQ, CHECKING AND SENDING BACK RRES:");
+        console.log(request.body);
+
+        (request.body.transStatus === 'Y' || request.body.transStatus === 'A') ? Rres.resultsStatus = '00' : Rres.resultsStatus = '01'
+        Rres.threeDSServerTransID = request.body.threeDSServerTransID
+
+        response.json(Rres)
+        return
+    }
+
+    eMessage.errorDescription = 'Request failed, missing body'
+    response.json(eMessage)
+})
+
+router.post('/challresponse', (request, response) => {
+
+    let eMessage = eMessages.getGenericFormatError()
+    eMessage.errorMessageType = "Cres"
+
+    if (!request && !request.body) {
+        eMessage.errorDescription = "Body not found / request failed"
+        response.json(eMessage)
+        return
+    } else if (!utils.checkThreeDSVersion(request.body.messageVersion)) {
+        eMessage.errorDescription = "Not supported version"
+        response.json(eMessage)
+        return
+    }
+
+    console.log("\nCRES RECIEVED BY 3DSSERVER\nTRANSACTION COMPLETE");
+
+    response.json({'status': 'ok'})
 })
