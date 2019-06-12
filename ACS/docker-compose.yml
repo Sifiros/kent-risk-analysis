@@ -11,9 +11,11 @@
       - redis
     volumes:
       - .:/app/
+    ports:
+      - 8484:8484
     environment:
-      - HTTP_HOST="localhost"
+      - HTTP_HOST=0.0.0.0
       - HTTP_PORT=8484
-      - REDIS_HOST="redis"
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PYTHONUNBUFFERED=1
