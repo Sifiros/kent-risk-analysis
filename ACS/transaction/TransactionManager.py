@@ -1,5 +1,5 @@
 from .TransactionTask import TransactionTask
-from AcsPacketFactory import AcsPacketFactory
+from acs import AcsPacketFactory
 
 # Manage each requests part of the transaction until its entire completion
 # run() is the main loop blocking until reaching state VALIDATED or ABORTED
