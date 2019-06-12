@@ -61,7 +61,6 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     def send_response(self, transaction_id, packet):
         if packet["messageType"] == "ARes":
             # Send Ares Response
-            print(self.get_transaction_from_list(transaction_id).client_address)
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
             # Then if the current transaction does not need auth chall, post final resul request
             if packet["transStatus"] == "Y":
@@ -74,6 +73,3 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             # Chall failed, send Sres to notify client
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
             self.remove_entry_from_transaction_list(transaction_id)
-
-if __name__ == "__main__":
-    AccessControlServer('localhost', 8484)
