@@ -1,4 +1,5 @@
 from .TransactionTask import TransactionTask
+from AcsPacketFactory import AcsPacketFactory
 
 # Manage each requests part of the transaction until its entire completion
 # run() is the main loop blocking until reaching state VALIDATED or ABORTED
@@ -22,20 +23,11 @@ class TransactionManager():
         self.transaction.state = TransactionTask.ABORTED
         self.feed_data(None)
 
-    def run(self):
-        while self.is_running:
-            # Wait for data
-            last_data = self.transaction.get_data()
-            cur_state = self.transaction.state
-            if not self.is_running:
-                break
-            self.request_callbacks[cur_state](last_data)
-
-        print("Transaction {} finished.".format(self.transaction.id))
-
-    # Feed data to be processed in this transaction
-    def feed_data(self, body):
-        self.transaction.feed_data(body)
+    def process(self, packet):
+        cur_state = self.transaction.state
+        if not self.is_running:
+            return
+        self.request_callbacks[cur_state](packet)
 
     def on_step_completion(self, next_state, step_result=None):
         if step_result != None:
@@ -60,7 +52,7 @@ class TransactionManager():
         print(purchase_info)
         print("Running AI")
         print("A chal is needed")
-        checking_result = None # is a challenge needed ? 
+        checking_result = AcsPacketFactory.get_aResp_packet(self.transaction.id, "C", "Y",  "") # is a challenge needed ? TODO : complete it with good data
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED

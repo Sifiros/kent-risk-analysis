@@ -17,12 +17,9 @@ class TransactionController():
             # First request, body must be the auth request (with user profile)
             manager = TransactionManager(transaction_id, self.on_step_completion)
             self.managers[transaction_id] = manager
-            # Run manager main loop inside a new thread
-            thread = Thread(target=manager.run, args=[])
-            thread.start()
         
         # Feed this request in the transaction
-        self.managers[transaction_id].feed_data(body)
+        self.managers[transaction_id].process(body)
         
     # Callback called by a manager each time a step is completed, requiring its HTTP response
     def on_step_completion(self, manager, completed_step, result):
