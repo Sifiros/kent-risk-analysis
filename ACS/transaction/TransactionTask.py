@@ -15,6 +15,7 @@ class TransactionTask():
     VALIDATED = 4 # challenge validated 
     ABORTED = 5 # Aborted
     ERROR = 6
+    END = 7
     
     def __init__(self, transaction_id):
         self.state = TransactionTask.WAITING_USER_PROFILE

@@ -74,6 +74,3 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             # Chall failed, send Sres to notify client
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
             self.remove_entry_from_transaction_list(transaction_id)
-
-if __name__ == "__main__":
-    AccessControlServer('localhost', 8484)

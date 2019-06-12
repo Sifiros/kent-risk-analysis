@@ -1,0 +1,19 @@
+  redis:
+    image: redis
+    volumes:
+      - ./data:/data/
+    ports:
+      - "6379:6379"
+
+  acs:
+    build: .
+    links:
+      - redis
+    volumes:
+      - .:/app/
+    environment:
+      - HTTP_HOST="localhost"
+      - HTTP_PORT=8484
+      - REDIS_HOST="redis"
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1

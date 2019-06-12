@@ -1,5 +1,6 @@
 from .TransactionTask import TransactionTask
 from acs import AcsPacketFactory
+from Database import database
 
 # Manage each requests part of the transaction until its entire completion
 # run() is the main loop blocking until reaching state VALIDATED or ABORTED
@@ -52,7 +53,10 @@ class TransactionManager():
         print(purchase_info)
         print("Running AI")
         print("A chal is needed")
+        database.append_user_fingerprint(purchase_info["acctNumber"], self.transaction.user_profile)
+        fingerprints = database.get_user_fingerprints(purchase_info["acctNumber"])
         checking_result = AcsPacketFactory.get_aResp_packet(self.transaction.id, "C", "Y",  "") # is a challenge needed ? TODO : complete it with good data
+
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED
