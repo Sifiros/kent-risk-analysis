@@ -1,4 +1,5 @@
 from .TransactionTask import TransactionTask
+from Database import database
 
 # Manage each requests part of the transaction until its entire completion
 # run() is the main loop blocking until reaching state VALIDATED or ABORTED
@@ -23,6 +24,7 @@ class TransactionManager():
         self.feed_data(None)
 
     def run(self):
+        print("Beginning transaction {}".format(self.transaction.id))
         while self.is_running:
             # Wait for data
             last_data = self.transaction.get_data()
@@ -31,6 +33,7 @@ class TransactionManager():
                 break
             self.request_callbacks[cur_state](last_data)
 
+        self.completion_callback(self, TransactionTask.END, None)
         print("Transaction {} finished.".format(self.transaction.id))
 
     # Feed data to be processed in this transaction
@@ -60,7 +63,13 @@ class TransactionManager():
         print(purchase_info)
         print("Running AI")
         print("A chal is needed")
+
         checking_result = None # is a challenge needed ? 
+        user_id = purchase_info["acctNumber"]
+        database.append_user_fingerprint(user_id, self.transaction.user_profile)
+        fingerprints = database.get_user_fingerprints(user_id)
+        print("ALL FINGERPRINTS")
+        print(str(fingerprints))
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED

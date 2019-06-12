@@ -1,4 +1,5 @@
 from threading import Thread
+from .TransactionTask import TransactionTask
 from .TransactionManager import TransactionManager
 
 # This class handles a list of TransactionManager threads, each responsible of 1 current transaction
@@ -25,6 +26,10 @@ class TransactionController():
         
     # Callback called by a manager each time a step is completed, requiring its HTTP response
     def on_step_completion(self, manager, completed_step, result):
+        if completed_step == TransactionTask.END:
+            del self.managers[manager.transaction.id]
+            return
+
         print("{} has finished step {} with result {}! ".format(
             manager.transaction.id, completed_step, result
         ))

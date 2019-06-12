@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-
 import json
 import enum
 from http.server import HTTPServer
@@ -54,6 +53,3 @@ class AccessControlServer(HTTPServer):
 
     def remove_entry_from_transaction_list(self, transaction_id):
         self.m_request_list.pop(transaction_id, None)
-
-if __name__ == "__main__":
-    AccessControlServer('localhost', 8484)
