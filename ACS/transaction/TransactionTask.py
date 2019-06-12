@@ -19,18 +19,9 @@ class TransactionTask():
     def __init__(self, transaction_id):
         self.state = TransactionTask.WAITING_USER_PROFILE
         self.id = transaction_id
-        self.data_queue = queue.Queue()
         self.steps_done = set()
         self.user_profile = None
         self.purchase = None
-
-    # Append data to be processed in the queue
-    def feed_data(self, data):
-        self.data_queue.put(data)
-
-    # Get data to be processed
-    def get_data(self):
-        return self.data_queue.get(block=True)
 
     # Assigns current step to steps_done
     def validate_current_step(self):

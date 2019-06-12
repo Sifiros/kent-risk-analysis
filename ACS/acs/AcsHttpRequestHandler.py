@@ -3,9 +3,8 @@
 import json
 from io import BytesIO
 from http.server import BaseHTTPRequestHandler
-from AcsPacketFactory import AcsPacketFactory
-from AcsUtils import UuidUtils
-from AcsHttpSender import AcsHttpSender
+from .AcsPacketFactory import AcsPacketFactory
+from .AcsHttpSender import AcsHttpSender
 
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
