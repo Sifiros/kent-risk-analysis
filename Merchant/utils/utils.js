@@ -9,8 +9,9 @@ let doPOST = (url, data, mime = 'application/json') => {
             'Content-Type': mime
         },
         body: JSON.stringify(data)
-    }).then((response) => response.json())
-        .then((response) => response)
+    })
+    .then((response) => response.json())
+    .then((response) => response)
 }
 
 let jsonError = (message) => {

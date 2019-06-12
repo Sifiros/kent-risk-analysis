@@ -1,14 +1,15 @@
-const fetch = require('node-fetch')
-const config = require('../config')
-const utils = require('../utils/utils')
-const pMessages = require('../messages/pMessages')
-const appData = require('../utils/appData')
+const fetch         = require('node-fetch')
+const config        = require('../config')
+const utils         = require('../utils/utils')
+const pMessages     = require('../messages/pMessages')
+const appData       = require('../utils/appData')
+const userData      = require('../utils/appData').clientdata
 
 let get3DSMethod = (cc_number) => {
 
     let methodData = {}
     methodData.status = 'ok'
-    pRes = appData.PResponseHeader;
+    pRes = appData.PResponseHeader
     methodData.threeDSMethodURL = null
 
     if (!cc_number) {
@@ -27,6 +28,7 @@ let get3DSMethod = (cc_number) => {
     }
 
     methodData.threeDSServerTransID = uuidv1()
+    userData.threeDSServerTransID = methodData.threeDSServerTransID
     methodData.notificationMethodURL = appData.baseUrl + '/threedscomponent/notificationMethod'
     return new Promise(provide => provide(methodData))
 }
@@ -58,7 +60,34 @@ let requestThreeDSServerConfig = () => {
         })
 }
 
+let aResponseToBrowser = (aRes, response, what) => {
+    let finalResponse = {}
+
+    finalResponse.what = what
+    finalResponse.data = aRes
+    response.json(finalResponse)
+}
+
+let respondWithError = (why, response, what) => {
+    let finalResponse = {}
+
+    if (why === 'Bad Version') {
+        errResponse = threeDSError.getGenericFormatError()
+        errResponse.errorMessageType = "Areq"
+        errResponse.errorDescription = "Bad version"
+        finalResponse.what = what
+        finalResponse.data = errResponse
+        response.json(final)
+    } else {
+        finalResponse.what = what
+        finalResponse.data = why
+        response.json(finalResponse)
+    }
+}
+
 module.exports = {
     requestThreeDSServerConfig,
-    get3DSMethod
+    get3DSMethod,
+    aResponseToBrowser,
+    respondWithError
 }

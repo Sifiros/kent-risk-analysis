@@ -1,7 +1,9 @@
-const express = require('express')
-const utils = require('../utils/utils')
-const threeDSUtils = require('../process/threeDSUtils')
-const router = express.Router()
+const express               = require('express')
+const utils                 = require('../utils/utils')
+const threeDSUtils          = require('../process/threeDSUtils')
+const threeDSComponent      = require('./threeDSComponent')
+const clientData            = require('../utils/appData').clientdata
+const router                = express.Router()
 
 //handler the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
@@ -11,10 +13,48 @@ router.post('/init', (request, response) => {
     }
     threeDSUtils.get3DSMethod(request.body.cc_number)
         .then((formData) => response.json(formData))
+        .catch((error) => response.json(error))
 })
+
+let checkPaymentData = (body) => {
+    if (!body.cc_number || !body.email ||
+        !body.cvv || !body.cc_date ||
+        !body.price || !body.name ||
+        !body.postcode || !body.city_name ||
+        !body.phone_number || !body.address ||
+        !body.threeDSServerTransID) {
+        return {
+            'status': 'ko',
+            'message': 'missing one or more field'
+        }
+    }
+    body.status = 'ok'
+    return body
+}
 
 // Payment route
 router.post('/pay', (request, response) => {
+
+    if (!request || !request.body) {
+        response.json({
+            'status': 'ko',
+            'message': 'Missing cc_number, date, price or cvv field'
+        })
+        return
+    }
+
+    let checkeddData = checkPaymentData(request.body)
+    if (checkeddData.status === 'ko') {
+        response.json(checkeddData)
+        return
+    }
+
+    userData.paymentData = checkeddData
+    userData.response = response
+    console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
+
+    // ca existe pas (je crois)
+    // threeDSComponent.startThreeDSProtocole(checkeddData, response) // TODO lancer depuis le threeDSComponent le 1er Areq et faire le handler qui attend le 3DSMEthodNotification
 
 })
 
@@ -27,7 +67,6 @@ router.post('/notification', (request, response) => {
     }
 
     console.log('\nNOTIFICATION: RECIEVED: CRES :');
-
     console.log(request.body);
     
     let userData = search.getUserWithoutAresByTransID(request.body.acsTransID, clients)
@@ -39,7 +78,6 @@ router.post('/notification', (request, response) => {
         'status': 'ok',
         'message': 'ok'
     })
-
 })
 
 // save the response for afterCres confirmation
@@ -53,4 +91,26 @@ router.post('/requestConfirmation', (request, response) => {
     userData.confirmationResponse = response
     clients.push(userData)
     return
+})
+
+router.post('/notification', (request, response) => {
+    if (!request && !request.body) {
+        response.json({
+            'status': 'ko',
+            'message': 'request failed'
+        })
+        console.log('NOTIFICATION: REQUEST FAILED');
+        return
+    }
+
+    console.log('\nNOTIFICATION: RECIEVED: CRES :');
+    console.log(request.body);
+    
+    // ici il est probable qu'on doive repondre au client pour confirmer tout TODO
+
+    response.json({
+        'status': 'ok',
+        'message': 'ok'
+    })
+
 })

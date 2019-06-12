@@ -1,0 +1,4 @@
+Le server qui recoit la notif URL est le meme que celui qui initie le payment donc pas besoin de long polling pour recup l'info apres la 3dsMethodNotification Request
+
+Le 2eme notification URL est sent apres que le challenge soit recu et que le RRes ai été recu. Elle recoit un Cres qui est passé en reponse au submit du challenge
+par l'ACS et envoyée par le browser du client vers ladite notificationURL

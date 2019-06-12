@@ -1,7 +1,9 @@
 let PResponseHeader = {};
 let AResponseHeader = {};
+let clientdata = {};
 
 module.exports = {
     PResponseHeader,
-    AResponseHeader
+    AResponseHeader,
+    clientdata
 }
