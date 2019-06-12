@@ -1,6 +1,8 @@
 #!/usr/local/bin/python3
+
 import requests
-from acs import AcsPacketFactory
+
+from .AcsPacketFactory import AcsPacketFactory
 
 class AcsHttpSender():
     @staticmethod
