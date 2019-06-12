@@ -1,0 +1,30 @@
+footer {
+    background-color: #212121;
+    color: white;
+    padding: 50px 0;
+    position:absolute;
+    left:0;
+    bottom:0;
+    right:0;
+}
+footer.h4 {
+    font-weight: 400;
+    margin: 0 0 14px 0;
+    font-size: .95em;
+}
+footer.linkList {
+    width: 200px;
+    padding: 14px;
+    border-right: 1px solid #444;
+  }
+footer.row {
+    display: flex;
+}
+footer.span {
+    display: block;
+    opacity: .5;
+    font-size: .9em;
+    font-weight: 300;
+    margin: 4px 0;
+    transition: .2s opacity ease;
+}

@@ -36,10 +36,8 @@ let getAllInfo = (uaparser, deployJava) => {
 
     info.plugins = []                                                   //end format : ["name1", "name2", "name3"]
     let plugins = navigator.plugins                                     //or empty array if no detected plugin
-    if (plugins.length) {
-        plugins.forEach(plugin => {
-            info.plugins.push(plugin.name)
-        });
+    for (i = 0; i < plugins.length; i++) {
+        info.plugins.push(plugin[i].name)
     }
     info.timezoneOffset = new Date().getTimezoneOffset()                //end format : plain value (can be negative)
 
@@ -64,5 +62,5 @@ let getAllInfo = (uaparser, deployJava) => {
             info.accepted_charset = body['accept-charset'] || ""            //end format : "charset(;q=poids),charset(;q=poids)"                //will usually be empty
             console.log(info)
         })
-    info.javaVersion = deployJava.getJREs()
+    info.javaVersions = deployJava.getJREs()
 }

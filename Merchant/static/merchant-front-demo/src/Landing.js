@@ -2,10 +2,11 @@ import React, {Fragment}  from 'react';
 import ProductList from './ProductList';
 import HeaderBar from './HeaderBar';
 import CheckoutForm from './CheckoutForm';
+import Footer from './Footer';
 
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0})
-  var [checkoutStatus, setCheckoutStatus] = React.useState(true)
+  var [checkoutStatus, setCheckoutStatus] = React.useState(false)
 
   function addToCart(prod) {
     cart.total += prod.price
@@ -23,6 +24,7 @@ function Landing() {
       <Fragment>
           <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
           <CheckoutForm/>
+          <Footer/>
       </Fragment>
     );
   } else {
@@ -30,6 +32,7 @@ function Landing() {
       <Fragment>
           <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
           <ProductList addToCart={addToCart}/>
+          <Footer/>
       </Fragment>
     );
   }
