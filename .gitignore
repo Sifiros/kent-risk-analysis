@@ -1,2 +1,4 @@
 /ACS/AcsVenv
 /ACS/__pycache__/
+/ACS/.vscode/
+**/*.pyc
