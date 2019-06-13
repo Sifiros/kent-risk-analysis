@@ -181,3 +181,5 @@ router.post('/challresponse', (request, response) => {
 
     response.json({'status': 'ok'})
 })
+
+module.exports = router

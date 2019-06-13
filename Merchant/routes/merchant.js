@@ -114,3 +114,5 @@ router.post('/notification', (request, response) => {
     })
 
 })
+
+module.exports = router

@@ -2,7 +2,7 @@ const validator = require('validator')
 const fetch = require('node-fetch')
 const config = require('../config')
 
-let doPOST = (url, data, mime = 'application/json') => {
+let doPost = (url, data, mime = 'application/json') => {
     return fetch(config.origin() + url, {
         method: 'POST',
         headers: {

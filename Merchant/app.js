@@ -16,7 +16,7 @@ app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'static')));
 
 app.use('/merchant', merchantroute)
-app.use('/threeDSComponent', threedscomponent)
+app.use('/threeDSComponent', threeDSroute)
 
 app.listen(port)
 

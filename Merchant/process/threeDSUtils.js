@@ -35,7 +35,7 @@ let get3DSMethod = (cc_number) => {
 
 let requestThreeDSServerConfig = () => {
 
-    return threeDSSServerData.PResponseHeader = fetch(config.acsAddr() + '/updatepres', {
+    return appData.PResponseHeader = fetch(config.acsAddr() + '/updatepres', {
         method: 'POST',
         credentials: 'none',
         headers: {
