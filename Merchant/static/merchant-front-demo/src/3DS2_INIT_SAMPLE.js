@@ -48,7 +48,7 @@ let startThreeDSProtocol= (trans_details) => {
 }
 
 //disable automation concerning the auth Iframe
-$.featherlight.autoBind = false
+window.$.featherlight.autoBind = false
 
 // Iframe param object
 let defaults = {
@@ -69,14 +69,14 @@ let defaults = {
     loading: "",
     persist: false,
     otherClose: null,
-    beforeOpen: $.noop,
-    beforeContent: $.noop,
-    beforeClose: $.noop,
-    afterOpen: $.noop,
-    afterContent: $.noop,
-    afterClose: $.noop,
-    onKeyUp: $.noop,
-    onResize: $.noop,
+    beforeOpen: () => {},
+    beforeContent: () => {},
+    beforeClose: () => {},
+    afterOpen: () => {},
+    afterContent: () => {},
+    afterClose: () => {},
+    onKeyUp: () => {},
+    onResize: () => {},
     type: null,
     contentFilters: ["jquery", "image", "html", "ajax", "text"],
     "jquery/image/html / ajax / text": undefined,
@@ -145,7 +145,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .then((response) => response.text())
     .then((response) => {
         sendConfirmationRequest(acsTransID)
-        savedIframe = $.featherlight(response, defaults)
+        savedIframe = window.$.featherlight(response, defaults)
     })
     .catch((error) => alert(error))
 }
@@ -153,7 +153,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 // send the form to the merchant server to initiate the transaction
 let startAuthentication = (threeDSServerTransID, trans_details) => {
     
-    let paymentData = getPaymentData(trans_details)
+    let paymentData = getPaymentData(threeDSServerTransID, trans_details)
     
     // assert that all inputs are filled
     for (var key in paymentData) {

@@ -3,6 +3,7 @@ import ProductList from './ProductList';
 import HeaderBar from './HeaderBar';
 import CheckoutForm from './CheckoutForm';
 import Footer from './Footer';
+import Iframe from 'react-iframe'
 
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0})
