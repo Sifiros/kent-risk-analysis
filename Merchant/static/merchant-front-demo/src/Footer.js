@@ -4,13 +4,13 @@ import './res/Footer.css'
 const generateLinkList = config => (
   <div className="linkList">
     <h4>{config.title}</h4>
-    {config.links && config.links.map((link, i) => <span key={i}>{link}</span>)}
+    {config.links && config.links.map((link, i) => <span className="footerspan" key={i}>{link}</span>)}
   </div>
 );
 
 export default () => (
   <footer>
-    <div className="row">
+    <div className="row footerrow">
       {generateLinkList({
         title: 'Melody',
         links: ['About', 'Terms and Conditions', 'Privacy Policy', 'Contact us'],
