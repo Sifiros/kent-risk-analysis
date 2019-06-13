@@ -7,20 +7,21 @@ footer {
     bottom:0;
     right:0;
 }
-footer.h4 {
+h4 {
     font-weight: 400;
     margin: 0 0 14px 0;
     font-size: .95em;
 }
-footer.linkList {
+.linkList {
     width: 200px;
     padding: 14px;
     border-right: 1px solid #444;
   }
-footer.row {
+.footerrow {
     display: flex;
+    padding-left: 50px;
 }
-footer.span {
+.footerspan {
     display: block;
     opacity: .5;
     font-size: .9em;
