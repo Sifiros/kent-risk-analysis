@@ -13,6 +13,7 @@ const app = express()
 const port = config.port()
 
 app.use(bodyParser.json())
+app.use(express.static(path.join(__dirname, 'merchant-front-demo/build/')));
 app.use(express.static(path.join(__dirname, 'static')));
 
 app.use('/merchant', merchantroute)
