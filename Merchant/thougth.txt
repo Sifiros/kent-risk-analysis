@@ -2,3 +2,7 @@ Le server qui recoit la notif URL est le meme que celui qui initie le payment do
 
 Le 2eme notification URL est sent apres que le challenge soit recu et que le RRes ai été recu. Elle recoit un Cres qui est passé en reponse au submit du challenge
 par l'ACS et envoyée par le browser du client vers ladite notificationURL
+
+Le browser send l'init au marchand et recois la notif URL + 3DSServerTransID + la 3DSMethodURL, a la suite de ca il send la requete de payment 
+sur /pay, en meme temps on recup le html de la methode et on la charge coté client, a ce moment le server wait le call methodNotification pour lancer l'areq et
+la reponse a /pay est lancé apres le aRes et defini si challenge ou pas
