@@ -1,0 +1,140 @@
+#!/bin/python3
+import random
+import json
+
+class FeatureMeta(type):
+    def __new__(cls, name, bases, attrs):
+        method_list = [
+            'daily_update', 'set_random_value', '__str__'
+        ]
+
+        base_methods = {
+            name: getattr(cls, name) for name in method_list
+        }
+        base_methods.update(attrs)
+        base_methods['__init__'] = lambda self: self.set_random_value()
+
+        return super(FeatureMeta, cls).__new__(cls, name, bases, base_methods)
+
+    def __str__(self):
+        return self.value
+
+    def set_random_value(self):
+        self.index = random.randint(1, len(self.possible_values)) - 1
+        self.value = self.possible_values[self.index]
+
+    def daily_update(self):
+        self.index += 1
+        if self.index >= len(self.possible_values):
+            self.index = 0
+        self.value = self.possible_values[self.index]
+
+
+class AcceptedCharsetFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "utf-8, iso-8859-1;q=0.5"
+    ]
+
+class AcceptedEncodingFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "gzip, deflate"
+    ]    
+
+class AcceptedLanguagesFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3"
+    ]    
+
+class AcceptedMimeFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    ]        
+
+class DoNotTrackFeature(metaclass=FeatureMeta):
+    possible_values = [
+        True, False
+    ]
+
+class ScreenSizeFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "1920:1080"
+    ]
+        
+class PluginsFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "Adblocks"
+    ]
+        
+class TimezoneOffsetFeature(metaclass=FeatureMeta):
+    possible_values = [
+        -120
+    ]
+
+class BrowserFeature(metaclass=FeatureMeta):
+    possible_values = [
+        '{appName: "Netscape", major: "67", name: "Firefox", version: "67.0"}'
+    ]
+
+class CPUFeature(metaclass=FeatureMeta):
+    possible_values = [
+        "{ architecture: 'amd64' }"
+    ]    
+
+class DeviceFeature(metaclass=FeatureMeta):
+    possible_values = [
+        '{ vendor: OnePlus, model: "OP6", type: "mobile"}'
+    ]    
+
+class OSFeature(metaclass=FeatureMeta):
+    possible_values = [
+        '{ name: "Windows", version: "10" }'
+    ]    
+
+class ColorDepthFeature(metaclass=FeatureMeta):
+    possible_values = [
+        8,
+        16,
+        24
+    ]    
+
+
+class BrowserInstance():
+    def __init__(self):
+        self.features = {
+            'accepted_charset': AcceptedCharsetFeature(),
+            'accepted_encoding': AcceptedEncodingFeature(),
+            'accepted_mime': AcceptedMimeFeature(),
+            'accepted_languages': AcceptedLanguagesFeature(),
+            'doNotTrack': DoNotTrackFeature(),
+            'screen_size': ScreenSizeFeature(),
+            'plugins': PluginsFeature(),
+            'timezone_offset': TimezoneOffsetFeature(),
+            'browser': BrowserFeature(),
+            'cpu': CPUFeature(),
+            'device': DeviceFeature(),
+            'os': OSFeature(),
+            'color_depth': ColorDepthFeature()
+        }
+
+    def daily_update(self):
+        for feature in self.features:
+            self.features[feature].daily_update()
+        return self
+
+    def toJson(self):
+        return ({
+            key: feature.value for key, feature in self.features.items()
+        })
+
+
+def main(nb_browsers=20, nb_days=300):
+    browsers = [BrowserInstance() for _ in range(nb_browsers)]
+    for i in range(nb_days):
+        browsers = [browser.daily_update() for browser in browsers]
+
+    browsersJson = [cur.toJson() for cur in browsers]
+    print(browsersJson)
+
+if __name__ == "__main__":
+    import plac
+    plac.call(main)
