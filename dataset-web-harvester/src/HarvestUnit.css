@@ -3,7 +3,9 @@
 }
 
 button {
-    width: 80%;
+    width: 50%;
+    margin-top: 20px;
+    margin-bottom: 20px;
 } 
 
 .JsonContainer {
@@ -22,13 +24,23 @@ button {
     background-color: #F8F9FA;
 }
 
-button {
-    margin-top: 20px;
-    width: 50%;
-}
-
 .react-json-view {
     margin: auto;
     width: 50%;
     text-align: justify;
 }
+
+.ThanksContainer {
+    margin-bottom: 30px;
+}
+
+.ThanksBox {
+    margin: auto;
+    width: 80%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #F8F9FA;
+} 
