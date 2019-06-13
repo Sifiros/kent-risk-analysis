@@ -117,9 +117,9 @@ class CheckoutForm extends React.Component {
                 <label htmlFor="inputZip">Zip</label>
                 <input type="text" required="true" className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
               </div>
-              <div className="form-group col-md-2">
+              <div className="form-group col-md-12">
                 <button type="submit" className="btn btn-primary" disabled={!(this.CvvValid && this.validCreditCard && this.validExpirationDate)}>Proceed to payment</button>
-                </div>
+              </div>
             </div>
           </form>
             </div>)

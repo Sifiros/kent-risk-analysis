@@ -6,7 +6,7 @@ import Footer from './Footer';
 
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0})
-  var [checkoutStatus, setCheckoutStatus] = React.useState(false)
+  var [checkoutStatus, setCheckoutStatus] = React.useState(true)
 
   function addToCart(prod) {
     cart.total += prod.price
