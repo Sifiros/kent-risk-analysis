@@ -1,0 +1,5 @@
+Pen image from : https://pixabay.com/illustrations/ballpoint-pen-office-design-ink-3349562/
+Apple image from : https://pixabay.com/es/photos/apple-frutas-manzana-roja-vitaminas-3117507/
+Pineapple image from : https://pixabay.com/es/photos/pi%C3%B1a-fresco-frutas-tropicales-4126098/
+
+Part of the interface taken from (under MIT license): https://github.com/lyra-labs/poc-w3c-webpayments
