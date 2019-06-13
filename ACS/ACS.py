@@ -10,7 +10,6 @@ from socketserver import ThreadingMixIn
 rReq_rte = '/threeDSComponent/resrequest'
 cRes_rte = '/threeDSComponent/challresponse'
 
-
 class AccessControlServer(ThreadingMixIn, HTTPServer):
     def __init__(self, ip, port):
         self.m_ip = ip
@@ -18,6 +17,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
         self.transaction_ctrl = TransactionController(self.send_response)
         self.m_request_list = {}
+        self.m_cRes_packets_wainting = {}
 
         ThreadingMixIn.__init__(self)
         HTTPServer.__init__(self, (self.m_ip, self.m_port), AcsHttpRequestHandler)
@@ -39,6 +39,21 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         print("INFO : Removing transaction "  + transaction_id)
         self.m_request_list.pop(transaction_id, None)
 
+    def get_packet_in_cRes_packet_waiting_list(self, transaction_id):
+        if transaction_id in self.m_request_list:
+            return self.m_request_list[transaction_id]
+        else:
+            print('ERROR : Unable to find the ID ' + transaction_id + ' into cRes packet wainting list')
+            return None
+
+    def add_packet_in_cRes_packet_waiting_list(self, transaction_id, packet):
+        print("INFO : Adding wainting cRes for transaction "  + transaction_id)
+        self.m_cRes_packets_wainting[transaction_id] = packet
+
+    def remove_packet_in_cRes_packeT_waiting_list(self, transaction_id, packet):
+        print("INFO : Removing wainting cRes for transaction "  + transaction_id)
+        self.m_cRes_packets_wainting.pop(transaction_id, None)
+    
     ##### AcsHttpRequestHandler callbacks #####
 
     def on_aReq_packet_received(self, handler, packet):
@@ -57,8 +72,9 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
     def on_rRes_packet_received(self, packet):
         # rRes received, post back final response to creq
-        self.get_transaction_from_list(packet["threeDSServerTransID"]).send_complete_response(200, json.dumps("{}")) #TODO : send back final cres
+        self.get_transaction_from_list(packet["threeDSServerTransID"]).send_complete_response(200, json.dumps(self.get_packet_in_cRes_packet_waiting_list(packet["threeDSServerTransID"])))
         self.remove_entry_from_transaction_list(packet["threeDSServerTransID"])
+        self.remove_packet_in_cRes_packeT_waiting_list(packet["threeDSServerTransID"])
 
     ##### TransactionController callbacks #####
     
@@ -68,8 +84,8 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
             # Then if the current transaction does not need auth chall, post final resul request
             if packet["transStatus"] == "Y":
-                # TODO : Get final CRes here
-                AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(packet["threeDSServerTransID"], packet["transStatus"])), 10,  self.on_rRes_packet_received)
+                self.add_packet_in_cRes_packet_waiting_list(transaction_id, packet)
+                AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), 10,  self.on_rRes_packet_received)
             else:
                 self.remove_entry_from_transaction_list(transaction_id)
         elif packet["messageType"] == "CRes":
