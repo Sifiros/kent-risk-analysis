@@ -7,6 +7,10 @@ from transaction import TransactionController
 from acs import AcsPacketFactory, AcsHttpSender, AcsHttpRequestHandler
 from socketserver import ThreadingMixIn
 
+rReq_rte = '/threeDSComponent/resrequest'
+cRes_rte = '/threeDSComponent/challresponse'
+
+
 class AccessControlServer(ThreadingMixIn, HTTPServer):
     def __init__(self, ip, port):
         self.m_ip = ip
@@ -64,11 +68,13 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
             # Then if the current transaction does not need auth chall, post final resul request
             if packet["transStatus"] == "Y":
-                AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url(), json.dumps("{}"), 10,  self.on_rRes_packet_received) # TODO : send final Rreq
-            self.remove_entry_from_transaction_list(transaction_id)
+                # TODO : Get final CRes here
+                AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(packet["threeDSServerTransID"], packet["transStatus"])), 10,  self.on_rRes_packet_received)
+            else:
+                self.remove_entry_from_transaction_list(transaction_id)
         elif packet["messageType"] == "CRes":
             # Chall successful, post final Rreq and wait for its response to send final Cres
-            AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url(), json.dumps("{}"), 10,  self.on_rRes_packet_received) # TODO : post final Rreq
+            AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), 10,  self.on_rRes_packet_received)
         elif packet["messageType"] == "SRes":
             # Chall failed, send Sres to notify client
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))
