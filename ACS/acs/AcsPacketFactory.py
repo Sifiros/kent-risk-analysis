@@ -283,5 +283,17 @@ class AcsPacketFactory():
         return aReq_packet
 
     @staticmethod
+    def get_cReq_packet():
+        cReq_packet = {
+            "threeDSServerTransID": "8a880dc0-d2d2-4067-bcb1-b08d1690b26e",
+            "acsTransID": "d7c1ee99-9478-44a6-b1f2-391e29c6b340",
+            "messageType": "CReq",
+            "messageVersion": "2.1.0",
+            "sdkTransID": "b2385523-a66c-4907-ac3c-91848e8c0067",
+            "sdkCounterStoA": "001"
+        }
+        return cReq_packet
+
+    @staticmethod
     def get_json_from_packet(packet):
         return json.loads(packet)
