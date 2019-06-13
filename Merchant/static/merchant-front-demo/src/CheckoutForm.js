@@ -1,10 +1,11 @@
 import React  from 'react';
+import startThreeDSProtocol from './3DS2_INIT_SAMPLE.js'
 import './res/CheckoutForm.css'
 
 class CheckoutForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = { price: props.cart.total }
         this.CcnNumberValid = false;
         this.CcDateValid = false;
         this.CvvValid = false;
@@ -13,11 +14,12 @@ class CheckoutForm extends React.Component {
         this.handleCvvChange = this.handleCvvChange.bind(this);
         this.handleCc_numberChange = this.handleCc_numberChange.bind(this);
         this.handleCc_dateChange = this.handleCc_dateChange.bind(this);
-      }
+    }
 
     handleSubmit(event) {
         event.preventDefault();
         console.log(this.state)
+        startThreeDSProtocol(this.state)
     }
 
     validCvv(value) {
@@ -104,9 +106,15 @@ class CheckoutForm extends React.Component {
                 <input type="number" className={this.CvvValid ? "form-control" : "form-control invalid" } id="inputCCV" placeholder="666" value={this.state.cvv} onChange={this.handleCvvChange}/>
               </div>
             </div>
-            <div className="form-group col-md-12">
-              <label htmlFor="inputAddress">Address</label>
-              <input type="text" required="true" className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
+            <div className="form-row">
+              <div className="form-group col-md-9">
+                <label htmlFor="inputName">Cardholder name</label>
+                <input type="text" required="true" className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
+              </div>
+              <div className="form-group col-md-9">
+                <label htmlFor="inputAddress">Address</label>
+                <input type="text" required="true" className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
+              </div>
             </div>
             <div className="form-row">
               <div className="form-group col-md-6">

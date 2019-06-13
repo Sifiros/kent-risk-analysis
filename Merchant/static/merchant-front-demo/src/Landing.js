@@ -6,12 +6,11 @@ import Footer from './Footer';
 
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0})
-  var [checkoutStatus, setCheckoutStatus] = React.useState(true)
+  var [checkoutStatus, setCheckoutStatus] = React.useState(false)
 
   function addToCart(prod) {
-    cart.total += prod.price
     setCartTotal({...cart, 
-      [cart.total]: cart.total + prod.price
+      total: cart.total + prod.price
     })
   }
 
@@ -23,7 +22,7 @@ function Landing() {
     return (
       <Fragment>
           <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
-          <CheckoutForm/>
+          <CheckoutForm cart={cart}/>
           <Footer/>
       </Fragment>
     );

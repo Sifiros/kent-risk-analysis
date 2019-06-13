@@ -133,6 +133,8 @@ let startAuthentication = (threeDSServerTransID) => {
         })
 }
 
+export default startAuthentication;
+
 // Recieve message from Auth Iframe and 3DSMethod_URL Iframe
 // window.addEventListener("message", receiveMessage, false);
 
