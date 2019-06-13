@@ -81,6 +81,8 @@ let getAllInfo = (uaparser, deployJava) => {
         info.canvas = getCanvasFingerprint()
     }
 
+    info.colorDepth = screen.colorDepth
+
     fetch("http://10.15.190.247:9094/webauthn/test_alex", {method: 'POST'})
         .then(response =>{ return response.json()}).then(body => {
             info.accepted_mime = body['accept'] || ""                       //end format : "type/subtype(;q=poids),type/subtype(;q=poids)"      //can be a simple "*/*"
