@@ -44,7 +44,7 @@ class HarvestingUnit extends Component {
                         <Button 
                             variant="primary"
                             onClick={this.onSendButtonClicked}>
-                            Envoyer
+                            Send
                         </Button>
                     </div>
                 ) : this.state.collectionState === CollectionState.SENT ? (
