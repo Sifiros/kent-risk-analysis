@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button'
 import ReactJson from 'react-json-view'
 import HarvestedDataController from  '../Controllers/HarvestedDataController'
+import getAllInfo from '../harvester'
 import './HarvestUnit.css'
 
 let CollectionState = {
@@ -21,7 +22,7 @@ class HarvestingUnit extends Component {
     }
 
     onLaunchButtonClicked = () => {
-        // TODO : START HARVESTING AND SET THIS.JSON WITH THE RESULT
+        this.json = getAllInfo()
         this.setState({
             collectionState: CollectionState.COLLECTED
         })
