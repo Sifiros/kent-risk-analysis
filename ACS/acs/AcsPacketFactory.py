@@ -5,7 +5,7 @@ import json
 class AcsPacketFactory():
 
     @staticmethod
-    def get_pResp_packet(threeDSServerTransID, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
+    def get_pResp_packet(threeDSServerTransID, threeDSMethodURL, dsTransID='f25084f0-5b16-4c0a-ae5d-b24808a95e4b', serialNum='3q9oaApFqmznys47ujRg', messageVersion='2.1.0'):
         pRest_packet = {
             "messageType": "PRes",
             "threeDSServerTransID": threeDSServerTransID, # Unique 3ds transaction Identifier
@@ -20,7 +20,7 @@ class AcsPacketFactory():
                 "actionInd": "A",
                 "acsStartProtocolVersion": "2.1.0",
                 "acsEndProtocolVersion": "2.1.0",
-                "threeDSMethodURL": "https://www.acs.com/script"
+                "threeDSMethodURL": threeDSMethodURL
             }]
         }
         return pRest_packet

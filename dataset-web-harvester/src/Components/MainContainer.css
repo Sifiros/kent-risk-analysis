@@ -1,0 +1,12 @@
+.navbar-brand {
+    font-weight: normal;
+}
+
+.PageTitle {
+    margin-top: 50px;
+    width: 100%;
+}
+
+.PageTitle  h2, h4 {
+    text-align: center;
+}
