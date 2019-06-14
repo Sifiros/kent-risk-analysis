@@ -62,34 +62,38 @@ let getAllInfo = (uaparser, deployJava) => {
     }
     info.timezoneOffset = new Date().getTimezoneOffset()                //end format : plain value (can be negative)
 
-    info.position = {}                                                  //end format : {latitude: value, longitude: value, countryCode: "code"}
-    /*navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
-        info.position.latitude = position.coords.latitude
-        info.position.longitude = position.coords.longitude
-        fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
-        .then(response => {return response.json()}).then(body => {
-            info.position.countryCode = body.countryCode
-            console.log(info)
-        })
-    }, (positionError) => {
-        console.log(info)
-    })*/
-
+    info.javaVersions = deployJava.getJREs()
+    info.colorDepth = screen.colorDepth
     if (!isCanvasSupported()) {
         info.canvas = false
     } else {
         info.canvas = getCanvasFingerprint()
     }
 
-    info.colorDepth = screen.colorDepth
-
-    fetch("http://10.15.190.247:9094/webauthn/test_alex", {method: 'POST'})
-        .then(response =>{ return response.json()}).then(body => {
-            info.accepted_mime = body['accept'] || ""                       //end format : "type/subtype(;q=poids),type/subtype(;q=poids)"      //can be a simple "*/*"
-            info.accepted_encoding = body['accept-encoding'] || ""          //end format : "encoding, encoding, encoding"
-            info.accepted_languages = body['accept-language'] || ""         //end format : "langue(-locale)(;q=poids),langue(-locale)(;q=poids)"
-            info.accepted_charset = body['accept-charset'] || ""            //end format : "charset(;q=poids),charset(;q=poids)"                //will usually be empty
+    info.position = {}                                                  //end format : {latitude: value, longitude: value, countryCode: "code"}
+    navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
+        info.position.latitude = position.coords.latitude
+        info.position.longitude = position.coords.longitude
+        fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
+        .then(response => {return response.json()})
+        .then(body => {
+            info.position.countryCode = body.countryCode
             console.log(info)
+            return info;
         })
-    info.javaVersions = deployJava.getJREs()
+    }, (positionError) => {
+        console.log(positionError)
+        return info;
+    })
+
+    /*fetch("http://10.15.190.247:9094/webauthn/test_alex", {method: 'POST'})
+        .then(response =>{ return response.json()}).then(body => {
+            info.accepted_mime = body['accept'] || ""                       
+            info.accepted_encoding = body['accept-encoding'] || ""          
+            info.accepted_languages = body['accept-language'] || ""         
+            info.accepted_charset = body['accept-charset'] || ""            
+            console.log(info)
+        })*/
 }
+
+export default getAllInfo;
