@@ -2,6 +2,7 @@
 
 import json
 from io import BytesIO
+import socket
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
@@ -18,7 +19,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.route_parser(jsonPacket)
         except json.decoder.JSONDecodeError:
             print('ERROR: Unable to parse the current Json : ' + str(body))
-            self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet('Unknown', str(UuidUtils.get_new_uuid()), 101, 'Unable to parse the current Json', 'Unknown')))
+            self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet('Unknown', 101, 'Unable to parse the current Json', 'Unknown')))
 
     def send_complete_response(self, code, content):
         self.send_response(code)
@@ -29,12 +30,15 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(response.getvalue())
 
     def client_address_to_url(self):
-        return 'http://'  + self.client_address[0] + ':' + str(self.client_address[1])
+        return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
+
+    def get_threeDSMethodURL(self):
+        return 'http://' + socket.gethostbyname(socket.gethostname()) + ':8484/harvestcontent'
 
     def route_parser(self, packet):
         # Preq handler
         if self.path == '/updatepres':
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"])))
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet()))
@@ -52,5 +56,5 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         elif self.path == '/challsubmition':
             self.server.on_sReq_packet_received(self, packet)
         else:
-            self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet(packet["threeDSServerTransID"], str(UuidUtils.get_new_uuid()), 101, 'Unknown route', packet["messageType"])))
+            self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet(packet["threeDSServerTransID"], 101, 'Unknown route', packet["messageType"])))
             

@@ -74,29 +74,21 @@ let getAllInfo = () => {
     }
 
     info.position = {}                                                  //end format : {latitude: value, longitude: value, countryCode: "code"}
-    navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
-        info.position.latitude = position.coords.latitude
-        info.position.longitude = position.coords.longitude
-        fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
-        .then(response => {return response.json()})
-        .then(body => {
-            info.position.countryCode = body.countryCode
-            console.log(info)
-            return info;
+    return new Promise(resolve => {
+        navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
+            info.position.latitude = position.coords.latitude
+            info.position.longitude = position.coords.longitude
+            fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
+            .then(response => {return response.json()})
+            .then(body => {
+                info.position.countryCode = body.countryCode
+                resolve(info)
+            })
+        }, (positionError) => {
+            console.log(positionError)
+            resolve(info)
         })
-    }, (positionError) => {
-        console.log(positionError)
-        return info;
     })
-
-    /*fetch("http://10.15.190.247:9094/webauthn/test_alex", {method: 'POST'})
-        .then(response =>{ return response.json()}).then(body => {
-            info.accepted_mime = body['accept'] || ""                       
-            info.accepted_encoding = body['accept-encoding'] || ""          
-            info.accepted_languages = body['accept-language'] || ""         
-            info.accepted_charset = body['accept-charset'] || ""            
-            console.log(info)
-        })*/
 }
 
 export default getAllInfo;

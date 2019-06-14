@@ -6,18 +6,6 @@ import HarvestingUnit from './HarvestingUnit'
 
 class MainContainer extends Component {
 
-    componentDidMount() {
-
-    }
-
-    componentWillUnmount() {
-        
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        
-    }
-
     render() {
         return (
             <div className="MainContainer">

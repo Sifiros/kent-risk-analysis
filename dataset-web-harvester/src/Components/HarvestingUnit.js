@@ -7,7 +7,7 @@ import './HarvestUnit.css'
 
 let CollectionState = {
     IDLE: 0,
-    COLLECTED: 1,
+    COLLECTION: 1,
     SENT: 2
 }
 
@@ -18,13 +18,16 @@ class HarvestingUnit extends Component {
             collectionState: CollectionState.IDLE
         }
         this.harvestedDataController = new HarvestedDataController()
-        this.json = {"doNotTrack": 1, "screenSize": "1920:1080", "plugins": ["Adblocks", "Google"], "position": {"lat": 95, "lng": 1.234525}, "browser": {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"}, "cpu": {"architecture": "amd64"}, "os": {"name": "Windows", "version": "10"}}
+        //this.json = {"doNotTrack": 1, "screenSize": "1920:1080", "plugins": ["Adblocks", "Google"], "position": {"lat": 95, "lng": 1.234525}, "browser": {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"}, "cpu": {"architecture": "amd64"}, "os": {"name": "Windows", "version": "10"}}
     }
 
     onLaunchButtonClicked = () => {
-        this.json = getAllInfo()
-        this.setState({
-            collectionState: CollectionState.COLLECTED
+        getAllInfo().then(res => {
+            console.log(res)
+            this.json = res
+            this.setState({
+                collectionState: CollectionState.COLLECTION
+            })
         })
     }
 
@@ -38,7 +41,7 @@ class HarvestingUnit extends Component {
     render() {
         return (
             <div className="HarvestUnitContainer">
-                {this.state.collectionState === CollectionState.COLLECTED ? (
+                {this.state.collectionState === CollectionState.COLLECTION ? (
                     <div className="JsonContainer">
                         <h3>You will send these data :</h3>
                         <div className="JsonBox">
