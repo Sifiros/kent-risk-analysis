@@ -1,0 +1,46 @@
+.HarvestUnitContainer {
+    text-align: center;
+}
+
+button {
+    width: 50%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+} 
+
+.JsonContainer {
+    margin-top: 10px;
+    margin-bottom: 50px;
+}
+
+.JsonBox {
+    margin: auto;
+    width: 80%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #F8F9FA;
+}
+
+.react-json-view {
+    margin: auto;
+    width: 50%;
+    text-align: justify;
+}
+
+.ThanksContainer {
+    margin-bottom: 30px;
+}
+
+.ThanksBox {
+    margin: auto;
+    width: 80%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #F8F9FA;
+} 
