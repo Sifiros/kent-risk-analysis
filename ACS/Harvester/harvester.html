@@ -38,7 +38,7 @@
                 sendFingerPrintToACS()
             })*/
             //console.log(swfobject.getFlashPlayerVersion())
-            getAllInfo(new UAParser(), deployJava)
+            getAllInfo(new UAParser(), deployJava).then(response => {console.log(response)})
         }
         testFingerPrinter(); 
     </script>
