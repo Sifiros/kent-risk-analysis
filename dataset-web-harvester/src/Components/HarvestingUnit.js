@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Button from 'react-bootstrap/Button'
 import ReactJson from 'react-json-view'
+import HarvestedDataController from  '../Controllers/HarvestedDataController'
 import './HarvestUnit.css'
 
 let CollectionState = {
@@ -15,18 +16,19 @@ class HarvestingUnit extends Component {
         this.state = {
             collectionState: CollectionState.IDLE
         }
+        this.harvestedDataController = new HarvestedDataController()
         this.json = {"doNotTrack": 1, "screenSize": "1920:1080", "plugins": ["Adblocks", "Google"], "position": {"lat": 95, "lng": 1.234525}, "browser": {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"}, "cpu": {"architecture": "amd64"}, "os": {"name": "Windows", "version": "10"}}
     }
 
     onLaunchButtonClicked = () => {
-        // TODO : START HARVESTING
+        // TODO : START HARVESTING AND SET THIS.JSON WITH THE RESULT
         this.setState({
             collectionState: CollectionState.COLLECTED
         })
     }
 
     onSendButtonClicked = () => {
-        // TODO : PUSH DATA ON FIREBASE
+        this.harvestedDataController.createHarvestedData(this.json)
         this.setState({
             collectionState: CollectionState.SENT
         })

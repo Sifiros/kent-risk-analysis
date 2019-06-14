@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "firebase": "^6.2.0",
     "markdown-react-js": "^1.0.2",
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0-beta.9",
