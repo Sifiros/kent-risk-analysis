@@ -11,10 +11,14 @@ let get3DSMethod = (cc_number) => {
     methodData.status = 'ok'
     pRes = appData.PResponseHeader
     methodData.threeDSMethodURL = null
+    console.log('je suis la connard');
+    
 
     if (!cc_number) {
         return new Promise((resolve, reject) => reject(utils.jsonError('cc_number not present to get 3DS method')))
     }
+    console.log('je possede un cc number');
+    
 
     // select the good method url using the cc_number
     pRes.cardRangeData.forEach(elem => {
@@ -23,6 +27,9 @@ let get3DSMethod = (cc_number) => {
         }
     })
 
+    console.log('ah ouais ouais ouais');
+    
+
     if (methodData.threeDSMethodURL == null) {
         return new Promise((resolve, reject) => reject(utils.jsonError('no methodURL found for this cc_number')))
     }
@@ -30,10 +37,12 @@ let get3DSMethod = (cc_number) => {
     methodData.threeDSServerTransID = uuidv1()
     userData.threeDSServerTransID = methodData.threeDSServerTransID
     methodData.notificationMethodURL = appData.baseUrl + '/threedscomponent/notificationMethod'
-    return new Promise(provide => provide(methodData))
+    return new Promise(resolve => resolve(methodData))
 }
 
 let requestThreeDSServerConfig = () => {
+    console.log('debut du get de PRES');
+    
 
     return appData.PResponseHeader = fetch(config.acsAddr() + '/updatepres', {
         method: 'POST',
@@ -45,8 +54,16 @@ let requestThreeDSServerConfig = () => {
     })
         .then((response) => response.json())
         .then((response) => {
+            console.log('j\'ai recu un truc')
+            
             if (response) {
+                console.log('un probleme de version ?');
+                console.log(response);
+                
+                
                 if (!utils.checkThreeDSVersion(response.messageVersion)) { return utils.jsonError('Version not compatible') }
+
+                console.log('bah du coup non');
 
                 console.log("\n3DS SERVER: RECIEVED A PRES:");
                 console.log(response);

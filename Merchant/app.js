@@ -24,9 +24,12 @@ app.listen(port)
 // call at server application startup and every 1h (3600000 millisecond)
 setInterval(threeDSUtils.requestThreeDSServerConfig, 3600000)
 
+console.log('wrap pre');
 status = threeDSUtils.requestThreeDSServerConfig()
+console.log('wrap post');
+
 if (status.status && status.status === 'ko') {
-    console.log("server could not fetch Pres");
+   console.log("server could not fetch Pres");
 }
 
 console.log(`Started app on port ${port}`);
