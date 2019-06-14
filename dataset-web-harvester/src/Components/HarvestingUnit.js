@@ -18,13 +18,17 @@ class HarvestingUnit extends Component {
             collectionState: CollectionState.IDLE
         }
         this.harvestedDataController = new HarvestedDataController()
-        //this.json = {"doNotTrack": 1, "screenSize": "1920:1080", "plugins": ["Adblocks", "Google"], "position": {"lat": 95, "lng": 1.234525}, "browser": {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"}, "cpu": {"architecture": "amd64"}, "os": {"name": "Windows", "version": "10"}}
     }
 
     onLaunchButtonClicked = () => {
         getAllInfo().then(res => {
             console.log(res)
-            this.json = res
+            // Replace potencial undefined fields by null to be able to post data to the db
+            let replacer = (key, value) =>
+                typeof value === 'undefined' ? null : value;
+            let stringified = JSON.stringify(res, replacer)
+            this.json = JSON.parse(stringified)
+            
             this.setState({
                 collectionState: CollectionState.COLLECTION
             })
