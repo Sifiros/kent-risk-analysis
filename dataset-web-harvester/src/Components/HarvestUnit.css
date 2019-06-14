@@ -44,3 +44,25 @@ button {
     padding: 20px;
     background-color: #F8F9FA;
 } 
+
+.LoadingOverlayBoxContainer {
+    margin-top: 10px;
+    margin-bottom: 50px;
+}
+
+.LoadingOverlayBox {
+    margin: auto;
+    width: 80%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #F8F9FA;
+    z-index: 1000;
+    padding-top: 10px;
+}
+
+.LoadingOverlayBox .MuiCircularProgress-root {
+    margin-top: 20px;
+}
