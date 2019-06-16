@@ -20,8 +20,8 @@ class FeatureMeta(type):
         }
         base_methods.update(attrs)
 
-        def __init__(self, profile_originality):
-            self.profile_originality = profile_originality
+        def __init__(self, singularity_ratio):
+            self.singularity_ratio = singularity_ratio
             self.value = None
             self.initial_value()
             if hasattr(self, 'population_update_rates'):
@@ -51,7 +51,7 @@ class FeatureMeta(type):
         ratioSum = 0
         for ratio in self.population_update_rates:
             ratioSum += ratio[0]
-            if ratioSum >= self.profile_originality: # given profile originality fall in this category
+            if ratioSum >= self.singularity_ratio: # given profile originality fall in this category
                 return ratio[1]
         raise Exception("Feature update rates do not sum up to 1")
 
@@ -171,11 +171,11 @@ class PluginsFeature(metaclass=FeatureMeta): # updates append or remove a plugin
 
     def initial_value(self):
         # Depending on profile originality, define a max nb plugins value
-        if (0 <= self.profile_originality <= 0.3):
+        if (0 <= self.singularity_ratio <= 0.3):
             self.max_plugins = 0
-        elif (0.3 <= self.profile_originality <= 0.6):
+        elif (0.3 <= self.singularity_ratio <= 0.6):
             self.max_plugins = 3
-        elif (0.6 <= self.profile_originality <= 0.8):
+        elif (0.6 <= self.singularity_ratio <= 0.8):
             self.max_plugins = 6
         else:
             self.max_plugins = 15
@@ -234,22 +234,22 @@ class BrowserInstance():
     def __init__(self):
         # This number will define in which kind of profile does this browser fall : casual / rare ?
         # Will drive features updates frequency
-        self.originality_ratio = random.random()
+        self.singularity_ratio = random.random()
         self.id = str(uuid.uuid4())
         self.features = {
-            'accepted_charset': AcceptedCharsetFeature(self.originality_ratio),
-            'accepted_encoding': AcceptedEncodingFeature(self.originality_ratio),
-            'accepted_mime': AcceptedMimeFeature(self.originality_ratio),
-            'accepted_languages': AcceptedLanguagesFeature(self.originality_ratio),
-            'doNotTrack': DoNotTrackFeature(self.originality_ratio),
-            'screen_size': ScreenSizeFeature(self.originality_ratio),
-            'plugins': PluginsFeature(self.originality_ratio),
-            'timezone_offset': TimezoneOffsetFeature(self.originality_ratio),
-            'browser': BrowserFeature(self.originality_ratio),
-            'cpu': CPUFeature(self.originality_ratio),
-            'device': DeviceFeature(self.originality_ratio),
-            'os': OSFeature(self.originality_ratio),
-            'color_depth': ColorDepthFeature(self.originality_ratio)
+            'accepted_charset': AcceptedCharsetFeature(self.singularity_ratio),
+            'accepted_encoding': AcceptedEncodingFeature(self.singularity_ratio),
+            'accepted_mime': AcceptedMimeFeature(self.singularity_ratio),
+            'accepted_languages': AcceptedLanguagesFeature(self.singularity_ratio),
+            'doNotTrack': DoNotTrackFeature(self.singularity_ratio),
+            'screen_size': ScreenSizeFeature(self.singularity_ratio),
+            'plugins': PluginsFeature(self.singularity_ratio),
+            'timezone_offset': TimezoneOffsetFeature(self.singularity_ratio),
+            'browser': BrowserFeature(self.singularity_ratio),
+            'cpu': CPUFeature(self.singularity_ratio),
+            'device': DeviceFeature(self.singularity_ratio),
+            'os': OSFeature(self.singularity_ratio),
+            'color_depth': ColorDepthFeature(self.singularity_ratio)
         }
 
         # Other features will keep their initial random value
