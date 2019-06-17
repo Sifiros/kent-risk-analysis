@@ -78,7 +78,7 @@ let getAllInfo = () => {
         navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
             info.position.latitude = position.coords.latitude
             info.position.longitude = position.coords.longitude
-            fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
+            fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=riskassessdemo")
             .then(response => {return response.json()})
             .then(body => {
                 info.position.countryCode = body.countryCode
