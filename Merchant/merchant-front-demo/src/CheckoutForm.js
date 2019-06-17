@@ -1,5 +1,5 @@
 import React  from 'react';
-import startThreeDSProtocol from './3DS2_INIT_SAMPLE.js'
+import startThreeDSProtocol from './ThreeDSProtocolClient.js'
 import './res/CheckoutForm.css'
 
 class CheckoutForm extends React.Component {

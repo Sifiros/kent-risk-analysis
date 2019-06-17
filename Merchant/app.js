@@ -2,6 +2,8 @@ const express       = require('express')
 const bodyParser    = require('body-parser')
 const path          = require('path')
 const config        = require('./config')
+const cors          = require('cors')
+
 
 // const https = require('https')
 
@@ -12,6 +14,7 @@ const threeDSUtils = require('./process/threeDSUtils')
 const app = express()
 const port = config.port()
 
+app.use(cors())
 app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'merchant-front-demo/build/')));
 app.use(express.static(path.join(__dirname, 'static')));

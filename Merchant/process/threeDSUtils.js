@@ -3,6 +3,7 @@ const config        = require('../config')
 const utils         = require('../utils/utils')
 const pMessages     = require('../messages/pMessages')
 const appData       = require('../utils/appData')
+const uuidv1 = require('uuid/v1')
 const userData      = require('../utils/appData').clientdata
 
 let get3DSMethod = (cc_number) => {
@@ -70,7 +71,7 @@ let requestThreeDSServerConfig = () => {
 
                 if (!response.cardRangeData) { return utils.jsonError('Missing cardRangeDara in PRES') }
                 if (!response.cardRangeData[0].threeDSMethodURL) { return utils.jsonError('Missing cardRangeData in Pres') }
-                threeDSSServerData.PResponseHeader = response
+                appData.PResponseHeader = response
                 return response
             }
             return { 'status': 'ko' }

@@ -7,10 +7,18 @@ const router                = express.Router()
 
 //handler the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
+    console.log('cacacacacacacacacaca');
+    
+    if (request && request.body) {
+        console.log(request.body)
+    }
+
     if (!request.body || !request.body.cc_number) {
         response.json(utils.jsonError('request error or card number not present'))
         return
     }
+    console.log('INIT called, waiting for get3DSMethod');
+    
     threeDSUtils.get3DSMethod(request.body.cc_number)
         .then((formData) => response.json(formData))
         .catch((error) => response.json(error))
@@ -32,8 +40,11 @@ let checkPaymentData = (body) => {
     return body
 }
 
+
 // Payment route
 router.post('/pay', (request, response) => {
+    console.log('cul');
+    
 
     if (!request || !request.body) {
         response.json({
@@ -49,8 +60,8 @@ router.post('/pay', (request, response) => {
         return
     }
 
-    userData.paymentData = checkeddData
-    userData.response = response
+    clientData.paymentData = checkeddData
+    clientData.response = response
     console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
 
     // ca existe pas (je crois)
