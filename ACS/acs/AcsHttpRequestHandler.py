@@ -5,7 +5,7 @@ from io import BytesIO
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
-from config import HTTP_PORT, HTTP_HOST
+from config import HTTP_PORT, PUBLIC_IP
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
 
@@ -44,7 +44,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
 
     def get_threeDSMethodURL(self):
-        return 'http://{}:{}/harvestcontent'.format(HTTP_HOST, HTTP_PORT)
+        return 'http://{}:{}/harvestcontent'.format(PUBLIC_IP, HTTP_PORT)
 
     def route_parser(self, packet):
         # Preq handler
