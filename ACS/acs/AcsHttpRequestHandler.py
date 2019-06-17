@@ -2,11 +2,10 @@
 
 import json
 from io import BytesIO
-import socket
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
-
+from config import HTTP_PORT, HTTP_HOST
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
 
@@ -24,6 +23,9 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
     def send_complete_response(self, code, content):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'POST')
         self.end_headers()
         response = BytesIO()
         response.write(content.encode())
@@ -33,7 +35,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
 
     def get_threeDSMethodURL(self):
-        return 'http://' + socket.gethostbyname(socket.gethostname()) + ':8484/harvestcontent'
+        return 'http://{}:{}/harvestcontent'.format(HTTP_HOST, HTTP_PORT)
 
     def route_parser(self, packet):
         # Preq handler
