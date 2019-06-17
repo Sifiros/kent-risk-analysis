@@ -3,7 +3,7 @@ const config        = require('../config')
 const utils         = require('../utils/utils')
 const pMessages     = require('../messages/pMessages')
 const appData       = require('../utils/appData')
-const uuidv1 = require('uuid/v1')
+const uuidv1        = require('uuid/v1')
 const userData      = require('../utils/appData').clientdata
 
 let get3DSMethod = (cc_number) => {
@@ -12,13 +12,11 @@ let get3DSMethod = (cc_number) => {
     methodData.status = 'ok'
     pRes = appData.PResponseHeader
     methodData.threeDSMethodURL = null
-    console.log('je suis la connard');
     
 
     if (!cc_number) {
         return new Promise((resolve, reject) => reject(utils.jsonError('cc_number not present to get 3DS method')))
     }
-    console.log('je possede un cc number');
     
 
     // select the good method url using the cc_number
@@ -28,16 +26,13 @@ let get3DSMethod = (cc_number) => {
         }
     })
 
-    console.log('ah ouais ouais ouais');
-    
-
     if (methodData.threeDSMethodURL == null) {
         return new Promise((resolve, reject) => reject(utils.jsonError('no methodURL found for this cc_number')))
     }
 
     methodData.threeDSServerTransID = uuidv1()
     userData.threeDSServerTransID = methodData.threeDSServerTransID
-    methodData.notificationMethodURL = appData.baseUrl + '/threedscomponent/notificationMethod'
+    methodData.notificationMethodURL = config.origin() + '/threedscomponent/notificationMethod'
     return new Promise(resolve => resolve(methodData))
 }
 
