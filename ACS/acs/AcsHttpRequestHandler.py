@@ -3,12 +3,14 @@
 import json
 import os
 from io import BytesIO
-from http.server import BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler,SimpleHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
 from config import HTTP_PORT, PUBLIC_IP
 
-class AcsHttpRequestHandler(BaseHTTPRequestHandler):
+class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory="Harvester/", **kwargs)    
 
     def send_cors_header(self):
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -45,12 +47,6 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         response.write(content.encode())
         self.wfile.write(response.getvalue())
 
-    # def end_headers(self):
-    #     self.send_header('Access-Control-Allow-Origin', '*')
-    #     # self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
-    #     # self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')        
-    #     super().end_headers()        
-
     def client_address_to_url(self):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
 
@@ -63,7 +59,8 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(os.path.abspath('./Harvester/harvester.html'))))
+            iframe_url = 'http://{}:{}/harvester.html'.format(PUBLIC_IP, HTTP_PORT)
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(iframe_url)))
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':

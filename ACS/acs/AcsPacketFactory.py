@@ -66,9 +66,10 @@ class AcsPacketFactory():
         return sResp_packet
 
     @staticmethod
-    def get_hResp_packet(path):
-        with open(path, "r") as f:
-            return f.read()
+    def get_hResp_packet(iframe_url):
+        return {
+            "iframeUrl": iframe_url
+        }
     
     @staticmethod
     def get_html_cResp_packet():

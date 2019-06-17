@@ -58,11 +58,11 @@ let getAllInfo = (uaparser, deployJava) => {
     info.plugins = []                                                   //end format : ["name1", "name2", "name3"]
     let plugins = navigator.plugins                                     //or empty array if no detected plugin
     for (i = 0; i < plugins.length; i++) {
-        info.plugins.push(plugin[i].name)
+        info.plugins.push(plugins[i].name)
     }
     info.timezoneOffset = new Date().getTimezoneOffset()                //end format : plain value (can be negative)
 
-    info.javaVersions = deployJava.getJREs()
+    // info.javaVersions = deployJava.getJREs()
     info.colorDepth = screen.colorDepth
     if (!isCanvasSupported()) {
         info.canvas = false
@@ -75,7 +75,7 @@ let getAllInfo = (uaparser, deployJava) => {
         navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
             info.position.latitude = position.coords.latitude
             info.position.longitude = position.coords.longitude
-            fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=demo")
+            fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=riskassessdemo")
             .then(response => {return response.json()})
             .then(body => {
                 info.position.countryCode = body.countryCode
@@ -96,5 +96,3 @@ let getAllInfo = (uaparser, deployJava) => {
             console.log(info)
         })*/
 }
-
-export default getAllInfo;
