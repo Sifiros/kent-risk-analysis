@@ -13,7 +13,6 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
     console.log('three DS Method URL:');
     console.log(threeDSMethodURL);
     
-    
     return fetch(threeDSMethodURL, {
         method: 'POST',
         headers: {
