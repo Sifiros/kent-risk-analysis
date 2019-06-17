@@ -62,7 +62,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet()))
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet('../Harvester/harvester.html')))
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':
