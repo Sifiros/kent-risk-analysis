@@ -20,16 +20,25 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             print('ERROR: Unable to parse the current Json : ' + str(body))
             self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet('Unknown', 101, 'Unable to parse the current Json', 'Unknown')))
 
+    def do_OPTIONS(self):           
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, GET")
+        self.send_header("Access-Control-Allow-Headers", "dataType, content-type, accept, authorization") 
+        self.send_response(200, "ok")
+
     def send_complete_response(self, code, content):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
-        self.send_header('Access-Control-Allow-Methods', 'POST')
         self.end_headers()
         response = BytesIO()
         response.write(content.encode())
         self.wfile.write(response.getvalue())
+
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')        
+        super().end_headers()        
 
     def client_address_to_url(self):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
