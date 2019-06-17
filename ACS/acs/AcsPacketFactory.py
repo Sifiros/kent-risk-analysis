@@ -66,11 +66,9 @@ class AcsPacketFactory():
         return sResp_packet
 
     @staticmethod
-    def get_hResp_packet():
-        hcResp_packet = {
-            "messageType": "HRes"
-        }
-        return hcResp_packet
+    def get_hResp_packet(path):
+        with open(path, "r") as f:
+            return f.read()
     
     @staticmethod
     def get_html_cResp_packet():

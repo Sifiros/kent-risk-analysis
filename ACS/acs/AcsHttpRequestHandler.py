@@ -1,14 +1,19 @@
 #!/usr/local/bin/python3
 
 import json
+import os
 from io import BytesIO
-import socket
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
-
+from config import HTTP_PORT, PUBLIC_IP
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
+
+    def send_cors_header(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "*")
+        self.send_header("Access-Control-Allow-Headers", "*")
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
@@ -21,19 +26,36 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             print('ERROR: Unable to parse the current Json : ' + str(body))
             self.send_complete_response(404, json.dumps(AcsPacketFactory.get_error_packet('Unknown', 101, 'Unable to parse the current Json', 'Unknown')))
 
+    def do_HEAD(self):           
+        self.send_response(200)
+        self.send_cors_header()
+        self.end_headers()
+
+    def do_OPTIONS(self):           
+        self.send_response(200)
+        self.send_cors_header()
+        self.end_headers()
+
     def send_complete_response(self, code, content):
         self.send_response(code)
+        self.send_cors_header()
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
         response = BytesIO()
         response.write(content.encode())
         self.wfile.write(response.getvalue())
 
+    # def end_headers(self):
+    #     self.send_header('Access-Control-Allow-Origin', '*')
+    #     # self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+    #     # self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')        
+    #     super().end_headers()        
+
     def client_address_to_url(self):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
 
     def get_threeDSMethodURL(self):
-        return 'http://' + socket.gethostbyname(socket.gethostname()) + ':8484/harvestcontent'
+        return 'http://{}:{}/harvestcontent'.format(PUBLIC_IP, HTTP_PORT)
 
     def route_parser(self, packet):
         # Preq handler
@@ -41,7 +63,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet()))
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(os.path.abspath('./Harvester/harvester.html'))))
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':

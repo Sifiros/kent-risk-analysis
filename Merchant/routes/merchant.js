@@ -7,7 +7,6 @@ const router                = express.Router()
 
 //handler the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
-    console.log('cacacacacacacacacaca');
     
     if (request && request.body) {
         console.log(request.body)
@@ -19,8 +18,12 @@ router.post('/init', (request, response) => {
     }
     console.log('INIT called, waiting for get3DSMethod');
     
+    
     threeDSUtils.get3DSMethod(request.body.cc_number)
-        .then((formData) => response.json(formData))
+        .then((formData) => {
+            console.log(formData);
+            response.json(formData)
+        })
         .catch((error) => response.json(error))
 })
 
@@ -45,7 +48,6 @@ let checkPaymentData = (body) => {
 router.post('/pay', (request, response) => {
     console.log('cul');
     
-
     if (!request || !request.body) {
         response.json({
             'status': 'ko',

@@ -6,6 +6,12 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
     let rContent = {}
     rContent.threeDSServerTransID = threeDSServerTransID
     rContent.notificationMethodURL = notificationMethodURL
+
+    console.log('notif url:');
+    console.log(notificationMethodURL);
+    
+    console.log('three DS Method URL:');
+    console.log(threeDSMethodURL);
     
     return fetch(threeDSMethodURL, {
         method: 'POST',
