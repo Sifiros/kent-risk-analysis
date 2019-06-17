@@ -23,6 +23,9 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
     def send_complete_response(self, code, content):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'POST')
         self.end_headers()
         response = BytesIO()
         response.write(content.encode())
