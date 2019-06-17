@@ -2,11 +2,10 @@
 
 import json
 from io import BytesIO
-import socket
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
 from .AcsHttpSender import AcsHttpSender
-
+from config import HTTP_PORT, HTTP_HOST
 
 class AcsHttpRequestHandler(BaseHTTPRequestHandler):
 
@@ -33,7 +32,7 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
         return 'http://' + self.client_address[0] + ':' + str(self.client_address[1])
 
     def get_threeDSMethodURL(self):
-        return 'http://' + socket.gethostbyname(socket.gethostname()) + ':8484/harvestcontent'
+        return 'http://{}:{}/harvestcontent'.format(HTTP_HOST, HTTP_PORT)
 
     def route_parser(self, packet):
         # Preq handler
