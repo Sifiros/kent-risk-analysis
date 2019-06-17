@@ -20,14 +20,10 @@ const imgStyle = {
   border: '1px',
 };
 
-const iconStyle = {
-  paddingLeft: '30px',
-};
-
 const ProductList = ({ addToCart }) => (
     <div id="products" className="row" style={{style: "container", marginLeft: "50px", marginRight: "50px"}}>
     <Table selectable={false}>
-      <TableHeader adjustForCheckbox={true} displaySelectAll={false}>
+      <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
         <TableRow>
           <TableHeaderColumn>Image</TableHeaderColumn>
           <TableHeaderColumn>Name</TableHeaderColumn>
@@ -35,7 +31,7 @@ const ProductList = ({ addToCart }) => (
           <TableHeaderColumn />
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody displayRowCheckbox={false}>
         {list.map(prod => (
           <TableRow key={prod.name}>
             <TableRowColumn>

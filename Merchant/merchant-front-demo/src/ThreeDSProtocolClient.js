@@ -150,6 +150,10 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .catch((error) => alert(error))
 }
 
+window.testiFrame = () => {
+    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallBirthdate.html", defaults)
+}
+
 // send the form to the merchant server to initiate the transaction
 let startAuthentication = (threeDSServerTransID, trans_details) => {
     
@@ -180,43 +184,3 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
 }
 
 export default startThreeDSProtocol;
-
-// Recieve message from Auth Iframe and 3DSMethod_URL Iframe
-// window.addEventListener("message", receiveMessage, false);
-
-// function receiveMessage(event) {
-
-//     let NOTIFICATION_URL = ""
-
-//     if (event.origin !== "http://localhost:9094") {
-//         return;
-//     }
-
-//     if (event.data) {
-//         if (event.data.messageType == 'CRes') {  // classic auth case (CReq/Cres)
-//             NOTIFICATION_URL = event.data.notificationURL
-
-//             fetch(NOTIFICATION_URL, {
-//                 method: 'POST',
-//                 headers: {
-//                     "Content-Type": "application/json"
-//                 },
-//                 body: JSON.stringify(event.data)
-//             })
-//                 .then((response) => response.json())
-//                 .then((response) => {
-//                     console.log(response)
-//                     window.setTimeout(function () { savedIframe.close(); }, 2400);
-
-//                 })
-//                 .catch((error) => console.log(error))
-//         }
-//         // else if (event.data.status) {  // 3DS method case
-//         //     console.log("starting authentication");
-
-//         //     startAuthentication()
-//         // }
-//     }
-
-
-// }
