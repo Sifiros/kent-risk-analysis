@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 
 import json
+import os
 from io import BytesIO
 from http.server import BaseHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
@@ -62,7 +63,8 @@ class AcsHttpRequestHandler(BaseHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet('../Harvester/harvester.html')))
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(os.path.abspath('./Harvester/harvester.html'))))
+            print(packet['notificationMethodURL'])
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':
