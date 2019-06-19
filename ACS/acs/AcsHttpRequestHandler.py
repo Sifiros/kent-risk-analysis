@@ -54,17 +54,19 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
     def get_threeDSMethodURL(self):
         return 'http://{}:{}/harvestcontent'.format(PUBLIC_IP, HTTP_PORT)
 
+    def get_iframe_url(self, transaction_id):
+        preforged_url = 'http://{}:{}/harvestrequest'.format(PUBLIC_IP, HTTP_PORT)
+        encoded_url = urllib.parse.quote(preforged_url ,safe='')
+        encoded_id = urllib.parse.quote(transaction_id ,safe='')
+        return 'http://{}:{}/harvester.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
+
     def route_parser(self, packet):
         # Preq handler
         if self.path == '/updatepres':
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            preforged_url = 'http://{}:{}/harvestrequest'.format(PUBLIC_IP, HTTP_PORT)
-            encoded_url = urllib.parse.quote(preforged_url ,safe='')
-            encoded_id = urllib.parse.quote(packet['threeDSServerTransID'] ,safe='')
-            iframe_url = 'http://{}:{}/harvester.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
-            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(iframe_url)))
+            self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(self.get_iframe_url(packet['threeDSServerTransID']))))
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':

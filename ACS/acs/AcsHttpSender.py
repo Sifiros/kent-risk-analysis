@@ -14,7 +14,8 @@ class AcsHttpSender():
                 if callback is not None:
                     jsonPacket = AcsPacketFactory.get_json_from_packet(response.content)
                     callback(jsonPacket)
-            except requests.exceptions.ReadTimeout: 
+            except requests.exceptions.ReadTimeout:
+                # TODO : MANAGE TRANSACTION GIVE UP
                 pass
 
     @staticmethod
