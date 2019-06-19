@@ -20,7 +20,7 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
         },
         body: JSON.stringify(rContent)
     })
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((response) => response)
 }
 
@@ -46,8 +46,10 @@ let startThreeDSProtocol= (trans_details) => {
         } else {
             startAuthentication(response.threeDSServerTransID, trans_details)
             getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
-            .then((htmlContent) => {
-                document.getElementById('methodIframe').contentDocument.write(htmlContent)
+            .then((iframe) => {
+                console.log(iframe)
+                console.log(iframe.iframeUrl)
+                document.getElementById('methodIframe').src = iframe.iframeUrl
             })
         }
     })
