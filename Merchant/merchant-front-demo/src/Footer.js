@@ -12,7 +12,7 @@ export default () => (
   <footer>
     <div className="row footerrow">
       {generateLinkList({
-        title: 'Melody',
+        title: 'Merchant Front',
         links: ['About', 'Terms and Conditions', 'Privacy Policy', 'Contact us'],
       })}
       {generateLinkList({
