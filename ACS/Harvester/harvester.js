@@ -19,50 +19,38 @@ function getCanvasFingerprint() {
   return canvas.toDataURL();
 }
 
-let getAllInfo = (uaparser, deployJava) => {
-    let info = {}
+let info = {}
+info.threeDSServerTransID = "#!3DS_TRANS_ID!#"
+info.notificationMethodURL = "#!NOTIFICATION_METHOD_URL!#"
 
-    info.screenSize = screen.width + ":" + screen.height                //end format : "width:height"
-    info.innerSize = window.innerWidth + ":" + window.innerHeight       //end format : "width:height"
-    info.outerSize = window.outerWidth + ":" + window.outerHeight       //end format : "width:height"
-    info.doNotTrack = navigator.doNotTrack                              //end format : "1" ou "0"
+let sendFingerPrintToACS = () => {
+    return fetch('http://localhost:4242/merchant/toto', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(info)
+        }).then((response) => response.json())
+}
+
+let getAllInfo = (uaparser, deployJava) => {
+    info.screenSize = screen.width + ":" + screen.height
+    info.innerSize = window.innerWidth + ":" + window.innerHeight
+    info.outerSize = window.outerWidth + ":" + window.outerHeight
+    info.doNotTrack = navigator.doNotTrack
 
     info.uaInfo = uaparser.getResult()
-                                                                        /*end format :  //caution : fields can be undefined (device fields were undefined for me)
-                                                                        {
-                                                                            ua: "",
-                                                                            browser: {
-                                                                                appName: "",
-                                                                                name: "",
-                                                                                version: ""
-                                                                            },
-                                                                            engine: {
-                                                                                name: "",
-                                                                                version: ""
-                                                                            },
-                                                                            os: {
-                                                                                name: "",
-                                                                                version: ""
-                                                                            },
-                                                                            device: {
-                                                                                model: "",
-                                                                                type: "",
-                                                                                vendor: ""
-                                                                            },
-                                                                            cpu: {
-                                                                                architecture: ""
-                                                                            }
-                                                                        }*/
+
     info.uaInfo.browser.appName = navigator.appName
 
-    info.plugins = []                                                   //end format : ["name1", "name2", "name3"]
-    let plugins = navigator.plugins                                     //or empty array if no detected plugin
+    info.plugins = []
+    let plugins = navigator.plugins
     for (i = 0; i < plugins.length; i++) {
         info.plugins.push(plugins[i].name)
     }
-    info.timezoneOffset = new Date().getTimezoneOffset()                //end format : plain value (can be negative)
+    info.timezoneOffset = new Date().getTimezoneOffset()
 
-    // info.javaVersions = deployJava.getJREs()
+    info.javaVersions = deployJava.getJREs()
     info.colorDepth = screen.colorDepth
     if (!isCanvasSupported()) {
         info.canvas = false
@@ -70,9 +58,9 @@ let getAllInfo = (uaparser, deployJava) => {
         info.canvas = getCanvasFingerprint()
     }
 
-    info.position = {}                                                  //end format : {latitude: value, longitude: value, countryCode: "code"}
+    info.position = {}
     return new Promise(resolve => {
-        navigator.geolocation.getCurrentPosition((position) => {            //or an empty object if location refused
+        navigator.geolocation.getCurrentPosition((position) => {
             info.position.latitude = position.coords.latitude
             info.position.longitude = position.coords.longitude
             fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=riskassessdemo")
@@ -86,13 +74,4 @@ let getAllInfo = (uaparser, deployJava) => {
             resolve(info)
         })
     })
-
-    /*fetch("http://10.15.190.247:9094/webauthn/test_alex", {method: 'POST'})
-        .then(response =>{ return response.json()}).then(body => {
-            info.accepted_mime = body['accept'] || ""                       
-            info.accepted_encoding = body['accept-encoding'] || ""          
-            info.accepted_languages = body['accept-language'] || ""         
-            info.accepted_charset = body['accept-charset'] || ""            
-            console.log(info)
-        })*/
 }
