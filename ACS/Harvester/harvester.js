@@ -37,7 +37,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
 let info = {}
 info.threeDSServerTransID = decodeURIComponent(getUrlParameter('trID'))
 
-let sendFingerPrintToACS = () => {
+window.sendFingerPrintToACS = () => {
     return fetch(decodeURIComponent(getUrlParameter('posturl')), {
             method: 'POST',
             headers: {
