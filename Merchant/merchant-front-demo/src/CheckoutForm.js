@@ -103,7 +103,7 @@ class CheckoutForm extends React.Component {
               </div>
               <div className="form-group col-md-2">
                 <label htmlFor="inputCCV">CVV</label>
-                <input type="number" className={this.CvvValid ? "form-control" : "form-control invalid" } id="inputCCV" placeholder="666" value={this.state.cvv} onChange={this.handleCvvChange}/>
+                <input type="number" className={this.CvvValid ? "form-control" : "form-control invalid" } id="inputCCV" maxLength="4" placeholder="666" value={this.state.cvv} onChange={this.handleCvvChange}/>
               </div>
             </div>
             <div className="form-row">

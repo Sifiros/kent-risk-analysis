@@ -2,6 +2,7 @@
 
 import json
 import os
+import urllib.parse
 from io import BytesIO
 from http.server import BaseHTTPRequestHandler,SimpleHTTPRequestHandler
 from .AcsPacketFactory import AcsPacketFactory
@@ -59,7 +60,10 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
-            iframe_url = 'http://{}:{}/harvester.html'.format(PUBLIC_IP, HTTP_PORT)
+            preforged_url = 'http://{}:{}/harvestrequest'.format(PUBLIC_IP, HTTP_PORT)
+            encoded_url = urllib.parse.quote(preforged_url ,safe='')
+            encoded_id = urllib.parse.quote(packet['threeDSServerTransID'] ,safe='')
+            iframe_url = 'http://{}:{}/harvester.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(iframe_url)))
             AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)

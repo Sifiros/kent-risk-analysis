@@ -19,12 +19,26 @@ function getCanvasFingerprint() {
   return canvas.toDataURL();
 }
 
+var getUrlParameter = function getUrlParameter(sParam) {
+    let sPageURL = window.location.search.substring(1)
+    let sURLVariables = sPageURL.split('&')
+    let sParameterName
+    let i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        }
+    }
+};
+ 
+
 let info = {}
-info.threeDSServerTransID = "#!3DS_TRANS_ID!#"
-info.notificationMethodURL = "#!NOTIFICATION_METHOD_URL!#"
+info.threeDSServerTransID = decodeURIComponent(getUrlParameter('trID'))
 
 let sendFingerPrintToACS = () => {
-    return fetch('http://localhost:4242/merchant/toto', {
+    return fetch(decodeURIComponent(getUrlParameter('posturl')), {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
@@ -33,7 +47,7 @@ let sendFingerPrintToACS = () => {
         }).then((response) => response.json())
 }
 
-let getAllInfo = (uaparser, deployJava) => {
+let getAllInfo = (uaparser) => {
     info.screenSize = screen.width + ":" + screen.height
     info.innerSize = window.innerWidth + ":" + window.innerHeight
     info.outerSize = window.outerWidth + ":" + window.outerHeight
@@ -50,7 +64,6 @@ let getAllInfo = (uaparser, deployJava) => {
     }
     info.timezoneOffset = new Date().getTimezoneOffset()
 
-    info.javaVersions = deployJava.getJREs()
     info.colorDepth = screen.colorDepth
     if (!isCanvasSupported()) {
         info.canvas = false
