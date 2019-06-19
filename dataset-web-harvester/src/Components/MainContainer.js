@@ -13,10 +13,10 @@ class MainContainer extends Component {
                     <Navbar.Brand href="#home">
                         <img
                             alt=""
-                            src="./uk_logo.png"
+                            src="./brain.png"
                             className="d-inline-block"
                         />
-                        {'Project & Dissertation'}
+                        <span>Project & Dissertation</span>
                     </Navbar.Brand>
                 </Navbar>
                     <div className="PageTitle">
