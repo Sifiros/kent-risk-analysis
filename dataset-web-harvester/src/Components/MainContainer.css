@@ -10,3 +10,12 @@
 .PageTitle  h2, h4 {
     text-align: center;
 }
+
+img {
+    height: 100px;
+    width: 100px;
+}
+
+span {
+    margin-left: 50px;
+}

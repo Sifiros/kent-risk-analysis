@@ -8,7 +8,7 @@ let LanguageState = {
     ENGLISH: 1
 }
 
-let frenchPresentation = `Dans le cadre de notre 4ème année d’étude à l’université du Kent (Royaume-Uni), nous devons réaliser un projet de recherche afin de valider notre Master.
+let frenchPresentation = `Dans le cadre de notre 4ème année d’étude, nous devons réaliser un projet de recherche afin de valider notre Master.
 
 Nous travaillons actuellement sur de l’analyse de risque lors d’une transaction en ligne en cherchant à vérifier l’identité de la personne réalisant l’achat.
 A chaque paiement, des données de l’utilisateur qualifiant son navigateur et sa transaction seront utilisées pour créer un profil puis analysées par une intelligence artificielle 
@@ -42,7 +42,7 @@ Si vous avez des questions ou si vous souhaitez nous contacter c’est par [ici]
 
 Merci à tous par avance !`
 
-var englishPresentation = `In the context of our 4th year of study at the University of Kent (United Kingdom), we must carry out a research project in order to validate our Master's degree.
+var englishPresentation = `In the context of our 4th year of study, we must carry out a research project in order to validate our Master's degree.
 
 We are currently working on risk analysis during an online transaction by trying to confirm the identity of the person making the purchase.
 At each payment, user’s data qualifying his browser and the transaction itself will be used to create a profile and then analysed by an artificial intelligence that will qualify if there is a correlation between the last reading and the rest of the buyer's profile and thus verify his identity. This project is designed to make online payments more secure.
