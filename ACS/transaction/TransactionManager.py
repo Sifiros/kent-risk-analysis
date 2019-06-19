@@ -11,8 +11,8 @@ class TransactionManager():
         self.completion_callback = completion_callback
 
         self.request_callbacks = {
-            TransactionTask.WAITING_USER_PROFILE: self.check_user_profile,
-            TransactionTask.WAITING_AUTH_REQUEST: self.check_auth_request,
+            TransactionTask.WAITING_USER_PROFILE: self.preparing_ai,
+            TransactionTask.WAITING_AUTH_REQUEST: self.preparing_ai,
             TransactionTask.WAITING_CHALLENGE_SOLUTION: self.check_challenge_solution,
         }
 
@@ -41,21 +41,37 @@ class TransactionManager():
     ########### Requests handlers ###########
 
     # 1. WAITING_USER_PROFILE -> WAITING_AUTH_REQUEST
+    # or WAITING_AUTH_REQUEST -> WAITING_USER_PROFILE
+    # then second state -> (WAITING_CHALLENGE_SOLUTION OR VALIDATED)
+    def preparing_ai(self, packet):
+        if "messageType" in packet and packet["messageType"] == "AReq":
+            self.transaction.state = TransactionTask.WAITING_AUTH_REQUEST
+            self.check_auth_request(packet)
+        else:
+            self.transaction.state = TransactionTask.WAITING_USER_PROFILE
+            self.check_user_profile(packet)
+
+        if self.transaction.user_profile is not None and self.transaction.purchase is not None:
+            self.run_ai()
+
     def check_user_profile(self, user_profile):
         print("RECEIVED USER PROFILE ...")
         print(user_profile)
         self.transaction.user_profile = user_profile
         self.on_step_completion(TransactionTask.WAITING_AUTH_REQUEST)
 
-    # 2. WAITING_AUTH_REQUEST -> (WAITING_CHALLENGE_SOLUTION OR VALIDATED)
     def check_auth_request(self, purchase_info):
         print("Received auth request")
         print(purchase_info)
-        print("Running AI, A chal is needed")
-        database.append_user_fingerprint(purchase_info["acctNumber"], self.transaction.user_profile)
-        fingerprints = database.get_user_fingerprints(purchase_info["acctNumber"])
-        print("Past fingerprints = ")
+        self.transaction.purchase = purchase_info
+        self.on_step_completion(TransactionTask.WAITING_USER_PROFILE)
 
+    def run_ai(self):
+        print("Running AI, A chal is needed")
+        purchase, user_profile = (self.transaction.purchase, self.transaction.user_profile)
+        database.append_user_fingerprint(purchase["acctNumber"], user_profile)
+        fingerprints = database.get_user_fingerprints(purchase["acctNumber"])
+        print("Past fingerprints = ")
         print(fingerprints)
         checking_result = AcsPacketFactory.get_aResp_packet(self.transaction.id, "C", "Y",  "") # is a challenge needed ? TODO : complete it with good data
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
