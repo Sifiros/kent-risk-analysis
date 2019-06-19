@@ -1,7 +1,8 @@
-const validator = require('validator')
-const fetch = require('node-fetch')
-const config = require('../config')
-const data = require('./appData')
+const validator         = require('validator')
+const fetch             = require('node-fetch')
+const config            = require('../config')
+const data              = require('./appData')
+const threeDSData       = require('../utils/appData')
 
 let doPost = (url, data, mime = 'application/json') => {
     return fetch(config.origin() + url, {

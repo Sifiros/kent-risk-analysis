@@ -46,7 +46,6 @@ let checkPaymentData = (body) => {
 
 // Payment route
 router.post('/pay', (request, response) => {
-    console.log('cul');
     
     if (!request || !request.body) {
         response.json({

@@ -1,17 +1,18 @@
-const fetch         = require('node-fetch')
-const express       = require('express')
-const config        = require('../config')
-const utils         = require('../utils/utils')
-const clientData    = require('../utils/appData').clientdata
-const threeDSUtils  = require('../process/threeDSUtils')
-const aRequests     = require('../messages/aRequests')
-const rMessages     = require('../messages/pMessages')
-const eMessages     = require('../messages/protocolError')
-const router        = express.Router()
+const fetch                 = require('node-fetch')
+const express               = require('express')
+const config                = require('../config')
+const utils                 = require('../utils/utils')
+const clientData            = require('../utils/appData').clientdata
+const threeDSSServerData    = require('../utils/appData')
+const threeDSUtils          = require('../process/threeDSUtils')
+const aRequests             = require('../messages/aRequests')
+const rMessages             = require('../messages/pMessages')
+const eMessages             = require('../messages/protocolError')
+const router                = express.Router()
 
 let startAuthentication = (aReq) => {
 
-    return threeDSSServerData.AResponseHeader = fetch(config.acsAddr + '/authrequest', {
+    return threeDSSServerData.AResponseHeader = fetch(config.acsAddr() + '/authrequest', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -66,7 +67,7 @@ let doStartAuthentication = (updatedAreq, oldResponse) => {
                     break;
             }
         })
-        .catch((error) => console.log('threeDSServer post to ds/authrequest error: ' + error))
+        .catch((error) => console.log('threeDSServer post to authrequest error: ' + error))
 }
 
 // update AReq with merchant data
@@ -82,6 +83,7 @@ let getUpdatedAreq = (body, transID) => {
     let aReq = aRequests.getARequest()
     aReq.shipAddrCity = body.city_name
     aReq.email = body.email
+    aReq.acctNumber = body.cc_number
     aReq.shipAddrPostCode = body.postcode
     aReq.cardExpiryDate = body.cc_date
     aReq.cardholderName = body.name
@@ -100,7 +102,7 @@ let startTransaction = (clientData, response) => {
     let updatedAreq = getUpdatedAreq(clientData.paymentData, clientData.threeDSServerTransID)
 
     if (updatedAreq.status === 'ko') { response.json(updatedAreq); return }
-    if (!utils.isCreditCardInRange(request.body.cc_number)) { response.json(utils.jsonError('Credit card number is not in 3DS2 range')); return }
+    if (!utils.isCreditCardInRange(updatedAreq.acctNumber)) { response.json(utils.jsonError('Credit card number is not in 3DS2 range')); return }
     if (!utils.checkThreeDSVersion(updatedAreq.messageVersion)) { response.json(utils.jsonError('Not compatible version')); return }
 
     if (clientData.methodStatus == 'ok') {
