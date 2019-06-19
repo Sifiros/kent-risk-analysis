@@ -35,7 +35,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
  
 
 let info = {}
-info.threeDSServerTransID = getUrlParameter('trID')
+info.threeDSServerTransID = decodeURIComponent(getUrlParameter('trID'))
 
 let sendFingerPrintToACS = () => {
     return fetch(decodeURIComponent(getUrlParameter('posturl')), {
@@ -47,7 +47,7 @@ let sendFingerPrintToACS = () => {
         }).then((response) => response.json())
 }
 
-let getAllInfo = (uaparser, deployJava) => {
+let getAllInfo = (uaparser) => {
     info.screenSize = screen.width + ":" + screen.height
     info.innerSize = window.innerWidth + ":" + window.innerHeight
     info.outerSize = window.outerWidth + ":" + window.outerHeight
