@@ -90,7 +90,7 @@ class AcsPacketFactory():
     def get_notification_method_url_packet(threeDSTransID):
         nmu_packet  = {
             "methodStatus": "ok",
-            "threeDSTransID": threeDSTransID
+            "threeDSServerTransID": threeDSTransID
         }
         return nmu_packet
 
