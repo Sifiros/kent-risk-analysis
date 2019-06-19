@@ -24,7 +24,6 @@ function Landing() {
       <Fragment>
           <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
           <CheckoutForm cart={cart}/>
-          <Footer/>
       </Fragment>
     );
   } else {
