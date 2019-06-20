@@ -17,6 +17,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
         self.transaction_ctrl = TransactionController(self.send_response)
         self.m_request_list = {}
+        self.m_notification_list = {}
         self.m_cRes_packets_wainting = {}
 
         ThreadingMixIn.__init__(self)
@@ -29,6 +30,21 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             return self.m_request_list[transaction_id]
         else:
             print('ERROR : Unable to find the ID ' + transaction_id + ' into request list')
+            return None
+
+    def add_notification_in_notification_list(self, transaction_id, notif_url):
+        print("INFO : Adding notification for transaction "  + transaction_id)
+        self.m_notification_list[transaction_id] = notif_url
+
+    def remove_entry_from_notification_list(self, transaction_id):
+        print("INFO : Removing notification for transaction "  + transaction_id)
+        self.m_notification_list.pop(transaction_id, None)
+
+    def get_packet_in_notification_list(self, transaction_id):
+        if transaction_id in self.m_notification_list:
+            return self.m_notification_list[transaction_id]
+        else:
+            print('ERROR : Unable to find the ID ' + transaction_id + ' into notification list')
             return None
 
     def add_transaction_in_transaction_list(self, transaction_id, handler):
@@ -56,11 +72,17 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     
     ##### AcsHttpRequestHandler callbacks #####
 
-    def on_aReq_packet_received(self, handler, packet):
+    def on_hReq_packet_received(self, handler, packet):
         self.add_transaction_in_transaction_list(packet["threeDSServerTransID"], handler)
+        self.add_notification_in_notification_list(packet["threeDSServerTransID"], packet["notificationMethodURL"])
+        # TODO : start notif timer
+
+    def on_aReq_packet_received(self, handler, packet):
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_gReq_packet_received(self, handler, packet):
+        # TODO : Cancel notif timer
+        self.remove_entry_from_notification_list(packet["threeDSServerTransID"])
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
         handler.send_complete_response(200, json.dumps(AcsPacketFactory.get_gResp_packet()))
 
