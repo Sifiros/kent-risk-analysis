@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    networks:
+      main:
+        aliases:
+          - redis    
+    volumes:
+      - ./ACS/data:/data/
+    ports:
+      - 6379:6379
+
+  acs:
+    build: ACS/
+    networks:
+      main:
+        aliases:
+          - acs
+    volumes:
+      - ./ACS/:/app/
+    ports:
+      - 8484:8484
+    environment:
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8484
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONUNBUFFERED=1
+
+  merchant:
+    build: Merchant/
+    volumes:
+      - ./Merchant/:/www
+    ports:
+      - 4242:4242
+    depends_on:
+      - acs
+    networks:
+      main:
+        aliases:
+          - merchant
+    environment:
+      - SERVER_PORT=4242
+      - SERVER_IP=0.0.0.0
+      - INTERNAL_NETWORK_URL=http://merchant:4242
+      - PUBLIC_URL=http://localhost:4242
+      - ACS_PUBLIC_URL=http://acs:8484
+
+networks:
+  main:      
