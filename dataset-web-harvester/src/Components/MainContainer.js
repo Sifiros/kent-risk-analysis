@@ -6,6 +6,20 @@ import HarvestingUnit from './HarvestingUnit'
 
 class MainContainer extends Component {
 
+    constructor(props) {
+        super(props)
+        this.onLanguageChanged = this.onLanguageChanged.bind(this)
+        this.state = {
+            language: "fr"
+        }
+    }
+
+    onLanguageChanged(language) {
+        this.setState({
+            language: language
+        })
+    }
+
     render() {
         return (
             <div className="MainContainer">
@@ -23,8 +37,8 @@ class MainContainer extends Component {
                         <h2>Machine Learning for Risk Assessment in Online Payment</h2>
                         <h4>Data Collection</h4>
                     </div>
-                    <Presentation></Presentation>
-                    <HarvestingUnit></HarvestingUnit>
+                    <Presentation languageChangedCallback={this.onLanguageChanged}/>
+                    <HarvestingUnit language={this.state.language}/>
             </div>
         )
     }
