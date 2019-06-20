@@ -22,15 +22,31 @@
     }
 </style>
 <script>
+    
     var onSubmitClicked = () => {
-        console.log("submitted")
+        document.getElementById("label").style.display = "none";
+        document.getElementById("start").style.display = "none";
+        document.getElementById("submit").style.display = "none";
+        document.getElementById("success_pay").style.display = "";
     }
 </script>
 
 <body>
-    <label>Please enter your birthdate as verification for your purchase.</label>
+    <label id="label">Please enter your birthdate as verification for your purchase.</label>
     <input type="date" id="start" name="trip-start">
-    <button onclick="onSubmitClicked()">Submit</button> 
+    <button id="submit" onclick="onSubmitClicked()">Submit</button> 
+
+    <div id="success_pay" style="display:none">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+            <circle class="path circle" fill="none" stroke="#73AF55" stroke-width="6" stroke-miterlimit="10" cx="65.1" cy="65.1" r="62.1"
+            />
+            <polyline class="path check" fill="none" stroke="#73AF55" stroke-width="6" stroke-linecap="round" stroke-miterlimit="10"
+                points="100.2,40.2 51.5,88.8 29.8,67.5 " />
+        </svg>
+        <p class="success">Authentication Successful !</p>
+    </div>
+
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
         crossorigin="anonymous"></script>
