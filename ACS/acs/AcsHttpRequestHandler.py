@@ -66,10 +66,11 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_pResp_packet(packet["threeDSServerTransID"], self.get_threeDSMethodURL())))
         # Hreq handler(harvester html code)
         elif self.path == '/harvestcontent':
+            self.server.on_hReq_packet_received(self, packet)
             self.send_complete_response(200, json.dumps(AcsPacketFactory.get_hResp_packet(self.get_iframe_url(packet['threeDSServerTransID']))))
-            AcsHttpSender.post_data_to_endpoint(packet['notificationMethodURL'], json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'])))
         # Greq handler (harvester data)
         elif self.path == '/harvestrequest':
+            AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.server.get_packet_in_notification_list(packet["threeDSServerTransID"]), json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'], "ok")), self.server.on_transaction_error_while_sending)
             self.server.on_gReq_packet_received(self, packet)
         # Areq handler
         elif self.path == '/authrequest':

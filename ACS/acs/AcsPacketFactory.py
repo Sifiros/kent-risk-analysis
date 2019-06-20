@@ -87,9 +87,9 @@ class AcsPacketFactory():
         return gRest_packet
 
     @staticmethod
-    def get_notification_method_url_packet(threeDSTransID):
+    def get_notification_method_url_packet(threeDSTransID, status):
         nmu_packet  = {
-            "methodStatus": "ok",
+            "methodStatus": status,
             "threeDSServerTransID": threeDSTransID
         }
         return nmu_packet

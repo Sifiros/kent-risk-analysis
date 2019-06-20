@@ -17,6 +17,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
         self.transaction_ctrl = TransactionController(self.send_response)
         self.m_request_list = {}
+        self.m_notification_list = {}
         self.m_cRes_packets_wainting = {}
 
         ThreadingMixIn.__init__(self)
@@ -29,6 +30,21 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             return self.m_request_list[transaction_id]
         else:
             print('ERROR : Unable to find the ID ' + transaction_id + ' into request list')
+            return None
+
+    def add_notification_in_notification_list(self, transaction_id, notif_url):
+        print("INFO : Adding notification for transaction "  + transaction_id)
+        self.m_notification_list[transaction_id] = notif_url
+
+    def remove_entry_from_notification_list(self, transaction_id):
+        print("INFO : Removing notification for transaction "  + transaction_id)
+        self.m_notification_list.pop(transaction_id, None)
+
+    def get_packet_in_notification_list(self, transaction_id):
+        if transaction_id in self.m_notification_list:
+            return self.m_notification_list[transaction_id]
+        else:
+            print('ERROR : Unable to find the ID ' + transaction_id + ' into notification list')
             return None
 
     def add_transaction_in_transaction_list(self, transaction_id, handler):
@@ -56,11 +72,17 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     
     ##### AcsHttpRequestHandler callbacks #####
 
-    def on_aReq_packet_received(self, handler, packet):
+    def on_hReq_packet_received(self, handler, packet):
         self.add_transaction_in_transaction_list(packet["threeDSServerTransID"], handler)
+        self.add_notification_in_notification_list(packet["threeDSServerTransID"], packet["notificationMethodURL"])
+        # TODO : start notif timer
+
+    def on_aReq_packet_received(self, handler, packet):
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_gReq_packet_received(self, handler, packet):
+        # TODO : Cancel notif timer
+        self.remove_entry_from_notification_list(packet["threeDSServerTransID"])
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
         handler.send_complete_response(200, json.dumps(AcsPacketFactory.get_gResp_packet()))
 
@@ -69,6 +91,12 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)        
 
     ##### AcsHttpSender callbacks #####
+
+    def on_transaction_error_while_sending(self, transaction_id):
+        print("TIMEOUT : " + transaction_id + " Aborting transaction...")
+        # TODO : CLEAR TRANSATION INTO TM
+        self.remove_entry_from_transaction_list(transaction_id)
+        self.remove_packet_in_cRes_packeT_waiting_list(transaction_id)
 
     def on_rRes_packet_received(self, packet):
         # rRes received, post back final response to creq
@@ -85,12 +113,12 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             # Then if the current transaction does not need auth chall, post final resul request
             if packet["transStatus"] == "Y":
                 self.add_packet_in_cRes_packet_waiting_list(transaction_id, packet)
-                AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), 10,  self.on_rRes_packet_received)
+                AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
             else:
                 self.remove_entry_from_transaction_list(transaction_id)
         elif packet["messageType"] == "CRes":
             # Chall successful, post final Rreq and wait for its response to send final Cres
-            AcsHttpSender.post_data_to_endpoint(self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), 10,  self.on_rRes_packet_received)
+            AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
         elif packet["messageType"] == "SRes":
             # Chall failed, send Sres to notify client
             self.get_transaction_from_list(transaction_id).send_complete_response(200, json.dumps(packet))

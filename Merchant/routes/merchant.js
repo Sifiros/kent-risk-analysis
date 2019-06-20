@@ -81,14 +81,22 @@ router.post('/notification', (request, response) => {
     console.log('\nNOTIFICATION: RECIEVED: CRES :');
     console.log(request.body);
     
-    let userData = search.getUserWithoutAresByTransID(request.body.acsTransID, clients)
-    if (userData != null) {
-        userData.confirmationResponse.json({ 'status': 'authentified' })
+    // let userData = search.getUserWithoutAresByTransID(request.body.acsTransID, clients)
+    // if (userData != null) {
+    //     userData.confirmationResponse.json({ 'status': 'authentified' })
+    // }
+
+
+    // TODO check que tout va vraiment bien et send KO sinon
+    if (request.body.challengeCompletionInd === 'Y') {
+        clientData.confirmationObj.response.json({'status': 'ok'})
+    } else {
+        clientData.confirmationObj.response.json({'status': 'ko'})
     }
 
     response.json({
         'status': 'ok',
-        'message': 'ok'
+        'message': 'received'
     })
 })
 
@@ -98,10 +106,10 @@ router.post('/requestConfirmation', (request, response) => {
         response.json({ 'status': 'ko' })
         return
     }
-    let userData = {}
-    userData.acsTransID = request.body.acsTransID
-    userData.confirmationResponse = response
-    clients.push(userData)
+    let confirmationObj = {}
+    confirmationObj.acsTransID = request.body.acsTransID
+    confirmationObj.confirmationResponse = response
+    clientData.confirmationObj = confirmationObj
     return
 })
 

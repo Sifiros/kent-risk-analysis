@@ -20,6 +20,15 @@ class CheckoutForm extends React.Component {
         event.preventDefault();
         console.log(this.state)
         startThreeDSProtocol(this.state)
+          .then((response) => response.json())
+          .then((response) => {
+            if (response.body && response.body.status === "ok")
+            setTimeout(() => {window.$.featherlight.close()}, 1000)
+            //go to payment ok
+          })
+          .catch((error) => {
+            //go to payment not ok
+          })
     }
 
     validCvv(value) {
@@ -85,11 +94,11 @@ class CheckoutForm extends React.Component {
             <div className="form-row">
               <div className="form-group col-md-6">
                 <label htmlFor="inputEmail4">Email</label>
-                <input type="email" required="true" className="form-control" id="inputEmail4" placeholder="Email" value={this.state.email} onChange={(event) => this.setState({email: event.target.value})}/>
+                <input type="email" required={true} className="form-control" id="inputEmail4" placeholder="Email" value={this.state.email} onChange={(event) => this.setState({email: event.target.value})}/>
               </div>
               <div className="form-group col-md-6">
                 <label htmlFor="inputPhone">Phone number</label>
-                <input type="tel" required="true" className="form-control" id="inputPhone" placeholder="Phone number" value={this.state.phone_number} onChange={(event) => this.setState({phone_number: event.target.value})}/>
+                <input type="tel" required={true} className="form-control" id="inputPhone" placeholder="Phone number" value={this.state.phone_number} onChange={(event) => this.setState({phone_number: event.target.value})}/>
               </div>
             </div>
             <div className="form-row">
@@ -109,21 +118,21 @@ class CheckoutForm extends React.Component {
             <div className="form-row">
               <div className="form-group col-md-9">
                 <label htmlFor="inputName">Cardholder name</label>
-                <input type="text" required="true" className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
               </div>
               <div className="form-group col-md-9">
                 <label htmlFor="inputAddress">Address</label>
-                <input type="text" required="true" className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group col-md-6">
                 <label htmlFor="inputCity">City</label>
-                <input type="text" required="true" className="form-control" id="inputCity" placeholder="Toulouse" value={this.state.city_name} onChange={(event) => this.setState({city_name: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputCity" placeholder="Toulouse" value={this.state.city_name} onChange={(event) => this.setState({city_name: event.target.value})}/>
               </div>
               <div className="form-group col-md-2">
                 <label htmlFor="inputZip">Zip</label>
-                <input type="text" required="true" className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
               </div>
               <div className="form-group col-md-12">
                 <button type="submit" className="btn btn-primary" disabled={!(this.CvvValid && this.validCreditCard && this.validExpirationDate)}>Proceed to payment</button>
