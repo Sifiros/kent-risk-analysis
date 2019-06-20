@@ -72,7 +72,9 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
     def on_transaction_error_while_sending(self, transaction_id):
         print("TIMEOUT : " + transaction_id + " Aborting transaction...")
-        # TODO : ABORT TRANSACTION INTO TM
+        # TODO : CLEAR TRANSATION INTO TM
+        self.remove_entry_from_transaction_list(transaction_id)
+        self.remove_packet_in_cRes_packeT_waiting_list(transaction_id)
 
     def on_rRes_packet_received(self, packet):
         # rRes received, post back final response to creq
