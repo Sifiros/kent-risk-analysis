@@ -4,6 +4,11 @@ import Navbar from 'react-bootstrap/Navbar'
 import Presentation from './Presentation'
 import HarvestingUnit from './HarvestingUnit'
 
+const pageTitleEn = "Machine Learning for Risk Assessment in Online Payment"
+const pageTitleFr = "Evaluation des risques pour du paiement en ligne via Machine Learning"
+const pageSubtitleEn = "Data Collection"
+const pageSubtitleFr = "Récolte de données"
+
 class MainContainer extends Component {
 
     constructor(props) {
@@ -34,8 +39,8 @@ class MainContainer extends Component {
                     </Navbar.Brand>
                 </Navbar>
                     <div className="PageTitle">
-                        <h2>Machine Learning for Risk Assessment in Online Payment</h2>
-                        <h4>Data Collection</h4>
+                        <h2>{this.state.language === "fr" ? pageTitleFr : pageTitleEn}</h2>
+                        <h4>{this.state.language === "fr" ? pageSubtitleFr : pageSubtitleEn}</h4>
                     </div>
                     <Presentation languageChangedCallback={this.onLanguageChanged}/>
                     <HarvestingUnit language={this.state.language}/>

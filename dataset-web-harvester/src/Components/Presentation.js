@@ -4,11 +4,6 @@ import { SegmentedControl } from 'segmented-control'
 import MDReactComponent from 'markdown-react-js';
 import PropTypes from 'prop-types';
 
-let LanguageState = {
-    FRENCH: 0,
-    ENGLISH: 1
-}
-
 let frenchPresentation = `Dans le cadre de notre 4ème année d’étude, nous devons réaliser un projet de recherche afin de valider notre Master.
 
 Nous travaillons actuellement sur de l’analyse de risque lors d’une transaction en ligne en cherchant à vérifier l’identité de la personne réalisant l’achat.
@@ -78,7 +73,7 @@ class Presentation extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            language: LanguageState.FRENCH,
+            language: "fr",
             languageCallback: props.languageChangedCallback
         }
 
@@ -89,13 +84,13 @@ class Presentation extends Component {
         if (value === "0") {
             this.presentationText = frenchPresentation
             this.setState({
-                language: LanguageState.FRENCH
+                language: "fr"
             })
             this.state.languageCallback("fr")
         } else {
             this.presentationText = englishPresentation
             this.setState({
-                language: LanguageState.ENGLISH
+                language: "en"
             })
             this.state.languageCallback("en")
         }
