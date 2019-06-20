@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './Presentation.css';
 import { SegmentedControl } from 'segmented-control'
 import MDReactComponent from 'markdown-react-js';
+import PropTypes from 'prop-types';
 
 let LanguageState = {
     FRENCH: 0,
@@ -77,7 +78,8 @@ class Presentation extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            language: LanguageState.FRENCH
+            language: LanguageState.FRENCH,
+            languageCallback: props.languageChangedCallback
         }
 
         this.presentationText = frenchPresentation
@@ -89,11 +91,13 @@ class Presentation extends Component {
             this.setState({
                 language: LanguageState.FRENCH
             })
+            this.state.languageCallback("fr")
         } else {
             this.presentationText = englishPresentation
             this.setState({
                 language: LanguageState.ENGLISH
             })
+            this.state.languageCallback("en")
         }
     }
 
@@ -114,6 +118,14 @@ class Presentation extends Component {
             </div>
         )
     }
+}
+
+Presentation.propTypes = {
+    languageChangedCallback: PropTypes.func
+}
+  
+Presentation.defaultProps = {
+    languageChangedCallback: null
 }
 
 export default Presentation
