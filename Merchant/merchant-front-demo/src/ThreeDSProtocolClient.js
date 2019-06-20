@@ -1,3 +1,5 @@
+import { request } from "https";
+
 // here we get the URL + 3dsServerTransID
 // We spawn the iframe (get ID, request wait response and message)
 // in the message handler we send the startPayment request
@@ -124,18 +126,16 @@ let sendConfirmationRequest = (acsTransID) => {
     identifier.acsTransID = acsTransID
     
     fetch('http://localhost:4242/merchant/requestConfirmation', {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(identifier)
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(identifier)
     })
-    .then((response) => response.json())
-    .then((response) => {
-        if (response.status === 'authentified') {
-            window.setTimeout(function () { savedIframe.close(); }, 2400);
-        }
-    })
+        .then((response) => response.json())
+        .then((response) => {
+            if (response.status === 'authentified') {
+                window.setTimeout(function () { savedIframe.close(); }, 2400);
+            }
+        })
 }
 
 // send the CReq and spawn the auth Iframe containing the plaintext HTML response
@@ -159,7 +159,23 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 }
 
 window.testiFrame = () => {
-    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallRecaptcha.html", defaults)
+    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallBirthdate.html", defaults)
+}
+
+let requestConfirmation = (acsTransID) => {
+    return fetch('http://localhost:4242/merchant/requestConfirmation', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(acsTransID)
+    })
+}
+
+let sendPaymentData = (paymentData) => {
+    return fetch('http://localhost:4242/merchant/pay', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData)
+    })
 }
 
 // send the form to the merchant server to initiate the transaction
@@ -169,26 +185,21 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
     
     // assert that all inputs are filled
     for (var key in paymentData) {
-        if (!paymentData[key]) { return false }
+        if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
     
-    fetch('http://localhost:4242/merchant/pay', {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(paymentData)
-})
-.then((response) => response.json())
-.then((response) => {
-    console.log(response);
-    if (response.data.messageType == 'ARes' && response.what == 'Challenge') {
-        sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
-    } else {
-        if (response.data.messageType === 'ARes') { alert('TODO'); return }
-        alert('ERROR')
-    }
-})
+    return sendPaymentData(paymentData)
+            .then((response) => response.json())
+            .then((response) => {
+                console.log(response);
+                if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
+                    sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
+                    return requestConfirmation(response.data.acsTransID)
+                } else {
+                    if (response.data.messageType === 'ARes') { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
+                    alert('ERROR')
+                }
+            })
 }
 
 export default startThreeDSProtocol;
