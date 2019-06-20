@@ -32,7 +32,7 @@ En pressant le bouton rouge au dessous de ce texte vous nous permettrez d’acc�
 Notez que l’ensemble de ces données ne permettent aucunement l’identification d’une personne et qu’elles seront **directement anonymisées** et **détruites
 à la fin de l’étude** (début septembre 2019) afin d’être **complètement conforme à la loi  européene** (RGPD).
 Une fois le bouton pressé, nous vous présenterons l’ensemble des données que vous allez nous envoyer. Si vous souhaitez participer,
-vous n’aurez plus qu’à cliquer sur le bouton "*Send*". L’ensemble de la procédure prendra donc **moins d’une minute**.
+vous n’aurez plus qu’à cliquer sur le bouton "*Envoyer*". L’ensemble de la procédure prendra donc **moins d’une minute**.
 
 Si vous avez des questions ou si vous souhaitez nous contacter c’est par [ici](mailto:afgl2@kent.ac.uk).
 
