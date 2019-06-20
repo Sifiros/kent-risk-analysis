@@ -16,11 +16,11 @@ let CollectionState = {
 }
 
 const understandingEn = "I confirm I have read and understand the information for the above study"
-const understandingFr = "Je confirme avoir lu et compris les informations pour cette étude"
+const understandingFr = "Je confirme avoir lu et compris les informations à propos cette étude"
 const voluntaryEn = "I understand that my participation is voluntary and that I am free to withdraw at any time without giving any reason"
-const voluntaryFr = "Je comprend que ma participation est volontaire et que je peux me retirer à tout moment sans donner de raison particulierre"
+const voluntaryFr = "Je comprends que ma participation est volontaire et que je peux me retirer à tout moment sans donner de raison particulière"
 const gdprEn = "I understand that my responses will be anonymised before analysis. I give permission for members of the research team to have access to my anonymised responses."
-const gdprFr = "Je comprend que mes réponses seront anonymisés avant l'analyse. Je donne la permission aux membres de l'étude d'avoir accès à mes données anonymisées"
+const gdprFr = "Je comprends que mes réponses seront anonymisées avant l'analyse. Je donne la permission aux membres de l'étude d'avoir accès à mes données anonymisées"
 const dataCollectionButtonLabelEn = "Launch Data Collection"
 const dataCollectionButtonLabelFr = "Lancer la collecte de données"
 const sendDataButtonLabelEn = "Send"
