@@ -73,11 +73,11 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     ##### AcsHttpRequestHandler callbacks #####
 
     def on_hReq_packet_received(self, handler, packet):
-        self.add_transaction_in_transaction_list(packet["threeDSServerTransID"], handler)
         self.add_notification_in_notification_list(packet["threeDSServerTransID"], packet["notificationMethodURL"])
         # TODO : start notif timer
 
     def on_aReq_packet_received(self, handler, packet):
+        self.add_transaction_in_transaction_list(packet["threeDSServerTransID"], handler)
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_gReq_packet_received(self, handler, packet):
