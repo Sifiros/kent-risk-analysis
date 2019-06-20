@@ -140,6 +140,8 @@ let sendConfirmationRequest = (acsTransID) => {
 
 // send the CReq and spawn the auth Iframe containing the plaintext HTML response
 let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
+
+    console.log('IN sendcReq, acsURL = ' + acsURL);
     
     CReq.acsTransID = acsTransID
     CReq.threeDSServerTransID = threeDSServerTransID
@@ -164,31 +166,35 @@ window.testiFrame = () => {
 
 // send the form to the merchant server to initiate the transaction
 let startAuthentication = (threeDSServerTransID, trans_details) => {
-    
+
     let paymentData = getPaymentData(threeDSServerTransID, trans_details)
-    
+
     // assert that all inputs are filled
     for (var key in paymentData) {
         if (!paymentData[key]) { return false }
     }
-    
+
     fetch('http://localhost:4242/merchant/pay', {
-    method: 'POST',
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(paymentData)
-})
-.then((response) => response.json())
-.then((response) => {
-    console.log(response);
-    if (response.data.messageType == 'ARes' && response.what == 'Challenge') {
-        sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
-    } else {
-        if (response.data.messageType === 'ARes') { alert('TODO'); return }
-        alert('ERROR')
-    }
-})
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(paymentData)
+    })
+        .then((response) => response.json())
+        .then((response) => {
+            console.log(response);
+            if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
+                sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
+            }
+            else if (response.data.messageType === 'ARes' && response.what === 'Authentified') {
+                alert('AUTHENTIFIED, USE END PAGE')
+                return
+            } else {
+                alert('ERROR, ALEXIS FAIT DES BAILS')
+                return
+            }
+        })
 }
 
 export default startThreeDSProtocol;
