@@ -19,11 +19,16 @@ class CheckoutForm extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         console.log(this.state)
-        startThreeDSProtocol(this.state).then((response) => response.json())
-        .then((response) => {
+        startThreeDSProtocol(this.state)
+          .then((response) => response.json())
+          .then((response) => {
             if (response.body && response.body.status === "ok")
             setTimeout(() => {window.$.featherlight.close()}, 1000)
-        })
+            //go to payment ok
+          })
+          .catch((error) => {
+            //go to payment not ok
+          })
     }
 
     validCvv(value) {

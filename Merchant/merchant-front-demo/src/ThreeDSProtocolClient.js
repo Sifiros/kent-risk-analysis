@@ -140,6 +140,8 @@ let sendConfirmationRequest = (acsTransID) => {
 
 // send the CReq and spawn the auth Iframe containing the plaintext HTML response
 let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
+
+    console.log('IN sendcReq, acsURL = ' + acsURL);
     
     CReq.acsTransID = acsTransID
     CReq.threeDSServerTransID = threeDSServerTransID
@@ -180,9 +182,9 @@ let sendPaymentData = (paymentData) => {
 
 // send the form to the merchant server to initiate the transaction
 let startAuthentication = (threeDSServerTransID, trans_details) => {
-    
+
     let paymentData = getPaymentData(threeDSServerTransID, trans_details)
-    
+
     // assert that all inputs are filled
     for (var key in paymentData) {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
@@ -195,10 +197,10 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
                 if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
                     sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
                     return requestConfirmation(response.data.acsTransID)
-                } else {
-                    if (response.data.messageType === 'ARes') { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
-                    alert('ERROR')
-                }
+                } else if (response.data.messageType === 'ARes' && response.what === 'Authentified')
+                    return (new Promise(function(resolve, reject) { resolve("Payment complete") }))
+                else
+                    return (new Promise(function(resolve, reject) { reject("An error happened when trying to process your payment.") }))
             })
 }
 
