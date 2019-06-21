@@ -65,7 +65,7 @@
 
             }
 
-            let onSubmitClicked = () => {
+            $('#button-submit').click((event) => {
                 let formData = {}
                 formData.sms = $('#start').val()
                 formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
@@ -91,7 +91,7 @@
                         }
                         
                     })
-            }
+            })
         })
 </script>
 
@@ -99,7 +99,7 @@
     <div id='form-wrapper'>
         <label id="label">Please enter the sms you have received from your bank.</label>
         <input type="number" id="start" name="trip-start">
-        <button id="submit" onclick="onSubmitClicked()">Submit</button> 
+        <button id="button-submit">Submit</button> 
     </div>
 
     <div id="success_pay" style="display:none">

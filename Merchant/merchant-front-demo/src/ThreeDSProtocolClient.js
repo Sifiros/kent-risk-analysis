@@ -159,7 +159,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 }
 
 window.testiFrame = () => {
-    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallBirthdate.html", defaults)
+    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallRecaptcha.html", defaults)
 }
 
 let requestConfirmation = (acsTransID) => {
