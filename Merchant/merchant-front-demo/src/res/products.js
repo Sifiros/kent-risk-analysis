@@ -31,7 +31,8 @@ export default [
         price: 80,
     },
     {
-        name: "Apple Stand",
+        name: "Apple farm",
+        image: thumbs.applefarm,
         price: 999,
     }
 ]

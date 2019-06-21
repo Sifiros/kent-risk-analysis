@@ -3,16 +3,18 @@ import ProductList from './ProductList';
 import HeaderBar from './HeaderBar';
 import CheckoutForm from './CheckoutForm';
 import Footer from './Footer';
-import Iframe from 'react-iframe'
 
 function Landing() {
-  var [cart, setCartTotal] = React.useState({total: 0})
+  var [cart, setCartTotal] = React.useState({total: 0, list: []})
   var [checkoutStatus, setCheckoutStatus] = React.useState(0)
 
   function addToCart(prod) {
+    cart.list.push(prod)
     setCartTotal({...cart, 
-      total: cart.total + prod.price
+      total: cart.total + prod.price,
+      list: cart.list
     })
+    console.log(cart)
   }
 
   function onCheckoutClicked(status) { //0 = list of products, 1 = checkout form, 2 = payment complete

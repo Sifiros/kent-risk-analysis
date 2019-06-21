@@ -1,5 +1,3 @@
-import { request } from "https";
-
 // here we get the URL + 3dsServerTransID
 // We spawn the iframe (get ID, request wait response and message)
 // in the message handler we send the startPayment request

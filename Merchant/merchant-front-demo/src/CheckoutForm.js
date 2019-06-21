@@ -1,6 +1,7 @@
 import React  from 'react';
 import startThreeDSProtocol from './ThreeDSProtocolClient.js'
 import './res/CheckoutForm.css'
+import Footer from './Footer';
 
 class CheckoutForm extends React.Component {
     constructor(props) {
@@ -88,15 +89,43 @@ class CheckoutForm extends React.Component {
     }
 
     render() {
+      const generateLinkList = cart => (
+        <div className="form-group col-md-6">
+          {cart.list.map((obj, i) =>  <div className="form-row" key={i}>
+                                        <div className="form-group col-md-6">
+                                          {obj.name}
+                                        </div>
+                                        <div style={{borderColor:"black"}}></div>
+                                        <div className="form-group col-md-6">
+                                          {obj.price}€
+                                        </div>
+                                      </div>)}
+          <div className="form-row" style={{marginLeft: "50px", fontSize: "x-large"}}>
+            <div className="form-group col-md-6">
+              TOTAL
+            </div>
+            <div className="form-group col-md-6">
+              {cart.total}€
+            </div>
+          </div>
+        </div>
+      );
+
         return (
         <div style={{style: "container", marginLeft: "50px", marginRight: "50px"}}>
-            <form onSubmit={this.handleSubmit}>
             <div className="form-row">
-              <div className="form-group col-md-6">
+              <div className="form-group col-md-6" style={{borderRight:"2px solid black"}}>
+              <form onSubmit={this.handleSubmit}>
+            <div className="form-row">
+              <div className="form-group col-md-4">
+                <label htmlFor="inputName">Cardholder name</label>
+                <input type="text" required={true} className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
+              </div>
+              <div className="form-group col-md-4">
                 <label htmlFor="inputEmail4">Email</label>
                 <input type="email" required={true} className="form-control" id="inputEmail4" placeholder="Email" value={this.state.email} onChange={(event) => this.setState({email: event.target.value})}/>
               </div>
-              <div className="form-group col-md-6">
+              <div className="form-group col-md-4">
                 <label htmlFor="inputPhone">Phone number</label>
                 <input type="tel" required={true} className="form-control" id="inputPhone" placeholder="Phone number" value={this.state.phone_number} onChange={(event) => this.setState({phone_number: event.target.value})}/>
               </div>
@@ -116,17 +145,11 @@ class CheckoutForm extends React.Component {
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group col-md-9">
-                <label htmlFor="inputName">Cardholder name</label>
-                <input type="text" required={true} className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
-              </div>
-              <div className="form-group col-md-9">
+              <div className="form-group col-md-6">
                 <label htmlFor="inputAddress">Address</label>
                 <input type="text" required={true} className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
               </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group col-md-6">
+              <div className="form-group col-md-4">
                 <label htmlFor="inputCity">City</label>
                 <input type="text" required={true} className="form-control" id="inputCity" placeholder="Toulouse" value={this.state.city_name} onChange={(event) => this.setState({city_name: event.target.value})}/>
               </div>
@@ -134,12 +157,17 @@ class CheckoutForm extends React.Component {
                 <label htmlFor="inputZip">Zip</label>
                 <input type="text" required={true} className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
               </div>
-              <div className="form-group col-md-12">
+            </div>
+            <div className="form-row">
+              <div className="form-group col-md-12" style={{marginTop: "50px"}}>
                 <button type="submit" className="btn btn-primary" disabled={!(this.CvvValid && this.validCreditCard && this.validExpirationDate)}>Proceed to payment</button>
               </div>
             </div>
-          </form>
-            </div>)
+            </form>
+            </div>
+                {generateLinkList(this.props.cart)}
+            </div>
+        </div>)
     }
 }
 
