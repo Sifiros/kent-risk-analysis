@@ -153,7 +153,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .then((response) => response.json())
     .then((response) => {
         sendConfirmationRequest(acsTransID)
-        savedIframe = window.$.featherlight(response.respSubmissionUrl, defaults)
+        savedIframe = window.$.featherlight(response.challengeIframeUrl, defaults)
     })
     .catch((error) => alert(error))
 }
