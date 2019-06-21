@@ -16,14 +16,14 @@
 
 <script>
     var onSubmitClicked = () => {
-        console.log("submitted")
+        console.log(grecaptcha.getResponse(""))
     }
 </script>
 
 <body>
         <div class="g-recaptcha" data-sitekey="6LfSQqkUAAAAAOlj5jZUf-ND0ole_bcEsBmXxhwN"></div>
         <br/>
-        <input type="submit" value="Submit">
+        <button id="submit" onclick="onSubmitClicked()">Submit</button> 
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
         crossorigin="anonymous"></script>
