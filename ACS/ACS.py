@@ -88,31 +88,31 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     def on_transaction_error_while_sending(self, transaction_id):
         print("TIMEOUT : " + transaction_id + " Aborting transaction...")
         # TODO : CLEAR TRANSATION INTO TM
-        self.remove_item_from_dic(m_request_list, transaction_id)
-        self.remove_item_from_dic(m_cRes_packets_wainting, transaction_id)
+        self.remove_item_from_dic(self.m_request_list, transaction_id)
+        self.remove_item_from_dic(self.m_cRes_packets_wainting, transaction_id)
 
     def on_rRes_packet_received(self, packet):
         # rRes received, post back final response to creq
-        self.get_item_from_dic(m_request_list, packet["threeDSServerTransID"]).send_complete_response(200, json.dumps(self.get_packet_in_cRes_packet_waiting_list(packet["threeDSServerTransID"])))
-        self.remove_item_from_dic(m_request_list, packet["threeDSServerTransID"])
-        self.remove_item_from_dic(m_cRes_packets_wainting, packet["threeDSServerTransID"])
+        self.get_item_from_dic(self.m_request_list, packet["threeDSServerTransID"]).send_complete_response(200, json.dumps(self.get_packet_in_cRes_packet_waiting_list(packet["threeDSServerTransID"])))
+        self.remove_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
+        self.remove_item_from_dic(self.m_cRes_packets_wainting, packet["threeDSServerTransID"])
 
     ##### TransactionController callbacks #####
     
     def send_response(self, transaction_id, packet):
         if packet["messageType"] == "ARes":
             # Send Ares Response
-            self.get_item_from_dic(m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
+            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
             # Then if the current transaction does not need auth chall, post final resul request
             if packet["transStatus"] == "Y":
-                self.add_item_into_dic(m_cRes_packets_wainting, transaction_id, packet)
+                self.add_item_into_dic(self.m_cRes_packets_wainting, transaction_id, packet)
                 AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
             else:
-                self.remove_item_from_dic(m_request_list, transaction_id)
+                self.remove_item_from_dic(self.m_request_list, transaction_id)
         elif packet["messageType"] == "CRes":
             # Chall successful, post final Rreq and wait for its response to send final Cres
             AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
         elif packet["messageType"] == "SRes":
             # Chall failed, send Sres to notify client
-            self.get_item_from_dic(m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
-            self.remove_item_from_dic(m_request_list, transaction_id)
+            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
+            self.remove_item_from_dic(self.m_request_list, transaction_id)
