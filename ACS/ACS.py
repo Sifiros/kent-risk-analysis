@@ -46,6 +46,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     ##### NotifTimer callbacks #####
 
     def notif_timeout(self, *args, **kwargs):
+        # args[0] == transaction_id
         print("INFO : Timeout for transaction {}".format(args[0]))
         self.remove_item_from_dic(self.m_timer_list, args[0])
         self.remove_item_from_dic(self.m_notification_list, args[0])
