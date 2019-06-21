@@ -24,11 +24,12 @@ class CheckoutForm extends React.Component {
           .then((response) => response.json())
           .then((response) => {
             if (response.body && response.body.status === "ok")
-            setTimeout(() => {window.$.featherlight.close()}, 1000)
-            //go to payment ok
+            setTimeout(() => {
+              window.$.featherlight.close()}, 1000)
+              this.props.onPaymentDone(true)
           })
           .catch((error) => {
-            //go to payment not ok
+            this.props.onPaymentDone(false)
           })
     }
 
