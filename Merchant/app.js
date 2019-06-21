@@ -13,6 +13,7 @@ const threeDSUtils = require('./process/threeDSUtils')
 
 const app = express()
 const port = config.port()
+const serverIp = config.serverIp()
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -22,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'static')));
 app.use('/merchant', merchantroute)
 app.use('/threeDSComponent', threeDSroute)
 
-app.listen(port)
+app.listen(port, serverIp)
 
 // call at server application startup and every 1h (3600000 millisecond)
 setInterval(threeDSUtils.requestThreeDSServerConfig, 3600000)

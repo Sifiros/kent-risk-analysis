@@ -32,7 +32,7 @@ let get3DSMethod = (cc_number) => {
 
     methodData.threeDSServerTransID = uuidv1()
     userData.threeDSServerTransID = methodData.threeDSServerTransID
-    methodData.notificationMethodURL = config.origin() + '/threeDSComponent/notificationMethod'
+    methodData.notificationMethodURL = config.internalNetworkUrl() + '/threeDSComponent/notificationMethod'
     return new Promise(resolve => resolve(methodData))
 }
 
