@@ -23,6 +23,20 @@
 </style>
 
 <script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        let sPageURL = window.location.search.substring(1)
+        let sURLVariables = sPageURL.split('&')
+        let sParameterName
+        let i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+    };
+ 
         $(document).ready(() => {
             document.getElementsByClassName("featherlight")[0].style.background = "#00000055";
 
@@ -54,10 +68,10 @@
             let onSubmitClicked = () => {
                 let formData = {}
                 formData.sms = $('#start').val()
-                formData.acsTransID = 'acstransidfromurl'
-                formData.threeDSSServerTransID = '3dstransid'
+                formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
+                formData.threeDSSServerTransID = decodeURIComponent(getUrlParameter('tdstrid'))
 
-                let acsSubmitURL = 'to get from url'
+                let acsSubmitURL = decodeURIComponent(getUrlParameter('acsurl'))
 
                 if (!$.isNumeric(formData.sms) || formData.sms.toString.length() !== 6) {
                     alert('The SMS input is not compliant')
@@ -67,7 +81,7 @@
                     .then((response) => {
                         console.log(response);
                         if (response.messageType === 'CRes') {
-                            $('#from-wrapper').hide()
+                            $('#form-wrapper').hide()
                             if (response.challengeCompletionInd === 'Y') {
                                 $("#success_pay").show()
                             } else {
