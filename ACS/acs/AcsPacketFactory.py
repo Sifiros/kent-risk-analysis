@@ -72,9 +72,10 @@ class AcsPacketFactory():
         }
     
     @staticmethod
-    def get_html_cResp_packet():
+    def get_html_cResp_packet(challengeIframeUrl):
         htmlcResp_packet = {
-            "messageType": "HTMLCRes"
+            "messageType": "HTMLCRes",
+            "challengeIframeUrl": challengeIframeUrl
         }
         return htmlcResp_packet
 
