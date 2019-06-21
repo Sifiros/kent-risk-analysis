@@ -67,14 +67,14 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
         preforged_url = 'http://{}:{}/harvestrequest'.format(PUBLIC_IP, HTTP_PORT)
         encoded_url = urllib.parse.quote(preforged_url ,safe='')
         encoded_id = urllib.parse.quote(transaction_id ,safe='')
-        return 'http://{}:{}/IframeChallShortMessageService.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
+        return 'http://{}:{}/harvester.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
 
     def get_challenge_iframe_url(self, acsTransId, threedsServerTransId):
         submissionUrl = 'http://{}:{}/challsubmition'.format(PUBLIC_IP, HTTP_PORT)
         submissionUrl = urllib.parse.quote(submissionUrl ,safe='')
         threedsServerTransId = urllib.parse.quote(threedsServerTransId ,safe='')
         acsTransId = urllib.parse.quote(acsTransId ,safe='')
-        return 'http://{}:{}/challenge.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
+        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
 
     ##### Requests Callbacks #####
 
