@@ -1,4 +1,5 @@
 from .TransactionTask import TransactionTask
+from config import HTTP_PORT, PUBLIC_IP
 from acs import AcsPacketFactory
 from Database import database
 
@@ -73,7 +74,12 @@ class TransactionManager():
         fingerprints = database.get_user_fingerprints(purchase["acctNumber"])
         print("Past fingerprints = ")
         print(fingerprints)
-        checking_result = AcsPacketFactory.get_aResp_packet(self.transaction.id, "C", "Y",  "") # is a challenge needed ? TODO : complete it with good data
+        checking_result = AcsPacketFactory.get_aResp_packet(
+            threeDSServerTransID=self.transaction.id,
+            transStatus="C",
+            acsChallengeMandated="Y",
+            acsURL='http://{}:{}/challrequest'.format(PUBLIC_IP, HTTP_PORT)
+        )
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED

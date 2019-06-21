@@ -38,7 +38,7 @@ let getThreeDSMethod_URL = (cc_number) => {
 
 // make the request with the CC number to the merchant to get the ACS url of 3ds method
 let startThreeDSProtocol= (trans_details) => {
-    getThreeDSMethod_URL(trans_details.cc_number) 
+    return getThreeDSMethod_URL(trans_details.cc_number) 
     .then((response) => {
         if (response.status !== 'ok') {
             alert('Server error, your card may not be enrolled to 3DS2')
@@ -166,7 +166,9 @@ let requestConfirmation = (acsTransID) => {
     return fetch('http://localhost:4242/merchant/requestConfirmation', {
         method: 'POST',
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(acsTransID)
+        body: JSON.stringify({
+            "acsTransID": acsTransID
+        })
     })
 }
 
