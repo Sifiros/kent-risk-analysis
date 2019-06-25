@@ -75,7 +75,6 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         self.get_item_from_dic(self.m_timer_list, packet["threeDSServerTransID"]).cancel()
         self.remove_item_from_dic(self.m_timer_list, packet["threeDSServerTransID"])
 
-        self.remove_item_from_dic(self.m_notification_list, packet["threeDSServerTransID"])
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
         handler.send_complete_response(200, json.dumps(AcsPacketFactory.get_gResp_packet()))
 
