@@ -25,7 +25,7 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
     def send_cors_header(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "*")
-        self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Allow-Headers", "Accept,Content-Type,Origin")
 
     def do_HEAD(self):           
         self.send_response(200)
@@ -69,6 +69,13 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
         encoded_id = urllib.parse.quote(transaction_id ,safe='')
         return 'http://{}:{}/harvester.html?trID={}&posturl={}'.format(PUBLIC_IP, HTTP_PORT, encoded_id, encoded_url)
 
+    def get_challenge_iframe_url(self, acsTransId, threedsServerTransId):
+        submissionUrl = 'http://{}:{}/challsubmition'.format(PUBLIC_IP, HTTP_PORT)
+        submissionUrl = urllib.parse.quote(submissionUrl ,safe='')
+        threedsServerTransId = urllib.parse.quote(threedsServerTransId ,safe='')
+        acsTransId = urllib.parse.quote(acsTransId ,safe='')
+        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
+
     ##### Requests Callbacks #####
 
     # Handle Pre-request packet
@@ -82,8 +89,8 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     # Handle harvested data
     def onGReqReceived(self, packet):
-        AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.server.get_item_from_dic(self.server.m_notification_list ,packet["threeDSServerTransID"]), json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'], "ok")), self.server.on_transaction_error_while_sending)
         self.server.on_gReq_packet_received(self, packet)
+        AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.server.get_item_from_dic(self.server.m_notification_list ,packet["threeDSServerTransID"]), json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'], "ok")), self.server.on_transaction_error_while_sending)
 
     # Handle Authentication request
     def onAReqReceived(self, packet):
@@ -91,8 +98,15 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     # Handle Challenge request
     def onCReqReceived(self, packet):
-        self.send_complete_response(200, json.dumps(AcsPacketFactory.get_html_cResp_packet()))
+
+        self.send_complete_response(200, json.dumps(AcsPacketFactory.get_html_cResp_packet(
+            challengeIframeUrl=self.get_challenge_iframe_url(
+                acsTransId=packet['acsTransID'],
+                threedsServerTransId=packet['threeDSServerTransID']            
+            )
+        )))
 
     # Handle Submition request
     def onSReqReceived(self, packet):
+        print(packet)
         self.server.on_sReq_packet_received(self, packet)

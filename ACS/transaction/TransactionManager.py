@@ -1,4 +1,5 @@
 from .TransactionTask import TransactionTask
+from config import HTTP_PORT, PUBLIC_IP
 from acs import AcsPacketFactory
 from Database import database
 
@@ -55,25 +56,26 @@ class TransactionManager():
             self.run_ai()
 
     def check_user_profile(self, user_profile):
-        print("RECEIVED USER PROFILE ...")
-        print(user_profile)
+        print("RECEIVED USER PROFILE ..." + str(user_profile))
         self.transaction.user_profile = user_profile
         self.on_step_completion(TransactionTask.WAITING_AUTH_REQUEST)
 
     def check_auth_request(self, purchase_info):
-        print("Received auth request")
-        print(purchase_info)
+        print("Received auth request" + str(purchase_info))
         self.transaction.purchase = purchase_info
         self.on_step_completion(TransactionTask.WAITING_USER_PROFILE)
 
     def run_ai(self):
-        print("Running AI, A chal is needed")
         purchase, user_profile = (self.transaction.purchase, self.transaction.user_profile)
         database.append_user_fingerprint(purchase["acctNumber"], user_profile)
         fingerprints = database.get_user_fingerprints(purchase["acctNumber"])
-        print("Past fingerprints = ")
-        print(fingerprints)
-        checking_result = AcsPacketFactory.get_aResp_packet(self.transaction.id, "C", "Y",  "") # is a challenge needed ? TODO : complete it with good data
+        print("Running AI, A chal is needed, Past fingerprints = " + str(fingerprints))
+        checking_result = AcsPacketFactory.get_aResp_packet(
+            threeDSServerTransID=self.transaction.id,
+            transStatus="C",
+            acsChallengeMandated="Y",
+            acsURL='http://{}:{}/challrequest'.format(PUBLIC_IP, HTTP_PORT)
+        )
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED

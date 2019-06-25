@@ -61,7 +61,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         
         # Start notif timer (10sec)
         print('INFO : Starting timer for transaction {}'.format(packet["threeDSServerTransID"]))
-        notif_timer = threading.Timer(2.0, self.notif_timeout, [packet["threeDSServerTransID"]])
+        notif_timer = threading.Timer(10, self.notif_timeout, [packet["threeDSServerTransID"]])
         notif_timer.start()
         self.add_item_into_dic(self.m_timer_list, packet["threeDSServerTransID"], notif_timer)
 
