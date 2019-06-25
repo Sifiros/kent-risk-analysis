@@ -108,7 +108,7 @@ router.post('/requestConfirmation', (request, response) => {
     }
     let confirmationObj = {}
     confirmationObj.acsTransID = request.body.acsTransID
-    confirmationObj.confirmationResponse = response
+    confirmationObj.response = response
     clientData.confirmationObj = confirmationObj
     return
 })

@@ -6,7 +6,7 @@ const clientData            = require('../utils/appData').clientdata
 const threeDSSServerData    = require('../utils/appData')
 const threeDSUtils          = require('../process/threeDSUtils')
 const aRequests             = require('../messages/aRequests')
-const rMessages             = require('../messages/pMessages')
+const rMessages             = require('../messages/rMessages')
 const eMessages             = require('../messages/protocolError')
 const router                = express.Router()
 
@@ -153,7 +153,7 @@ router.post('/resrequest', (request, response) => {
         console.log("\n3DS SERVER: RECIEVED RREQ, CHECKING AND SENDING BACK RRES:");
         console.log(request.body);
 
-        (request.body.transStatus === 'Y' || request.body.transStatus === 'A') ? Rres.resultsStatus = '00' : Rres.resultsStatus = '01'
+        (request.body.transStatus === 'Y' || request.body.transStatus === 'N') ? Rres.resultsStatus = '00' : Rres.resultsStatus = '01'
         Rres.threeDSServerTransID = request.body.threeDSServerTransID
 
         response.json(Rres)
@@ -181,7 +181,10 @@ router.post('/challresponse', (request, response) => {
 
     console.log("\nCRES RECIEVED BY 3DSSERVER\nTRANSACTION COMPLETE");
 
-    response.json({'status': 'ok'})
+    response.json({
+        'status': 'ok',
+        'threeDSServerTransID': request.body.threeDSServerTransID
+    })
 })
 
 module.exports = router

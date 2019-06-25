@@ -63,6 +63,7 @@ class TransactionManager():
     def check_auth_request(self, purchase_info):
         print("Received auth request" + str(purchase_info))
         self.transaction.purchase = purchase_info
+        self.transaction.notification_url = purchase_info["notificationURL"]
         self.on_step_completion(TransactionTask.WAITING_USER_PROFILE)
 
     def run_ai(self):

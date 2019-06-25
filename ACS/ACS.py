@@ -7,7 +7,7 @@ from http.server import HTTPServer
 from transaction import TransactionController
 from acs import AcsPacketFactory, AcsHttpSender, AcsHttpRequestHandler
 from socketserver import ThreadingMixIn
-
+from config import THREE_DS_SERVER_URL
 rReq_rte = '/threeDSComponent/resrequest'
 cRes_rte = '/threeDSComponent/challresponse'
 
@@ -91,27 +91,36 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         self.remove_item_from_dic(self.m_cRes_packets_wainting, transaction_id)
 
     def on_rRes_packet_received(self, packet):
+        print("Received rRes packet : " + str(packet))
+        handler = self.get_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
+        cRes = self.m_cRes_packets_wainting[packet["threeDSServerTransID"]]
+        notificationUrl = self.transaction_ctrl.managers[packet["threeDSServerTransID"]].transaction.notification_url
+        cRes.update(notificationURL=notificationUrl)
         # rRes received, post back final response to creq
-        self.get_item_from_dic(self.m_request_list, packet["threeDSServerTransID"]).send_complete_response(200, json.dumps(self.get_packet_in_cRes_packet_waiting_list(packet["threeDSServerTransID"])))
+        handler.send_complete_response(200, json.dumps(cRes))
+        # final cRes to 3dsServer
+        AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
+        # cleans
         self.remove_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
         self.remove_item_from_dic(self.m_cRes_packets_wainting, packet["threeDSServerTransID"])
 
     ##### TransactionController callbacks #####
     
     def send_response(self, transaction_id, packet):
+        transaction_handler = self.get_item_from_dic(self.m_request_list, transaction_id)
         if packet["messageType"] == "ARes":
             # Send Ares Response
-            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
-            # Then if the current transaction does not need auth chall, post final resul request
-            if packet["transStatus"] == "Y":
-                self.add_item_into_dic(self.m_cRes_packets_wainting, transaction_id, packet)
-                AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
-            else:
-                self.remove_item_from_dic(self.m_request_list, transaction_id)
+            transaction_handler.send_complete_response(200, json.dumps(packet))
         elif packet["messageType"] == "CRes":
-            # Chall successful, post final Rreq and wait for its response to send final Cres
-            AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
+            if packet["challengeCompletionInd"] == "Y": 
+                # Chall successful, post final Rreq and wait for its response to send final Cres
+                self.add_item_into_dic(self.m_cRes_packets_wainting, transaction_id, packet)
+                aReq = AcsPacketFactory.get_rReq_packet(transaction_id, packet["challengeCompletionInd"])
+                AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], THREE_DS_SERVER_URL + rReq_rte, json.dumps(aReq), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
+            else: # fail : directly reply cRes
+                transaction_handler.send_complete_response(200, json.dumps(packet))
+
         elif packet["messageType"] == "SRes":
             # Chall failed, send Sres to notify client
-            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
+            transaction_handler.send_complete_response(200, json.dumps(packet))
             self.remove_item_from_dic(self.m_request_list, transaction_id)

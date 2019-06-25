@@ -23,6 +23,7 @@ class TransactionTask():
         self.steps_done = set()
         self.user_profile = None
         self.purchase = None
+        self.notification_url = None
 
     # Assigns current step to steps_done
     def validate_current_step(self):
