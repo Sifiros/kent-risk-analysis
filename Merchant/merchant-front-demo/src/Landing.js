@@ -8,8 +8,8 @@ import Validation from './Validation';
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0, list: []})
   var [checkoutStatus, setCheckoutStatus] = React.useState(0)
-  var [paymentStatus, setPaymentStatus] = React.useState(false)
-
+  var [paymentStatus, setPaymentStatus] = React.useState(0)
+  
   function addToCart(prod) {
     cart.list.push(prod)
     setCartTotal({...cart, 
@@ -24,7 +24,8 @@ function Landing() {
   }
 
   function onPaymentDone(status) {
-    setPaymentStatus(status)
+    console.log(status)
+    //setPaymentStatus(status)
     onCheckoutClicked(2)
   }
 

@@ -65,7 +65,7 @@ function HeaderBar(props) {
             labelColor={"#212121"}/>
         </div>
         <h2 className="row divided">
-          <span>Process complete</span>
+          <span>Payment processing</span>
         </h2>
     </header>)
   }

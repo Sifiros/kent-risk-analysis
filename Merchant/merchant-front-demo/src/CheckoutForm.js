@@ -10,6 +10,7 @@ class CheckoutForm extends React.Component {
         this.CcnNumberValid = true //false;
         this.CcDateValid = true //false;
         this.CvvValid = true //false;
+        this.paymentResult = 0
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCvvChange = this.handleCvvChange.bind(this);
@@ -26,10 +27,10 @@ class CheckoutForm extends React.Component {
             if (response.body && response.body.status === "ok")
             setTimeout(() => {
               window.$.featherlight.close()}, 1000)
-              this.props.onPaymentDone(true)
+              window.$('#success_pay').show()
           })
           .catch((error) => {
-            this.props.onPaymentDone(false)
+            window.$('#error_pay').show()
           })
     }
 
@@ -120,43 +121,43 @@ class CheckoutForm extends React.Component {
             <div className="form-row">
               <div className="form-group col-md-4">
                 <label htmlFor="inputName">Cardholder name</label>
-                <input value="test" type="text" required={true} className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputName" placeholder="John Smith" value={this.state.name} onChange={(event) => this.setState({name: event.target.value})}/>
               </div>
               <div className="form-group col-md-4">
                 <label htmlFor="inputEmail4">Email</label>
-                <input value="test@test.fr" type="email" required={true} className="form-control" id="inputEmail4" placeholder="Email" value={this.state.email} onChange={(event) => this.setState({email: event.target.value})}/>
+                <input type="email" required={true} className="form-control" id="inputEmail4" placeholder="Email" value={this.state.email} onChange={(event) => this.setState({email: event.target.value})}/>
               </div>
               <div className="form-group col-md-4">
                 <label htmlFor="inputPhone">Phone number</label>
-                <input value="0234" type="tel" required={true} className="form-control" id="inputPhone" placeholder="Phone number" value={this.state.phone_number} onChange={(event) => this.setState({phone_number: event.target.value})}/>
+                <input type="tel" required={true} className="form-control" id="inputPhone" placeholder="Phone number" value={this.state.phone_number} onChange={(event) => this.setState({phone_number: event.target.value})}/>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group col-md-5">
                 <label htmlFor="inputCardNumber">Credit card number</label>
-                <input value="4111111111111111" type="text" className={this.CcnNumberValid ? "form-control" : "form-control invalid"} id="inputCardNumber" placeholder="0000111122223333" maxLength="16" value={this.state.cc_number} onChange={this.handleCc_numberChange}/>
+                <input type="text" className={this.CcnNumberValid ? "form-control" : "form-control invalid"} id="inputCardNumber" placeholder="0000111122223333" maxLength="16" value={this.state.cc_number} onChange={this.handleCc_numberChange}/>
               </div>
               <div className="form-group col-md-5">
                 <label htmlFor="inputDate">Expiration date</label>
-                <input value="01/2021" type="text" placeholder="01/2021" className={this.CcDateValid ? "form-control" : "form-control invalid"}  maxLength="7" id="inputDate" value={this.state.cc_date} onChange={this.handleCc_dateChange}/>
+                <input type="text" placeholder="01/2021" className={this.CcDateValid ? "form-control" : "form-control invalid"}  maxLength="7" id="inputDate" value={this.state.cc_date} onChange={this.handleCc_dateChange}/>
               </div>
               <div className="form-group col-md-2">
                 <label htmlFor="inputCCV">CVV</label>
-                <input value="666" type="number" className={this.CvvValid ? "form-control" : "form-control invalid" } id="inputCCV" maxLength="4" placeholder="666" value={this.state.cvv} onChange={this.handleCvvChange}/>
+                <input type="number" className={this.CvvValid ? "form-control" : "form-control invalid" } id="inputCCV" maxLength="4" placeholder="666" value={this.state.cvv} onChange={this.handleCvvChange}/>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group col-md-6">
                 <label htmlFor="inputAddress">Address</label>
-                <input value="test" type="text" required={true} className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputAddress" placeholder="1234 Main St" value={this.state.address} onChange={(event) => this.setState({address: event.target.value})}/>
               </div>
               <div className="form-group col-md-4">
                 <label htmlFor="inputCity">City</label>
-                <input value="test" type="text" required={true} className="form-control" id="inputCity" placeholder="Toulouse" value={this.state.city_name} onChange={(event) => this.setState({city_name: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputCity" placeholder="Toulouse" value={this.state.city_name} onChange={(event) => this.setState({city_name: event.target.value})}/>
               </div>
               <div className="form-group col-md-2">
                 <label htmlFor="inputZip">Zip</label>
-                <input value="test" type="text" required={true} className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
+                <input type="text" required={true} className="form-control" id="inputZip" placeholder="31400" value={this.state.postcode} onChange={(event) => this.setState({postcode: event.target.value})}/>
               </div>
             </div>
             <div className="form-row">
@@ -167,6 +168,12 @@ class CheckoutForm extends React.Component {
             </form>
             </div>
                 {generateLinkList(this.props.cart)}
+                <div id="success_pay" className="form-group col-md-6" style={{display: "none"}}>
+                  <p class="success" style={{fontSize: "x-large", textAlign:"center", color:"#73AF55"}}>Payment successful !</p>
+                </div>
+                <div id="error_pay" className="form-group col-md-6" style={{display: "none"}}>
+                  <p class="error" style={{fontSize: "x-large", textAlign:"center", color:"#D06079"}}>Payment failed.</p>
+                </div>
             </div>
         </div>)
     }

@@ -1,7 +1,8 @@
 import React  from 'react';
 
 function Validation(props) {
-    if (props.success)
+    console.log(props)
+    if (props.success === 1)
         return (<div>
         <div id="success_pay" style={{marginLeft: "50vh", marginRight:"50vh"}}>
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
@@ -11,10 +12,9 @@ function Validation(props) {
             </svg>
             <p class="success" style={{fontSize: "xx-large", textAlign:"center"}}>Payment Successful !</p>
         </div><script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-    crossorigin="anonymous"></script>
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.0.2/less.min.js"></script></div>)
-    else
+            crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.0.2/less.min.js"></script></div>)
+    else if (props.success === 2)
         return(<div>
             <div id="error_pay" style={{marginLeft: "50vh", marginRight:"50vh"}}>
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
@@ -26,9 +26,10 @@ function Validation(props) {
                 </svg>
                 <p class="error" style={{fontSize: "xx-large", textAlign:"center"}}>Payment failed.</p>
             </div><script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-    crossorigin="anonymous"></script>
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.0.2/less.min.js"></script></div>)
+                crossorigin="anonymous"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.0.2/less.min.js"></script></div>)
+    else
+        return(<div style={{marginLeft: "50vh", marginRight:"50vh", fontSize:"50px"}}>Processing payment</div>)
 }
 
 export default Validation;
