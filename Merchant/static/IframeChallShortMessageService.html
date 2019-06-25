@@ -58,13 +58,22 @@
         <script>
             var getUrlParameter = function getUrlParameter(sParam) {
                 let sPageURL = window.location.search.substring(1)
+                console.log(sPageURL)
                 let sURLVariables = sPageURL.split('&')
+                console.log(sURLVariables);
+                
                 let sParameterName
                 let i;
+                console.log(sParam);
+                
         
                 for (i = 0; i < sURLVariables.length; i++) {
                     sParameterName = sURLVariables[i].split('=');
+                    console.log(sParameterName);
+                    
                     if (sParameterName[0] === sParam) {
+                        console.log(sParameterName[1]);
+                        
                         return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
                     }
                 }
@@ -74,6 +83,8 @@
                     // document.getElementsByClassName("featherlight")[0].style.background = "#00000055";
         
                     let sendChallInputToACS = (formData, acsSubmitURL) => {
+                        console.log('C\'EST LA QUE CA FAIL PUTAIN DE TES MORTS');
+                        
                         return fetch(acsSubmitURL, {
                             method: 'POST',
                             headers: {
@@ -101,16 +112,15 @@
                     $('#button-submit').click((event) => {
                         let formData = {}
                         formData.sms = $('#start').val()
-                        formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
-                        formData.threeDSSServerTransID = decodeURIComponent(getUrlParameter('tdstrid'))
+                        formData.acsTransID = "d7c1ee99-9478-44a6-b1f2-391e29c6b340"//decodeURIComponent(getUrlParameter('acstrid'))
+                        formData.threeDSSServerTransID = "8a880dc0-d2d2-4067-bcb1-b08d1690b26e" //decodeURIComponent(getUrlParameter('tdstrid'))
+                        let toto = "http://localhost:8484/challsubmition" //getUrlParameter('acsurl')
+                        console.log(toto);
+                        
+                        let acsSubmitURL = decodeURIComponent(toto)
+                        console.log(acsSubmitURL);
         
-                        let acsSubmitURL = decodeURIComponent(getUrlParameter('acsurl'))
-        
-                        if (!$.isNumeric(formData.sms) || formData.sms.toString.length() !== 6) {
-                            alert('The SMS input is not compliant')
-                            return
-                        }
-                        sendChallInputToACS(formData)
+                        sendChallInputToACS(formData, acsSubmitURL)
                             .then((response) => {
                                 console.log(response);
                                 if (response.messageType === 'CRes') {
