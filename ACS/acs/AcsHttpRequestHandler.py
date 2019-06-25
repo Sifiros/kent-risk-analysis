@@ -110,5 +110,6 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     # Handle Submition request
     def onSReqReceived(self, packet):
+        print("SREQ PACKET:")
         print(packet)
         self.server.on_sReq_packet_received(self, packet)
