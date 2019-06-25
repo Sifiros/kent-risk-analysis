@@ -74,7 +74,7 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
         submissionUrl = urllib.parse.quote(submissionUrl ,safe='')
         threedsServerTransId = urllib.parse.quote(threedsServerTransId ,safe='')
         acsTransId = urllib.parse.quote(acsTransId ,safe='')
-        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
+        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format('127.0.0.1', '4242', acsTransId, threedsServerTransId, submissionUrl)
 
     ##### Requests Callbacks #####
 

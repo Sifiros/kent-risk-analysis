@@ -70,14 +70,14 @@
                 formData.sms = $('#start').val()
                 formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
                 formData.threeDSSServerTransID = decodeURIComponent(getUrlParameter('tdstrid'))
+                let toto = getUrlParameter('acsurl')
+                console.log(toto);
+                
+                let acsSubmitURL = decodeURIComponent(toto)
+                console.log(acsSubmitURL);
+                
 
-                let acsSubmitURL = decodeURIComponent(getUrlParameter('acsurl'))
-
-                if (!$.isNumeric(formData.sms) || formData.sms.toString.length() !== 6) {
-                    alert('The SMS input is not compliant')
-                    return
-                }
-                sendChallInputToACS(formData)
+                sendChallInputToACS(formData, acsSubmitURL)
                     .then((response) => {
                         console.log(response);
                         if (response.messageType === 'CRes') {
