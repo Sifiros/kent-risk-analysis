@@ -12,82 +12,81 @@
     <link rel="stylesheet" href="./challenge_form.css">
     <link rel="stylesheet/less" href="./animated_success.less">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-</head>
-
-<script>
-    var getUrlParameter = function getUrlParameter(sParam) {
-        let sPageURL = window.location.search.substring(1)
-        let sURLVariables = sPageURL.split('&')
-        let sParameterName
-        let i;
-
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-            }
-        }
-    };
- 
-        $(document).ready(() => {
-            document.getElementsByClassName("featherlight")[0].style.background = "#00000055";
-
-            let sendChallInputToACS = (formData, acsSubmitURL) => {
-                return fetch(acsSubmitURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                    .then((response) => response.json())
-                    .then((response) => {
-                        return response
-                    })
-            }
-
-            let sendCresToNotificationURL = (cRes) => {
-                fetch(cRes.notificationURL, {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(cRes)
-                })
-
-            }
-
-            $('#button-submit').click((event) => {
-                event.preventDefault()
-                let formData = {}
-                formData.g_recaptcha_response = $('#g-recaptcha-response').val()
-                formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
-                formData.threeDSSServerTransID = decodeURIComponent(getUrlParameter('tdstrid'))
-
-                let acsSubmitURL = decodeURIComponent(getUrlParameter('acsurl'))
-
-                if (!$.isNumeric(formData.sms) || formData.sms.toString.length() !== 6) {
-                    alert('The SMS input is not compliant')
-                    return
+    <script>
+            var getUrlParameter = function getUrlParameter(sParam) {
+                let sPageURL = window.location.search.substring(1)
+                let sURLVariables = sPageURL.split('&')
+                let sParameterName
+                let i;
+        
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
                 }
-                sendChallInputToACS(formData)
-                    .then((response) => {
-                        console.log(response);
-                        if (response.messageType === 'CRes') {
-                            $('#form-wrapper').hide()
-                            if (response.challengeCompletionInd === 'Y') {
-                                $("#success_pay").show()
-                            } else {
-                                $("#error_pay").show()
-                            }
-                           sendCresToNotificationURL(response) 
+            };
+         
+                $(document).ready(() => {
+                    document.getElementsByClassName("featherlight")[0].style.background = "#00000055";
+        
+                    let sendChallInputToACS = (formData, acsSubmitURL) => {
+                        return fetch(acsSubmitURL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        })
+                            .then((response) => response.json())
+                            .then((response) => {
+                                return response
+                            })
+                    }
+        
+                    let sendCresToNotificationURL = (cRes) => {
+                        fetch(cRes.notificationURL, {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(cRes)
+                        })
+        
+                    }
+        
+                    $('#button-submit').click((event) => {
+                        event.preventDefault()
+                        let formData = {}
+                        formData.g_recaptcha_response = $('#g-recaptcha-response').val()
+                        formData.acsTransID = decodeURIComponent(getUrlParameter('acstrid'))
+                        formData.threeDSSServerTransID = decodeURIComponent(getUrlParameter('tdstrid'))
+        
+                        let acsSubmitURL = decodeURIComponent(getUrlParameter('acsurl'))
+        
+                        if (!$.isNumeric(formData.sms) || formData.sms.toString.length() !== 6) {
+                            alert('The SMS input is not compliant')
+                            return
                         }
-                        
-                    })
-            }
-        )
-        })
-</script>
+                        sendChallInputToACS(formData)
+                            .then((response) => {
+                                console.log(response);
+                                if (response.messageType === 'CRes') {
+                                    $('#form-wrapper').hide()
+                                    if (response.challengeCompletionInd === 'Y') {
+                                        $("#success_pay").show()
+                                    } else {
+                                        $("#error_pay").show()
+                                    }
+                                   sendCresToNotificationURL(response) 
+                                }
+                                
+                            })
+                    }
+                )
+                })
+        </script>
+</head>
 
 <body>
         <div class="g-recaptcha" data-sitekey="6LfSQqkUAAAAAOlj5jZUf-ND0ole_bcEsBmXxhwN"></div>
