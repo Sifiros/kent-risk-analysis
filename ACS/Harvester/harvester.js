@@ -65,10 +65,15 @@ let getAllInfo = (uaparser) => {
     info.timezoneOffset = new Date().getTimezoneOffset()
 
     info.colorDepth = screen.colorDepth
-    if (!isCanvasSupported()) {
-        info.canvas = false
-    } else {
-        info.canvas = getCanvasFingerprint()
+    try {
+        if (!isCanvasSupported()) {
+            info.canvas = false
+        } else {
+            info.canvas = getCanvasFingerprint()
+        }
+    } catch (error) {
+        console.log('An exception occured')
+        console.log(error)
     }
 
     info.position = {}
