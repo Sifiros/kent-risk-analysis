@@ -3,7 +3,7 @@ import json
 import plac
 
 def print_results(nbr_data, feature_dic):
-    print('{} datas recoverd on a total of {}'.format(len(feature_dic), nbr_data))
+    print('{} datas recovered on a total of {}'.format(len(feature_dic), nbr_data))
 
     for entry in feature_dic:
         print('{} : {}'.format(entry, feature_dic[entry]))
@@ -29,7 +29,7 @@ def open_json(path):
         data = json.load(json_file)
         return data
 
-def main(feature_name="", json_path=""):
+def main(feature_name, json_path):
     data = open_json(json_path)
     extract_data(feature_name, data)
 
