@@ -256,7 +256,11 @@ class BrowserFeature(metaclass=FeatureMeta):  # updates increase version or leav
 
 class OSFeature(metaclass=FeatureMeta):
     possible_values = [
-        { "name": "Windows", "version": "10" }
+        { "name": "Windows", "version": "10" },
+        { "name": "Mac OS", "version": "10.14" },
+        {'name': 'Android', 'version': '7.0'},
+        {'name': 'iOS', 'version': '12.3.1'},
+        {'name': 'Ubuntu'}
     ]
 
 class UAFeature(metaclass=FeatureMeta):
@@ -294,10 +298,12 @@ class BrowserInstance():
             'doNotTrack': DoNotTrackFeature(self.singularity_ratio),
             'screen_size': ScreenSizeFeature(self.singularity_ratio),
             'inner_size': InnerSizeFeature(self.singularity_ratio),
+            'outer_size': OuterSizeFeature(self.singularity_ratio),
             'plugins': PluginsFeature(self.singularity_ratio),
             'timezone_offset': TimezoneOffsetFeature(self.singularity_ratio),
             'browser': BrowserFeature(self.singularity_ratio),
             'os': OSFeature(self.singularity_ratio),
+            'ua': UAFeature(self.singularity_ratio),
             'color_depth': ColorDepthFeature(self.singularity_ratio)
         }
 
@@ -306,6 +312,8 @@ class BrowserInstance():
             self.features['browser'],
             self.features['plugins'],
             self.features['screen_size'],
+            self.features['inner_size'],
+            self.features['outer_size'],
             self.features['timezone_offset'],
             self.features['accepted_encoding'],
             self.features['accepted_mime'],
