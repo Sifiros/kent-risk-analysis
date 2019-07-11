@@ -12,11 +12,10 @@ def extract_data(feature_name, raw_data):
     key_list = []
     feature_dic = {}
 
-    data = raw_data['data']
-    for key in data:
+    for key in raw_data:
         key_list.append(key)
     for key in key_list:
-        unit_data = data[key]
+        unit_data = raw_data[key]
         for unit_key in unit_data:
             if unit_key == feature_name:
                 feature_dic[key] = unit_data[unit_key]
