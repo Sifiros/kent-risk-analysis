@@ -3,3 +3,4 @@
 /ACS/.vscode/
 /ACS/data/
 **/*.pyc
+.vscode/
