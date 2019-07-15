@@ -50,6 +50,8 @@ class FeatureFormater():
         self.recover_browser_table()
         self.recover_engine_table()
         self.recover_os_table()
+        self.recover_cpu_table()
+        self.recover_device_table()
 
         self.format()
 
@@ -77,6 +79,18 @@ class FeatureFormater():
         self.m_os_table['name'] = redisStore.get_transformation_table('osTable/name')
         self.m_os_table['version'] = redisStore.get_transformation_table('osTable/version')
 
+    def recover_cpu_table(self):
+        self.m_cpu_table = {}
+
+        self.m_cpu_table['architecture'] = redisStore.get_transformation_table('cpuTable/architecture')
+
+    def recover_device_table(self):
+        self.m_device_table = {}
+
+        self.m_device_table['model'] = redisStore.get_transformation_table('deviceTable/model')
+        self.m_device_table['type'] = redisStore.get_transformation_table('deviceTable/type')
+        self.m_device_table['vendor'] = redisStore.get_transformation_table('deviceTable/vendor')
+
     def save_table_update_on_redis(self):
         redisStore.set_transformation_table('pluginsTable', self.m_plugins_table)
 
@@ -90,6 +104,12 @@ class FeatureFormater():
 
         redisStore.set_transformation_table('osTable/name', self.m_os_table['name'])
         redisStore.set_transformation_table('osTable/version', self.m_os_table['version'])
+
+        redisStore.set_transformation_table('cpuTable/architecture', self.m_cpu_table['architecture'])
+
+        redisStore.set_transformation_table('deviceTable/model', self.m_device_table['model'])
+        redisStore.set_transformation_table('deviceTable/type', self.m_device_table['type'])
+        redisStore.set_transformation_table('deviceTable/vendor', self.m_device_table['vendor'])
 
     def format(self):
         for key in self.m_data:
@@ -144,44 +164,42 @@ class FeatureFormater():
 
     def uaInfo_formater(self, data):
         formated_ua = {}
-        formated_ua['browser'] = self.browser_formater(data['browser'])
-        formated_ua['engine'] = self.engine_formater(data['engine'])
-        formated_ua['os'] = self.os_formater(data['os'])
+        
+        table_dic = {
+            "browser" : self.m_browser_table,
+            "engine" : self.m_engine_table,
+            "os" : self.m_os_table,
+            "cpu" : self.m_cpu_table,
+            "device" : self.m_device_table
+        }
+
+        for key, table in table_dic.items():
+            try:
+                if key == "engine":
+                    formated_ua[key] = self.engine_formater(data[key], table)
+                else:
+                    formated_ua[key] = self.component_formater(data[key], table)
+            except KeyError:
+                formated_ua[key] = -1 # Key undefined in the current subset of data
 
         self.m_formated_data['uaInfo'] = formated_ua
 
-    def browser_formater(self, data): # e.g. : {'appName': 1, 'major': 2, 'name': 4, 'version': 2}
-        formated_browser_list = {}
-        for key, browser_data in data.items():
-            if browser_data in self.m_browser_table[key]:
-                formated_browser_list.update({key : self.m_browser_table[key][browser_data]})
-            else:
-                self.m_browser_table[key].update({browser_data : len(self.m_browser_table[key]) + 1})
-                formated_browser_list.update({key : self.m_browser_table[key][browser_data]})
-        return formated_browser_list
-
-    def engine_formater(self, data): # e.g. : {'name': 1, 'version': 1}  or -1 if undefined
-        formated_engine_list = {}
+    def engine_formater(self, data, table): 
+        formated_engine = {}
         if data['name'] == "Blink": # Engine is undefined in the subset, abort formating
             return -1
 
-        for key, engine_data in data.items():
-            if engine_data in self.m_engine_table[key]:
-                formated_engine_list.update({key : self.m_engine_table[key][engine_data]})
-            else:
-                self.m_engine_table[key].update({engine_data : len(self.m_engine_table[key]) + 1})
-                formated_engine_list.update({key : self.m_engine_table[key][engine_data]})
-        return formated_engine_list
+        return self.component_formater(data, self.m_engine_table)
 
-    def os_formater(self, data): # e.g. : {'name': 2, 'version': 2}
-        formated_os_list = {}
-        for key, os_data in data.items():
-            if os_data  in self.m_os_table[key]:
-                formated_os_list.update({key : self.m_os_table[key][os_data]})
+    def component_formater(self, data, table):
+        formated_component = {}
+        for key, component_data in data.items():
+            if component_data in table[key]:
+                formated_component.update({key : table[key][component_data]})
             else:
-                self.m_os_table[key].update({os_data : len(self.m_os_table[key]) + 1})
-                formated_os_list.update({key : self.m_os_table[key][os_data]})
-        return formated_os_list
+                table[key].update({component_data : len(table[key]) + 1})
+                formated_component.update({key : table[key][component_data]})
+        return formated_component
 
     def acceptedCharset_formater(self, data):
         pass
