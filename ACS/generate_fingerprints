@@ -12,9 +12,9 @@ import plac
 class FeatureMeta(type):
     def __new__(cls, name, bases, attrs):
         method_list = [
-            'check_for_updates', 'random_update', 'initial_value',
-            'find_profile_update_rate', 'set_next_update_day',
-            'update', 'slight_update'
+            "check_for_updates", "random_update", "initial_value",
+            "find_profile_update_rate", "set_next_update_day",
+            "update", "slight_update"
         ]
 
         base_methods = {
@@ -26,17 +26,17 @@ class FeatureMeta(type):
             self.singularity_ratio = singularity_ratio
             self.value = None
             self.initial_value()
-            if hasattr(self, 'population_update_rates'):
+            if hasattr(self, "population_update_rates"):
                 self.population_update_rates.sort(
                     key=lambda percentage: percentage[0], # Index 0 is percentage of population
                     reverse=True
                 )
-                # Select right population's frequency in which given profile falls
+                # Select right population"s frequency in which given profile falls
                 self.update_rate = self.find_profile_update_rate()
                 self.last_update_day = 0
                 self.set_next_update_day()
 
-        base_methods['__init__'] = __init__
+        base_methods["__init__"] = __init__
 
         return super(FeatureMeta, cls).__new__(cls, name, bases, base_methods)
 
@@ -58,7 +58,7 @@ class FeatureMeta(type):
         raise Exception("Feature update rates do not sum up to 1")
 
     def check_for_updates(self, day):
-        if not hasattr(self, 'population_update_rates'):
+        if not hasattr(self, "population_update_rates"):
             raise Exception("Missing updates frequency for daily update")
         if day < self.next_update_day:
             return False
@@ -83,7 +83,7 @@ class FeatureMeta(type):
 
     def slight_update(self):
         ratio = 0
-        new_value = ''
+        new_value = ""
         while ratio < 0.75:
             new_value = self.random_update()
             ratio = difflib.SequenceMatcher(None, self.value, new_value).ratio()
@@ -132,7 +132,7 @@ class AcceptedMimeFeature(metaclass=FeatureMeta): # Random updates keeping a 0.7
 
 class DoNotTrackFeature(metaclass=FeatureMeta):
     possible_values = [
-        True, False
+        1, 0
     ]
 
 class ScreenSizeFeature(metaclass=FeatureMeta): # random updates
@@ -240,7 +240,12 @@ class TimezoneOffsetFeature(metaclass=FeatureMeta): # random updates
 
 class BrowserFeature(metaclass=FeatureMeta):  # updates increase version or leave it constant
     possible_values = [
-        {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"}
+        {"appName": "Netscape", "major": "67", "name": "Firefox", "version": "67.0"},
+        {"appName": "Netscape", "major": "220", "name": "Mobile Safari", "version": "220.0.0.20.121"},
+        {"appName": "Netscape", "major": "75", "name": "Chrome", "version": "75.0.3770.100"},
+        {"appName": "Netscape", "major": "12", "name": "Safari", "version": "12.1.1"},
+        {"appName": "Netscape", "major": "17", "name": "Edge", "version": "17.17134"},
+        {"appName": "Netscape", "major": "220", "name": "Facebook", "version": "220.0.0.20.121"}
     ]
 
     population_update_rates = [
@@ -258,9 +263,9 @@ class OSFeature(metaclass=FeatureMeta):
     possible_values = [
         { "name": "Windows", "version": "10" },
         { "name": "Mac OS", "version": "10.14" },
-        {'name': 'Android', 'version': '7.0'},
-        {'name': 'iOS', 'version': '12.3.1'},
-        {'name': 'Ubuntu'}
+        {"name": "Android", "version": "7.0"},
+        {"name": "iOS", "version": "12.3.1"},
+        {"name": "Ubuntu"}
     ]
 
 class UAFeature(metaclass=FeatureMeta):
@@ -284,6 +289,58 @@ class ColorDepthFeature(metaclass=FeatureMeta):
         24
     ]    
 
+class DeviceFeature(metaclass=FeatureMeta):
+    possible_values = [
+        {
+        "model" : "iPhone",
+        "type" : "mobile",
+        "vendor" : "Apple"
+      },
+      {
+        "model" : "WAS-LX3",
+        "type" : "mobile",
+        "vendor" : "Huawei"
+      },
+      {
+        "model" : "PRA-LX1",
+        "type" : "mobile",
+        "vendor" : "Huawei"
+      },
+      {
+        "model" : "E1003",
+        "type" : "mobile",
+        "vendor" : "Sony"
+      },
+      {
+        "model" : "SM-N9208",
+        "type" : "mobile",
+        "vendor" : "Samsung"
+      }
+    ]
+
+class EngineFeature(metaclass=FeatureMeta):
+    possible_values = [
+        {
+        "name" : "Gecko",
+        "version" : "67.0"
+        },
+        {
+        "name" : "WebKit",
+        "version" : "605.1.15"
+      },
+      {
+        "name" : "EdgeHTML",
+        "version" : "17.17134"
+      }
+    ]    
+
+class CPUFeature(metaclass=FeatureMeta):
+    possible_values = [
+        {
+        "architecture" : "amd64"
+      }
+    ]    
+
 class BrowserInstance():
     def __init__(self):
         # This number will define in which kind of profile does this browser fall : casual / rare ?
@@ -291,33 +348,36 @@ class BrowserInstance():
         self.singularity_ratio = random.random()
         self.id = str(uuid.uuid4())
         self.features = {
-            'accepted_charset': AcceptedCharsetFeature(self.singularity_ratio),
-            'accepted_encoding': AcceptedEncodingFeature(self.singularity_ratio),
-            'accepted_mime': AcceptedMimeFeature(self.singularity_ratio),
-            'accepted_languages': AcceptedLanguagesFeature(self.singularity_ratio),
-            'doNotTrack': DoNotTrackFeature(self.singularity_ratio),
-            'screen_size': ScreenSizeFeature(self.singularity_ratio),
-            'inner_size': InnerSizeFeature(self.singularity_ratio),
-            'outer_size': OuterSizeFeature(self.singularity_ratio),
-            'plugins': PluginsFeature(self.singularity_ratio),
-            'timezone_offset': TimezoneOffsetFeature(self.singularity_ratio),
-            'browser': BrowserFeature(self.singularity_ratio),
-            'os': OSFeature(self.singularity_ratio),
-            'ua': UAFeature(self.singularity_ratio),
-            'color_depth': ColorDepthFeature(self.singularity_ratio)
+            "acceptedCharset": AcceptedCharsetFeature(self.singularity_ratio),
+            "acceptedEncoding": AcceptedEncodingFeature(self.singularity_ratio),
+            "acceptedMime": AcceptedMimeFeature(self.singularity_ratio),
+            "acceptedLanguages": AcceptedLanguagesFeature(self.singularity_ratio),
+            "doNotTrack": DoNotTrackFeature(self.singularity_ratio),
+            "screenSize": ScreenSizeFeature(self.singularity_ratio),
+            "innerSize": InnerSizeFeature(self.singularity_ratio),
+            "outerSize": OuterSizeFeature(self.singularity_ratio),
+            "plugins": PluginsFeature(self.singularity_ratio),
+            "timezoneOffset": TimezoneOffsetFeature(self.singularity_ratio),
+            "browser": BrowserFeature(self.singularity_ratio),
+            "os": OSFeature(self.singularity_ratio),
+            "ua": UAFeature(self.singularity_ratio),
+            "device": DeviceFeature(self.singularity_ratio),
+            "colorDepth": ColorDepthFeature(self.singularity_ratio),
+            "cpu": CPUFeature(self.singularity_ratio),
+            "engine": EngineFeature(self.singularity_ratio)
         }
 
         # Other features will keep their initial random value
         self.mutable_features = [
-            self.features['browser'],
-            self.features['plugins'],
-            self.features['screen_size'],
-            self.features['inner_size'],
-            self.features['outer_size'],
-            self.features['timezone_offset'],
-            self.features['accepted_encoding'],
-            self.features['accepted_mime'],
-            self.features['accepted_languages']
+            self.features["browser"],
+            self.features["plugins"],
+            self.features["screenSize"],
+            self.features["innerSize"],
+            self.features["outerSize"],
+            self.features["timezoneOffset"],
+            self.features["acceptedEncoding"],
+            self.features["acceptedMime"],
+            self.features["acceptedLanguages"]
         ]
 
         self.history = [self.toJson(0)]
@@ -340,8 +400,22 @@ class BrowserInstance():
             key: feature.value for key, feature in self.features.items()
         })
         if day is not None:
-            fingerprint['day'] = day
-        fingerprint['browser_id'] = self.id
+            fingerprint["day"] = day
+        fingerprint["browser_id"] = self.id
+        fingerprint["uaInfo"] = {
+            "device": self.features["device"].value,
+            "engine": self.features["engine"].value,
+            "os": self.features["os"].value,
+            "ua": self.features["ua"].value,
+            "browser": self.features["browser"].value,
+            "cpu": self.features["cpu"].value,
+        }
+        del fingerprint["ua"]
+        del fingerprint["device"]
+        del fingerprint["engine"]
+        del fingerprint["os"]
+        del fingerprint["browser"]
+        del fingerprint["cpu"]
         return fingerprint
 
 
@@ -357,9 +431,9 @@ def generate(nb_browsers, nb_days, only_last_fingerprints=False):
         return fingerprints
     return [cur.toJson() for cur in browsers]
 
-def main(nb_browsers=20, nb_days=2000):    
+def main(nb_browsers=20, nb_days=100):    
     fingerprints = generate(nb_browsers, nb_days)
-    print(fingerprints)
+    print(json.dumps(fingerprints))
     print("Generated {} fingerprints".format(len(fingerprints)))
 
 if __name__ == "__main__":
