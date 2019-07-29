@@ -2,6 +2,7 @@
 import redis
 import json
 import plac
+import re
 
 class RedisStore():
 
@@ -22,6 +23,45 @@ class RedisStore():
 
 redisStore = RedisStore()
 
+class TransTableUtils():
+
+    @staticmethod
+    def get_browser_table_model():
+        return {
+            "appName": None,
+            "major": None,
+            "name": None,
+            "version": None
+        }
+
+    @staticmethod
+    def get_engine_table_model():
+        return {
+            "name": None,
+            "version": None
+        } 
+
+    @staticmethod
+    def get_os_table_model():
+        return {
+            "name": None,
+            "version": None
+        }
+    
+    @staticmethod
+    def get_cpu_table_model():
+        return {
+            "architecture": None
+        }
+
+    @staticmethod
+    def get_device_table_model():
+        return {
+            "model": None,
+            "type": None,
+            "vendor": None
+        }
+    
 class FeatureFormater():
     
     def __init__(self, data):
@@ -39,77 +79,61 @@ class FeatureFormater():
             'acceptedCharset' : self.acceptedCharset_formater,
             'acceptedEncoding' : self.acceptedEncoding_formater,
             'acceptedMime' : self.acceptedMime_formater,
-            'acceptedLanguage' : self.acceptedLanguage_formater,
+            'acceptedLanguages' : self.acceptedLanguage_formater,
             'doNotTrack' : self.doNotTrack_formater,
             'canvas' : self.canvas_formater
         }
 
         self.m_formated_data = {}
+        self.m_browser_table = TransTableUtils.get_browser_table_model()
+        self.m_engine_table = TransTableUtils.get_engine_table_model()
+        self.m_os_table = TransTableUtils.get_os_table_model()
+        self.m_cpu_table = TransTableUtils.get_cpu_table_model()
+        self.m_device_table = TransTableUtils.get_device_table_model()
 
-        self.recover_plugin_table()
-        self.recover_browser_table()
-        self.recover_engine_table()
-        self.recover_os_table()
-        self.recover_cpu_table()
-        self.recover_device_table()
+        self.recover_special_table()
+        self.recover_table(self.m_browser_table, 'browserTable')
+        self.recover_table(self.m_engine_table, 'engineTable')
+        self.recover_table(self.m_os_table, 'osTable')
+        self.recover_table(self.m_cpu_table, 'cpuTable')
+        self.recover_table(self.m_device_table, 'deviceTable')
 
         self.format()
 
 
-    def recover_plugin_table(self):
+    def recover_table(self, table, table_name):
+        for key, data in table.items():
+            table[key] = redisStore.get_transformation_table('{}/{}'.format(table_name, key))
+    
+    def recover_special_table(self):
         self.m_plugins_table = redisStore.get_transformation_table('pluginsTable')
+        self.m_ua_table = redisStore.get_transformation_table('uaTable')
+        self.m_accepted_charset_table = redisStore.get_transformation_table('acceptedCharsetTable')
+        self.m_accepted_encoding_table = redisStore.get_transformation_table('acceptedEncodingTable')
+        self.m_accepted_mime_table = redisStore.get_transformation_table('acceptedMimeTable')
+        self.m_accepted_languages_table = redisStore.get_transformation_table('acceptedLanguagesTable')
+        self.m_canvas_table = redisStore.get_transformation_table('canvasTable')
 
-    def recover_browser_table(self):
-        self.m_browser_table = {}
+    def save_table(self, table, table_name):
+        for key, data in table.items():
+            redisStore.set_transformation_table('{}/{}'.format(table_name, key), table[key])
 
-        self.m_browser_table['appName'] = redisStore.get_transformation_table('browserTable/appName')
-        self.m_browser_table['major'] = redisStore.get_transformation_table('browserTable/major')
-        self.m_browser_table['name'] = redisStore.get_transformation_table('browserTable/name')
-        self.m_browser_table['version'] = redisStore.get_transformation_table('browserTable/version')
-
-    def recover_engine_table(self):
-        self.m_engine_table = {}
-
-        self.m_engine_table['name'] = redisStore.get_transformation_table('engineTable/name')
-        self.m_engine_table['version'] = redisStore.get_transformation_table('engineTable/version')
-
-    def recover_os_table(self):
-        self.m_os_table = {}
-
-        self.m_os_table['name'] = redisStore.get_transformation_table('osTable/name')
-        self.m_os_table['version'] = redisStore.get_transformation_table('osTable/version')
-
-    def recover_cpu_table(self):
-        self.m_cpu_table = {}
-
-        self.m_cpu_table['architecture'] = redisStore.get_transformation_table('cpuTable/architecture')
-
-    def recover_device_table(self):
-        self.m_device_table = {}
-
-        self.m_device_table['model'] = redisStore.get_transformation_table('deviceTable/model')
-        self.m_device_table['type'] = redisStore.get_transformation_table('deviceTable/type')
-        self.m_device_table['vendor'] = redisStore.get_transformation_table('deviceTable/vendor')
+    def save_special_table(self):
+        redisStore.set_transformation_table('pluginsTable', self.m_plugins_table)
+        redisStore.set_transformation_table('uaTable', self.m_ua_table)
+        redisStore.set_transformation_table('acceptedCharsetTable', self.m_accepted_charset_table)
+        redisStore.set_transformation_table('acceptedEncodingTable', self.m_accepted_encoding_table)
+        redisStore.set_transformation_table('acceptedMimeTable', self.m_accepted_mime_table)
+        redisStore.set_transformation_table('acceptedLanguagesTable', self.m_accepted_languages_table)
+        redisStore.set_transformation_table('canvasTable', self.m_canvas_table)
 
     def save_table_update_on_redis(self):
-        redisStore.set_transformation_table('pluginsTable', self.m_plugins_table)
-
-        redisStore.set_transformation_table('browserTable/appName', self.m_browser_table['appName'])
-        redisStore.set_transformation_table('browserTable/major', self.m_browser_table['major'])
-        redisStore.set_transformation_table('browserTable/name', self.m_browser_table['name'])
-        redisStore.set_transformation_table('browserTable/version', self.m_browser_table['version'])
-
-        redisStore.set_transformation_table('engineTable/name', self.m_engine_table['name'])
-        redisStore.set_transformation_table('engineTable/version', self.m_engine_table['version'])
-
-        redisStore.set_transformation_table('osTable/name', self.m_os_table['name'])
-        redisStore.set_transformation_table('osTable/version', self.m_os_table['version'])
-
-        redisStore.set_transformation_table('cpuTable/architecture', self.m_cpu_table['architecture'])
-
-        redisStore.set_transformation_table('deviceTable/model', self.m_device_table['model'])
-        redisStore.set_transformation_table('deviceTable/type', self.m_device_table['type'])
-        redisStore.set_transformation_table('deviceTable/vendor', self.m_device_table['vendor'])
+        self.save_special_table()
+        self.save_table(self.m_browser_table, 'browserTable')
+        self.save_table(self.m_engine_table, 'engineTable')
+        self.save_table(self.m_os_table, 'osTable')
+        self.save_table(self.m_cpu_table, 'cpuTable')
+        self.save_table(self.m_device_table, 'deviceTable')
 
     def format(self):
         for key in self.m_data:
@@ -170,26 +194,26 @@ class FeatureFormater():
             "engine" : self.m_engine_table,
             "os" : self.m_os_table,
             "cpu" : self.m_cpu_table,
-            "device" : self.m_device_table
+            "device" : self.m_device_table,
+            "ua" : self.m_ua_table
         }
 
         for key, table in table_dic.items():
             try:
                 if key == "engine":
-                    formated_ua[key] = self.engine_formater(data[key], table)
+                    formated_ua[key] = -1 if self.is_engine_empty(data[key]) else self.component_formater(data[key], table)
+                elif key == "ua":
+                    formated_ua[key] = self.ua_formater(data[key])
                 else:
                     formated_ua[key] = self.component_formater(data[key], table)
             except KeyError:
                 formated_ua[key] = -1 # Key undefined in the current subset of data
-
         self.m_formated_data['uaInfo'] = formated_ua
 
-    def engine_formater(self, data, table): 
-        formated_engine = {}
+    def is_engine_empty(self, data):
         if data['name'] == "Blink": # Engine is undefined in the subset, abort formating
-            return -1
-
-        return self.component_formater(data, self.m_engine_table)
+            return True
+        return False
 
     def component_formater(self, data, table):
         formated_component = {}
@@ -201,20 +225,41 @@ class FeatureFormater():
                 formated_component.update({key : table[key][component_data]})
         return formated_component
 
+    def special_component_formater(self, data, table):
+        formated_data = -1
+        table_cpy = table.copy()
+        if len(table_cpy) == 0:
+            table.update({data : len(table) + 1})
+            formated_data = table[data]
+        else:
+            is_new = True
+            for entry in table_cpy:
+                if data == entry:
+                    formated_data = table[data]
+                    is_new = False
+                    break
+            if is_new:
+                table.update({data : len(table) + 1})
+                formated_data = table[data]
+        return formated_data
+
+    def ua_formater(self, data):
+        return self.special_component_formater(data, self.m_ua_table)
+
     def acceptedCharset_formater(self, data):
-        pass
+        self.m_formated_data['acceptedCharset'] = self.special_component_formater(data, self.m_accepted_charset_table)
 
     def acceptedEncoding_formater(self, data):
-        pass
+        self.m_formated_data['acceptedEncoding'] = self.special_component_formater(data, self.m_accepted_encoding_table)
 
     def acceptedMime_formater(self, data):
-        pass
+        self.m_formated_data['acceptedMime'] = self.special_component_formater(data, self.m_accepted_mime_table)
 
     def acceptedLanguage_formater(self, data):
-        pass
+        self.m_formated_data['acceptedLanguage'] = self.special_component_formater(data, self.m_accepted_languages_table)
 
     def canvas_formater(self,  data):
-        pass
+        self.m_formated_data['canvas'] = self.special_component_formater(data, self.m_canvas_table)
 
 def open_json(path):
     with open(path) as json_file:  
