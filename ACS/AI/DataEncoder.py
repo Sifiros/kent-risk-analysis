@@ -91,12 +91,16 @@ class FeatureFormater():
         self.m_cpu_table = TransTableUtils.get_cpu_table_model()
         self.m_device_table = TransTableUtils.get_device_table_model()
 
-        self.recover_special_table()
-        self.recover_table(self.m_browser_table, 'browserTable')
-        self.recover_table(self.m_engine_table, 'engineTable')
-        self.recover_table(self.m_os_table, 'osTable')
-        self.recover_table(self.m_cpu_table, 'cpuTable')
-        self.recover_table(self.m_device_table, 'deviceTable')
+        try:
+            self.recover_special_table()
+            self.recover_table(self.m_browser_table, 'browserTable')
+            self.recover_table(self.m_engine_table, 'engineTable')
+            self.recover_table(self.m_os_table, 'osTable')
+            self.recover_table(self.m_cpu_table, 'cpuTable')
+            self.recover_table(self.m_device_table, 'deviceTable')
+        except redis.exceptions.ConnectionError:
+            print('ERROR : Connection with redis DB refused')
+            exit(1)
 
         self.format()
 
@@ -135,9 +139,14 @@ class FeatureFormater():
         self.save_table(self.m_cpu_table, 'cpuTable')
         self.save_table(self.m_device_table, 'deviceTable')
 
+    # Perform a OHV (One Hot Vector) encoding on each Json keys
     def format(self):
-        for key in self.m_data:
-            self.m_treatment_units[key](self.m_data[key])
+        try:
+            for key in self.m_data:
+                self.m_treatment_units[key](self.m_data[key])
+        except KeyError:
+            print('ERROR : Invalid JSON input (invalid key)')
+            exit(1)
 
         self.save_table_update_on_redis()
 
