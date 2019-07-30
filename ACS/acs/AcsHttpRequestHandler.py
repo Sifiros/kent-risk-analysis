@@ -76,6 +76,16 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
         acsTransId = urllib.parse.quote(acsTransId ,safe='')
         return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
 
+    def add_request_fields_to_harvested_content(self, packet):
+        if self.headers['accept-encoding'] is not None:
+            packet['accept-encoding'] = self.headers['accept-encoding']
+        if self.headers['accept-charset'] is not None:
+            packet['accept-charset'] = self.headers['accept-charset']
+        if self.headers['accept-language'] is not None:
+            packet['accept-language'] = self.headers['accept-language']
+        if self.headers['accept'] is not None:
+            packet['accept'] = self.headers['accept']
+
     ##### Requests Callbacks #####
 
     # Handle Pre-request packet
@@ -89,6 +99,8 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     # Handle harvested data
     def onGReqReceived(self, packet):
+        self.add_request_fields_to_harvested_content(packet)
+        print(packet)
         self.server.on_gReq_packet_received(self, packet)
         response = json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'], "ok"))
         AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.server.get_item_from_dic(self.server.m_notification_list ,packet["threeDSServerTransID"]), response, self.server.on_transaction_error_while_sending)
