@@ -151,37 +151,32 @@ class DataEncoder():
 
         self.save_table_update_on_redis()
 
-        # print(self.m_formated_data)
+        print(json.dumps(self.m_formated_data))
 
     def colorDepth_formater(self, data):
         self.m_formated_data['color_depth'] = data # e.g. : 16 
 
     def innerSize_formater(self, data):
         data.split(':')
-        self.m_formated_data['inner_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : int(data[0]),
-            'height' : int(data[1])
-        }
+        self.m_formated_data['inner_size_width'] = int(data[0])
+        self.m_formated_data['inner_size_height'] = int(data[1])
 
     def outerSize_formater(self, data):
         data.split(':')
-        self.m_formated_data['outer_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : int(data[0]),
-            'height' : int(data[1])
-        }
+        self.m_formated_data['outer_size_width'] = int(data[0])
+        self.m_formated_data['outer_size_height'] = int(data[1])
 
     def screenSize_formater(self, data):
         data.split(':')
-        self.m_formated_data['screen_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : int(data[0]),
-            'height' : int(data[1])
-        }
+        self.m_formated_data['screen_size_width'] = int(data[0])
+        self.m_formated_data['screen_size_height'] = int(data[1])
 
     def timezoneOffset_formater(self, data):
         self.m_formated_data['timezone_offset'] = data # e.g. : -120
 
     def position_formater(self, data):
-        self.m_formated_data['position'] = data # e.g. : { latitude : 12342.322, longitude  : 112342.3432 }
+        self.m_formated_data['position_latitude'] = data['latitude']
+        self.m_formated_data['position_longitude'] = data['longitude']
 
     def doNotTrack_formater(self, data):
         self.m_formated_data['do_not_track'] = data # e.g. : True
@@ -194,7 +189,11 @@ class DataEncoder():
             else:
                 self.m_plugins_table[plugin] = len(self.m_plugins_table) + 1
                 formated_plugins_list.append(self.m_plugins_table[plugin])
-        self.m_formated_data['plugins'] = formated_plugins_list
+
+        i = 0
+        for entry in formated_plugins_list:
+            self.m_formated_data['plugins_{}'.format(i)] = entry
+            i += 1
 
     def uaInfo_formater(self, data):
         formated_ua = {}
@@ -223,7 +222,13 @@ class DataEncoder():
                         formated_ua[key] = value
             except KeyError:
                 pass
-        self.m_formated_data['uaInfo'] = formated_ua
+
+        for key, entry in formated_ua.items():
+            if type(entry) is not dict:
+                self.m_formated_data['uaInfo_{}'.format(key)] = entry
+            else:
+                for subkey, subentry in entry.items():
+                    self.m_formated_data['uaInfo_{}_{}'.format(key, subkey)] = subentry
 
     def is_engine_empty(self, data):
         if data['name'] == "Blink": # Engine is undefined in the subset, abort formating
