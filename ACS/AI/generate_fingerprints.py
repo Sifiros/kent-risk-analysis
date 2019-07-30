@@ -425,18 +425,21 @@ def generate(nb_browsers, nb_days, only_last_fingerprints=False):
     for i in range(nb_days):
         browsers = [browser.check_for_updates(i) for browser in browsers]
     if not only_last_fingerprints:
-        fingerprints = {
-            browser.id: browser.history for browser in browsers
-        }
+        fingerprints = list(
+            itertools.chain(*(cur.history for cur in browsers))
+        )
+        random.shuffle(fingerprints)
         return fingerprints
     return [cur.toJson() for cur in browsers]
 
 def generate_formatted_fingerprints(nb_browsers=20, nb_days=100):    
     fingerprints = generate(nb_browsers, nb_days)
-    fingerprints = {
-        key: [DataEncoder(fingerprint).m_formated_data for fingerprint in val]
-        for key,val in fingerprints.items()
-    }
-    # print(json.dumps(fingerprints))
+    # map fingerprints to browser_id
+    fingerprints = [
+        DataEncoder(fingerprint).m_formated_data for fingerprint in fingerprints
+    ]
     return fingerprints
     # print("Generated {} fingerprints".format(len(fingerprints)))
+
+if __name__ == "__main__":
+    plac.call(generate_formatted_fingerprints)

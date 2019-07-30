@@ -3,6 +3,7 @@
 import plac
 import sys
 import os
+import random
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
 sys.path.append(DOSSIER_PARENT)
@@ -19,19 +20,26 @@ from AI.generate_fingerprints import generate_formatted_fingerprints
 def generate_model(fingerprints, browser_id):
     df = pd.DataFrame(fingerprints)
     yVar = df.loc[:,'browser_id']
-    print(yVar)
-    return
     X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
     print (X_train.shape, y_train.shape)
     print (X_test.shape, y_test.shape)
-
     # print(df)
 
+def get_distinct_browser_ids(fingerprints):
+    browser_ids = set()
+    for fingerprint in fingerprints:
+        browser_ids.add(fingerprint["browser_id"])
+    return list(browser_ids)
+
 def main():
-    fingerprints = generate_formatted_fingerprints(nb_browsers=1, nb_days=100)
-    for browser_id in fingerprints:
-        print("Processing {} ({} fingerprints)".format(browser_id, len(fingerprints[browser_id])))
-        generate_model(fingerprints[browser_id], browser_id)
+    fingerprints = generate_formatted_fingerprints(nb_browsers=2, nb_days=100)
+    # split fingerprints between training / testing sets
+    browser_ids = get_distinct_browser_ids(fingerprints)
+
+    print("Running training with {} fingerprints of {} browsers.".format(len(fingerprints), len(browser_ids)))
+    for browser_id in browser_ids:
+        print("Processing {}".format(browser_id))
+        generate_model(fingerprints, browser_id)
 
 if __name__ == "__main__":
     plac.call(main)
