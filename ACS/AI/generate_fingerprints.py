@@ -8,6 +8,7 @@ import copy
 import itertools
 import difflib
 import plac
+from DataEncoder import DataEncoder
 
 class FeatureMeta(type):
     def __new__(cls, name, bases, attrs):
@@ -424,17 +425,18 @@ def generate(nb_browsers, nb_days, only_last_fingerprints=False):
     for i in range(nb_days):
         browsers = [browser.check_for_updates(i) for browser in browsers]
     if not only_last_fingerprints:
-        fingerprints = list(
-            itertools.chain(*(cur.history for cur in browsers))
-        )
-        random.shuffle(fingerprints)
+        fingerprints = {
+            browser.id: browser.history for browser in browsers
+        }
         return fingerprints
     return [cur.toJson() for cur in browsers]
 
-def main(nb_browsers=20, nb_days=100):    
+def generate_formatted_fingerprints(nb_browsers=20, nb_days=100):    
     fingerprints = generate(nb_browsers, nb_days)
-    print(json.dumps(fingerprints))
-    print("Generated {} fingerprints".format(len(fingerprints)))
-
-if __name__ == "__main__":
-    plac.call(main)
+    fingerprints = {
+        key: [DataEncoder(fingerprint).m_formated_data for fingerprint in val]
+        for key,val in fingerprints.items()
+    }
+    # print(json.dumps(fingerprints))
+    return fingerprints
+    # print("Generated {} fingerprints".format(len(fingerprints)))

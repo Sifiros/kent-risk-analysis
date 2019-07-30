@@ -62,7 +62,7 @@ class TransTableUtils():
             "vendor": None
         }
     
-class FeatureFormater():
+class DataEncoder():
     
     def __init__(self, data):
         self.m_data = data
@@ -84,7 +84,9 @@ class FeatureFormater():
             'canvas' : self.canvas_formater
         }
 
-        self.m_formated_data = {}
+        self.m_formated_data = {
+            "browser_id": data["browser_id"]
+        }
         self.m_browser_table = TransTableUtils.get_browser_table_model()
         self.m_engine_table = TransTableUtils.get_engine_table_model()
         self.m_os_table = TransTableUtils.get_os_table_model()
@@ -141,16 +143,15 @@ class FeatureFormater():
 
     # Perform a OHV (One Hot Vector) encoding on each Json keys
     def format(self):
-        try:
-            for key in self.m_data:
+        for key in self.m_data:
+            try:
                 self.m_treatment_units[key](self.m_data[key])
-        except KeyError:
-            print('ERROR : Invalid JSON input (invalid key)')
-            exit(1)
+            except KeyError:
+                pass
 
         self.save_table_update_on_redis()
 
-        print(self.m_formated_data)
+        # print(self.m_formated_data)
 
     def colorDepth_formater(self, data):
         self.m_formated_data['color_depth'] = data # e.g. : 16 
@@ -158,22 +159,22 @@ class FeatureFormater():
     def innerSize_formater(self, data):
         data.split(':')
         self.m_formated_data['inner_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : data[0],
-            'height' : data[1]
+            'width' : int(data[0]),
+            'height' : int(data[1])
         }
 
     def outerSize_formater(self, data):
         data.split(':')
         self.m_formated_data['outer_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : data[0],
-            'height' : data[1]
+            'width' : int(data[0]),
+            'height' : int(data[1])
         }
 
     def screenSize_formater(self, data):
         data.split(':')
         self.m_formated_data['screen_size'] = { # e.g. : { width : 1920,  height : 1080 } 
-            'width' : data[0],
-            'height' : data[1]
+            'width' : int(data[0]),
+            'height' : int(data[1])
         }
 
     def timezoneOffset_formater(self, data):
@@ -210,13 +211,18 @@ class FeatureFormater():
         for key, table in table_dic.items():
             try:
                 if key == "engine":
-                    formated_ua[key] = -1 if self.is_engine_empty(data[key]) else self.component_formater(data[key], table)
+                    if not self.is_engine_empty(data[key]):
+                        formated_ua[key] = self.component_formater(data[key], table)
                 elif key == "ua":
-                    formated_ua[key] = self.ua_formater(data[key])
+                    value = self.ua_formater(data[key])
+                    if value != -1:
+                        formated_ua[key] = value
                 else:
-                    formated_ua[key] = self.component_formater(data[key], table)
+                    value = self.component_formater(data[key], table)
+                    if value != -1:
+                        formated_ua[key] = value
             except KeyError:
-                formated_ua[key] = -1 # Key undefined in the current subset of data
+                pass
         self.m_formated_data['uaInfo'] = formated_ua
 
     def is_engine_empty(self, data):
@@ -256,19 +262,29 @@ class FeatureFormater():
         return self.special_component_formater(data, self.m_ua_table)
 
     def acceptedCharset_formater(self, data):
-        self.m_formated_data['acceptedCharset'] = self.special_component_formater(data, self.m_accepted_charset_table)
+        value = self.special_component_formater(data, self.m_accepted_charset_table)
+        if value != -1:
+            self.m_formated_data['acceptedCharset'] = value
 
     def acceptedEncoding_formater(self, data):
-        self.m_formated_data['acceptedEncoding'] = self.special_component_formater(data, self.m_accepted_encoding_table)
+        value = self.special_component_formater(data, self.m_accepted_encoding_table)
+        if value != -1:
+            self.m_formated_data['acceptedEncoding'] = value
 
     def acceptedMime_formater(self, data):
-        self.m_formated_data['acceptedMime'] = self.special_component_formater(data, self.m_accepted_mime_table)
+        value = self.special_component_formater(data, self.m_accepted_mime_table)
+        if value != -1:
+            self.m_formated_data['acceptedMime'] = value        
 
     def acceptedLanguage_formater(self, data):
-        self.m_formated_data['acceptedLanguage'] = self.special_component_formater(data, self.m_accepted_languages_table)
+        value = self.special_component_formater(data, self.m_accepted_languages_table)
+        if value != -1:
+            self.m_formated_data['acceptedLanguage'] = value
 
     def canvas_formater(self,  data):
-        self.m_formated_data['canvas'] = self.special_component_formater(data, self.m_canvas_table)
+        value = self.special_component_formater(data, self.m_canvas_table)
+        if value != -1:
+            self.m_formated_data['canvas'] = value
 
 def open_json(path):
     with open(path) as json_file:  
@@ -277,7 +293,7 @@ def open_json(path):
 
 def main(json_path):
     data = open_json(json_path)
-    FeatureFormater(data["-LiHvLhPIkMKO9lWTcPX"])
+    DataEncoder(data["-LiHvLhPIkMKO9lWTcPX"])
 
 if __name__ == "__main__":
     plac.call(main)
