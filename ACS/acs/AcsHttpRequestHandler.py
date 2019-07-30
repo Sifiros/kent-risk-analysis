@@ -100,7 +100,6 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
     # Handle harvested data
     def onGReqReceived(self, packet):
         self.add_request_fields_to_harvested_content(packet)
-        print(packet)
         self.server.on_gReq_packet_received(self, packet)
         response = json.dumps(AcsPacketFactory.get_notification_method_url_packet(packet['threeDSServerTransID'], "ok"))
         AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.server.get_item_from_dic(self.server.m_notification_list ,packet["threeDSServerTransID"]), response, self.server.on_transaction_error_while_sending)
