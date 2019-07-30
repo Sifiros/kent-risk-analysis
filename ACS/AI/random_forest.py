@@ -15,15 +15,25 @@ from sklearn.model_selection import train_test_split
 from scipy.io import arff
 import pandas as pd
 from AI.generate_fingerprints import generate_formatted_fingerprints
+import copy
 # from . import generate_fingerprints
 
 def generate_model(fingerprints, browser_id):
+    fingerprints = copy.deepcopy(fingerprints)
+    for fingerprint in fingerprints:
+        fingerprint["authenticity"] = 1 if fingerprint["browser_id"] == browser_id else 0
+        del fingerprint["browser_id"]
     df = pd.DataFrame(fingerprints)
-    yVar = df.loc[:,'browser_id']
+    yVar = df.loc[:,'authenticity']
     X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
     print (X_train.shape, y_train.shape)
     print (X_test.shape, y_test.shape)
-    # print(df)
+
+    clf = RandomForestClassifier(n_jobs=2, random_state=0)
+    print(X_train)
+    clf.fit(X_train, y_train)
+
+
 
 def get_distinct_browser_ids(fingerprints):
     browser_ids = set()
