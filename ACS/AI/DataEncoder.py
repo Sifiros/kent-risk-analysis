@@ -194,6 +194,9 @@ class DataEncoder():
         for entry in formated_plugins_list:
             self.m_formated_data['plugins_{}'.format(i)] = entry
             i += 1
+        while i < 15: # Pad for data consistency
+            self.m_formated_data['plugins_{}'.format(i)] = -1
+            i += 1
 
     def uaInfo_formater(self, data):
         formated_ua = {}

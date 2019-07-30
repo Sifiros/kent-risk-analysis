@@ -33,6 +33,9 @@ def generate_model(fingerprints, browser_id):
     print(X_train)
     clf.fit(X_train, y_train)
 
+    preds = clf.predict(X_test)
+    print(pd.crosstab(y_test, preds, rownames=['Actual Result'], colnames=['Predicted Result']))
+
 
 
 def get_distinct_browser_ids(fingerprints):
