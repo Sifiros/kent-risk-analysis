@@ -7,8 +7,6 @@ import random
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
 sys.path.append(DOSSIER_PARENT)
-# sys.path.append('/chemin/vers/le/dossier/parent/du/module/a/importer')
-sys.path.append('/home/martin/kent/finalProject/kent-risk-analysis/ACS/AI')
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.model_selection import train_test_split
