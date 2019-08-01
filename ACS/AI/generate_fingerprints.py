@@ -266,7 +266,7 @@ class OSFeature(metaclass=FeatureMeta):
         { "name": "Mac OS", "version": "10.14" },
         {"name": "Android", "version": "7.0"},
         {"name": "iOS", "version": "12.3.1"},
-        {"name": "Ubuntu"}
+        {"name": "Ubuntu", "version": "18.0.4"}
     ]
 
 class UAFeature(metaclass=FeatureMeta):
@@ -438,6 +438,7 @@ def generate_formatted_fingerprints(nb_browsers=20, nb_days=100):
     fingerprints = [
         DataEncoder(fingerprint).m_formated_data for fingerprint in fingerprints
     ]
+    
     return fingerprints
     # print("Generated {} fingerprints".format(len(fingerprints)))
 

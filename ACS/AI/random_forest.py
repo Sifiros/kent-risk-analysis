@@ -24,11 +24,8 @@ def generate_model(fingerprints, browser_id):
     df = pd.DataFrame(fingerprints)
     yVar = df.loc[:,'authenticity']
     X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
-    print (X_train.shape, y_train.shape)
-    print (X_test.shape, y_test.shape)
 
     clf = RandomForestClassifier(n_jobs=2, random_state=0)
-    print(X_train)
     clf.fit(X_train, y_train)
 
     preds = clf.predict(X_test)
@@ -43,7 +40,7 @@ def get_distinct_browser_ids(fingerprints):
     return list(browser_ids)
 
 def main():
-    fingerprints = generate_formatted_fingerprints(nb_browsers=2, nb_days=100)
+    fingerprints = generate_formatted_fingerprints(nb_browsers=10, nb_days=100)
     # split fingerprints between training / testing sets
     browser_ids = get_distinct_browser_ids(fingerprints)
 

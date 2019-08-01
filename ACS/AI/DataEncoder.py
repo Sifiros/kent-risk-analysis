@@ -151,7 +151,7 @@ class DataEncoder():
 
         self.save_table_update_on_redis()
 
-        print(json.dumps(self.m_formated_data))
+        # print(json.dumps(self.m_formated_data))
 
     def colorDepth_formater(self, data):
         self.m_formated_data['color_depth'] = data # e.g. : 16 
