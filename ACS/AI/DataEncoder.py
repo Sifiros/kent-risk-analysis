@@ -84,9 +84,7 @@ class DataEncoder():
             'canvas' : self.canvas_formater
         }
 
-        self.m_formated_data = {
-            "browser_id": data["browser_id"]
-        }
+        self.m_formated_data = {}
         self.m_browser_table = TransTableUtils.get_browser_table_model()
         self.m_engine_table = TransTableUtils.get_engine_table_model()
         self.m_os_table = TransTableUtils.get_os_table_model()

@@ -8,7 +8,6 @@ import copy
 import itertools
 import difflib
 import plac
-from DataEncoder import DataEncoder
 
 class FeatureMeta(type):
     def __new__(cls, name, bases, attrs):
@@ -432,15 +431,5 @@ def generate(nb_browsers, nb_days, only_last_fingerprints=False):
         return fingerprints
     return [cur.toJson() for cur in browsers]
 
-def generate_formatted_fingerprints(nb_browsers=20, nb_days=100):    
-    fingerprints = generate(nb_browsers, nb_days)
-    # map fingerprints to browser_id
-    fingerprints = [
-        DataEncoder(fingerprint).m_formated_data for fingerprint in fingerprints
-    ]
-    
-    return fingerprints
-    # print("Generated {} fingerprints".format(len(fingerprints)))
-
 if __name__ == "__main__":
-    plac.call(generate_formatted_fingerprints)
+    plac.call(generate)
