@@ -17,17 +17,21 @@ from scipy.io import arff
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from AI.generate_fingerprints import generate_formatted_fingerprints
+from AI.DataEncoder import DataEncoder
+from AI.generate_fingerprints import generate
 
 def generate_model(fingerprints, browser_id):
-    fingerprints = copy.deepcopy(fingerprints)
+    encoded_fingerprints = []
     browser_fingerprints = []
     for fingerprint in fingerprints:
-        fingerprint["authenticity"] = 1 if fingerprint["browser_id"] == browser_id else 0
-        if fingerprint["authenticity"] == 1:
-            browser_fingerprints.append(fingerprint)
-        del fingerprint["browser_id"]
-    df = pd.DataFrame(fingerprints)
+        authenticity = 1 if fingerprint["browser_id"] == browser_id else 0
+        if authenticity == 1:
+            browser_fingerprints.append(fingerprint.copy())
+        encoded = DataEncoder(fingerprint).m_formated_data
+        encoded["authenticity"] = authenticity
+        encoded_fingerprints.append(encoded)
+
+    df = pd.DataFrame(encoded_fingerprints)
     yVar = df.loc[:,'authenticity']
     xVar = [col for col in df.head() if col != 'authenticity']
     df = df[xVar]
@@ -58,7 +62,7 @@ def get_distinct_browser_ids(fingerprints):
 def main():
     if not os.path.exists("models"):
         os.mkdir("models")
-    fingerprints = generate_formatted_fingerprints(nb_browsers=10, nb_days=100)
+    fingerprints = generate(nb_browsers=10, nb_days=100)
     # split fingerprints between training / testing sets
     browser_ids = get_distinct_browser_ids(fingerprints)
 
