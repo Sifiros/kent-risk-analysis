@@ -104,12 +104,27 @@ class DataEncoder():
 
         self.format()
 
+    # Perform a OHV (One Hot Vector) encoding on each Json keys
+    def format(self):
+        for key in self.m_data:
+            try:
+                self.m_treatment_units[key](self.m_data[key])
+            except KeyError:
+                pass
+
+        self.save_table_update_on_redis()
+
+        print(json.dumps(self.m_formated_data))
+
 
     def recover_table(self, table, table_name):
         for key, data in table.items():
             table[key] = redisStore.get_transformation_table('{}/{}'.format(table_name, key))
     
     def recover_special_table(self):
+        self.m_screen_size_table = redisStore.get_transformation_table('screenSizeTable')
+        self.m_inner_size_table = redisStore.get_transformation_table('innerSizeTable')
+        self.m_outer_size_table = redisStore.get_transformation_table('outerSizeTable')
         self.m_plugins_table = redisStore.get_transformation_table('pluginsTable')
         self.m_ua_table = redisStore.get_transformation_table('uaTable')
         self.m_accepted_charset_table = redisStore.get_transformation_table('acceptedCharsetTable')
@@ -123,6 +138,9 @@ class DataEncoder():
             redisStore.set_transformation_table('{}/{}'.format(table_name, key), table[key])
 
     def save_special_table(self):
+        redisStore.set_transformation_table('screenSizeTable', self.m_screen_size_table)
+        redisStore.set_transformation_table('innerSizeTable', self.m_inner_size_table)
+        redisStore.set_transformation_table('outerSizeTable', self.m_outer_size_table)
         redisStore.set_transformation_table('pluginsTable', self.m_plugins_table)
         redisStore.set_transformation_table('uaTable', self.m_ua_table)
         redisStore.set_transformation_table('acceptedCharsetTable', self.m_accepted_charset_table)
@@ -139,35 +157,17 @@ class DataEncoder():
         self.save_table(self.m_cpu_table, 'cpuTable')
         self.save_table(self.m_device_table, 'deviceTable')
 
-    # Perform a OHV (One Hot Vector) encoding on each Json keys
-    def format(self):
-        for key in self.m_data:
-            try:
-                self.m_treatment_units[key](self.m_data[key])
-            except KeyError:
-                pass
-
-        self.save_table_update_on_redis()
-
-        # print(json.dumps(self.m_formated_data))
-
     def colorDepth_formater(self, data):
         self.m_formated_data['color_depth'] = data # e.g. : 16 
 
     def innerSize_formater(self, data):
-        data.split(':')
-        self.m_formated_data['inner_size_width'] = int(data[0])
-        self.m_formated_data['inner_size_height'] = int(data[1])
+        self.m_formated_data['inner_size'] = self.special_component_formater(data, self.m_inner_size_table)
 
     def outerSize_formater(self, data):
-        data.split(':')
-        self.m_formated_data['outer_size_width'] = int(data[0])
-        self.m_formated_data['outer_size_height'] = int(data[1])
+        self.m_formated_data['outer_size'] = self.special_component_formater(data, self.m_outer_size_table)
 
     def screenSize_formater(self, data):
-        data.split(':')
-        self.m_formated_data['screen_size_width'] = int(data[0])
-        self.m_formated_data['screen_size_height'] = int(data[1])
+        self.m_formated_data['screen_size'] = self.special_component_formater(data, self.m_screen_size_table)
 
     def timezoneOffset_formater(self, data):
         self.m_formated_data['timezone_offset'] = data # e.g. : -120
