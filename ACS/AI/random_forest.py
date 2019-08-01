@@ -23,13 +23,19 @@ def generate_model(fingerprints, browser_id):
         del fingerprint["browser_id"]
     df = pd.DataFrame(fingerprints)
     yVar = df.loc[:,'authenticity']
+    xVar = [col for col in df.head() if col != 'authenticity']
+    df = df[xVar]
     X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
 
     clf = RandomForestClassifier(n_jobs=2, random_state=0)
     clf.fit(X_train, y_train)
 
     preds = clf.predict(X_test)
+    print("Confusion matrix : ")
     print(pd.crosstab(y_test, preds, rownames=['Actual Result'], colnames=['Predicted Result']))
+    print("Features importance : ")
+    print(list(zip(X_train, clf.feature_importances_)))
+
 
 
 
