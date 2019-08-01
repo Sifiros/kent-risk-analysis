@@ -1,25 +1,31 @@
 #!/usr/local/bin/python3
 
-import plac
-import sys
+import copy
+import json
 import os
+import pickle
 import random
+import sys
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
 sys.path.append(DOSSIER_PARENT)
-from sklearn.ensemble import RandomForestClassifier
+
 import numpy as np
-from sklearn.model_selection import train_test_split
-from scipy.io import arff
 import pandas as pd
+import plac
+from scipy.io import arff
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
 from AI.generate_fingerprints import generate_formatted_fingerprints
-import copy
-# from . import generate_fingerprints
 
 def generate_model(fingerprints, browser_id):
     fingerprints = copy.deepcopy(fingerprints)
+    browser_fingerprints = []
     for fingerprint in fingerprints:
         fingerprint["authenticity"] = 1 if fingerprint["browser_id"] == browser_id else 0
+        if fingerprint["authenticity"] == 1:
+            browser_fingerprints.append(fingerprint)
         del fingerprint["browser_id"]
     df = pd.DataFrame(fingerprints)
     yVar = df.loc[:,'authenticity']
@@ -27,17 +33,21 @@ def generate_model(fingerprints, browser_id):
     df = df[xVar]
     X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
 
-    clf = RandomForestClassifier(n_jobs=2, random_state=0)
-    clf.fit(X_train, y_train)
+    model = RandomForestClassifier(n_jobs=2, random_state=0)
+    model.fit(X_train, y_train)
 
-    preds = clf.predict(X_test)
+    preds = model.predict(X_test)
     print("Confusion matrix : ")
     print(pd.crosstab(y_test, preds, rownames=['Actual Result'], colnames=['Predicted Result']))
     print("Features importance : ")
-    print(list(zip(X_train, clf.feature_importances_)))
-
-
-
+    print(list(zip(X_train, model.feature_importances_)))
+    print("Saving model ...")
+    if not os.path.exists("models/" + browser_id):
+        os.mkdir("models/" + browser_id)
+        pickle.dump(model, open("models/{}/model_{}.dat".format(browser_id, browser_id), 'wb'))
+        with open("models/{}/fingerprints.json".format(browser_id), "w") as f:
+            f.write(json.dumps(browser_fingerprints))
+    print("Done")
 
 def get_distinct_browser_ids(fingerprints):
     browser_ids = set()
@@ -46,6 +56,8 @@ def get_distinct_browser_ids(fingerprints):
     return list(browser_ids)
 
 def main():
+    if not os.path.exists("models"):
+        os.mkdir("models")
     fingerprints = generate_formatted_fingerprints(nb_browsers=10, nb_days=100)
     # split fingerprints between training / testing sets
     browser_ids = get_distinct_browser_ids(fingerprints)
