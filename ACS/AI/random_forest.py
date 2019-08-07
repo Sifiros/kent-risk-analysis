@@ -54,6 +54,7 @@ def generate_model(fingerprints, browser_id):
             browser_fingerprints = sorted(browser_fingerprints, key=lambda cur: cur['day'])
             f.write(json.dumps(browser_fingerprints))
         with open("models/{}/feature_importances.json".format(browser_id), "w") as f:            
+            feature_importances = sorted(feature_importances, key=lambda cur: cur[1])
             f.write(json.dumps(feature_importances))
     print("Done")
 
@@ -66,7 +67,7 @@ def get_distinct_browser_ids(fingerprints):
 def main():
     if not os.path.exists("models"):
         os.mkdir("models")
-    fingerprints = generate(nb_browsers=60, nb_days=50)
+    fingerprints = generate(nb_browsers=60, nb_days=300)
     # split fingerprints between training / testing sets
     browser_ids = get_distinct_browser_ids(fingerprints)
 

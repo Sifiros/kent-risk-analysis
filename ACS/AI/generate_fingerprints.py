@@ -14,7 +14,7 @@ class FeatureMeta(type):
         method_list = [
             "check_for_updates", "random_update", "initial_value",
             "find_profile_update_rate", "set_next_update_day",
-            "update", "slight_update"
+            "update", "slight_update", "incr_version"
         ]
 
         base_methods = {
@@ -89,6 +89,15 @@ class FeatureMeta(type):
             ratio = difflib.SequenceMatcher(None, self.value, new_value).ratio()
         return new_value
 
+    def incr_version(self, cur_version):
+        random_upgrade = round(random.uniform(0, 0.1), 2)
+        cur_version = float(cur_version)
+        cur_version = round(cur_version + random_upgrade, 1)
+        return {
+            "version": str(new_version['version']),
+            "major": str(int(new_version['major']))        
+        }
+
 NEVER = 100000000 # For pseudo-NEVER Rates
 
 class AcceptedCharsetFeature(metaclass=FeatureMeta):
@@ -150,7 +159,7 @@ class ScreenSizeFeature(metaclass=FeatureMeta): # random updates
     ]
         
     population_update_rates = [
-        (0.5, 20), (0.35, 20), (0.1, 3), (0.05, 2)
+        (0.5, NEVER), (0.35, 20), (0.1, 3), (0.05, 2)
     ]
 
 class InnerSizeFeature(metaclass=FeatureMeta):
@@ -253,11 +262,9 @@ class BrowserFeature(metaclass=FeatureMeta):  # updates increase version or leav
     ]
 
     def update(self):
-        cur_version = float(self.value["version"])
-        random_upgrade = round(random.uniform(0, 0.1), 2)
-        cur_version = round(cur_version + random_upgrade, 1)
-        self.value["version"] = str(cur_version)
-        self.value["major"] = str(int(cur_version))
+        new_version = self.incr_version(self.value["version"])
+        self.value["version"] = str(new_version['version'])
+        self.value["major"] = str(int(new_version['major']))
 
 class OSFeature(metaclass=FeatureMeta):
     possible_values = [
@@ -354,8 +361,8 @@ class BrowserInstance():
             "acceptedLanguages": AcceptedLanguagesFeature(self.singularity_ratio),
             "doNotTrack": DoNotTrackFeature(self.singularity_ratio),
             "screenSize": ScreenSizeFeature(self.singularity_ratio),
-            "innerSize": InnerSizeFeature(self.singularity_ratio),
-            "outerSize": OuterSizeFeature(self.singularity_ratio),
+            # "innerSize": InnerSizeFeature(self.singularity_ratio),
+            # "outerSize": OuterSizeFeature(self.singularity_ratio),
             "plugins": PluginsFeature(self.singularity_ratio),
             "timezoneOffset": TimezoneOffsetFeature(self.singularity_ratio),
             "browser": BrowserFeature(self.singularity_ratio),
@@ -372,8 +379,8 @@ class BrowserInstance():
             self.features["browser"],
             self.features["plugins"],
             self.features["screenSize"],
-            self.features["innerSize"],
-            self.features["outerSize"],
+            # self.features["innerSize"],
+            # self.features["outerSize"],
             self.features["timezoneOffset"],
             self.features["acceptedEncoding"],
             self.features["acceptedMime"],
@@ -419,10 +426,12 @@ class BrowserInstance():
         return fingerprint
 
 
-def generate(nb_browsers, nb_days, only_last_fingerprints=False):
+def generate(nb_browsers, nb_days, only_last_fingerprints=False, min_nb_fingerprints=5):
     browsers = [BrowserInstance() for _ in range(nb_browsers)]
     for i in range(nb_days):
         browsers = [browser.check_for_updates(i) for browser in browsers]
+    # Filter every browser without enough fingerprint
+    browsers = [cur for cur in browsers if len(cur.history) >= min_nb_fingerprints]
     if not only_last_fingerprints:
         fingerprints = list(
             itertools.chain(*(cur.history for cur in browsers))
