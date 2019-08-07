@@ -35,7 +35,7 @@ def generate_model(fingerprints, browser_id):
     yVar = df.loc[:,'authenticity']
     xVar = [col for col in df.head() if col != 'authenticity']
     df = df[xVar]
-    X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.5)
 
     model = RandomForestClassifier(n_jobs=2, random_state=0)
     model.fit(X_train, y_train)
@@ -44,13 +44,17 @@ def generate_model(fingerprints, browser_id):
     print("Confusion matrix : ")
     print(pd.crosstab(y_test, preds, rownames=['Actual Result'], colnames=['Predicted Result']))
     print("Features importance : ")
-    print(list(zip(X_train, model.feature_importances_)))
+    feature_importances = list(zip(X_train, model.feature_importances_))
+    print(feature_importances)
     print("Saving model ...")
     if not os.path.exists("models/" + browser_id):
         os.mkdir("models/" + browser_id)
         pickle.dump(model, open("models/{}/model_{}.dat".format(browser_id, browser_id), 'wb'))
         with open("models/{}/fingerprints.json".format(browser_id), "w") as f:
+            browser_fingerprints = sorted(browser_fingerprints, key=lambda cur: cur['day'])
             f.write(json.dumps(browser_fingerprints))
+        with open("models/{}/feature_importances.json".format(browser_id), "w") as f:            
+            f.write(json.dumps(feature_importances))
     print("Done")
 
 def get_distinct_browser_ids(fingerprints):
@@ -62,7 +66,7 @@ def get_distinct_browser_ids(fingerprints):
 def main():
     if not os.path.exists("models"):
         os.mkdir("models")
-    fingerprints = generate(nb_browsers=10, nb_days=100)
+    fingerprints = generate(nb_browsers=60, nb_days=50)
     # split fingerprints between training / testing sets
     browser_ids = get_distinct_browser_ids(fingerprints)
 
