@@ -35,7 +35,7 @@ def generate_model(fingerprints, browser_id):
     yVar = df.loc[:,'authenticity']
     xVar = [col for col in df.head() if col != 'authenticity']
     df = df[xVar]
-    X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.5)
+    X_train, X_test, y_train, y_test = train_test_split(df, yVar, test_size=0.7)
 
     model = RandomForestClassifier(n_jobs=2, random_state=0)
     model.fit(X_train, y_train)

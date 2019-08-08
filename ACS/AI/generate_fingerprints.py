@@ -144,7 +144,8 @@ class DoNotTrackFeature(metaclass=FeatureMeta):
         1, 0
     ]
 
-class ScreenSizeFeature(metaclass=FeatureMeta): # random updates
+# random updates, without exceeding a maximum number of different screens per browser
+class ScreenSizeFeature(metaclass=FeatureMeta): 
     possible_values = [
         "1920:1080",
         "375:812",
@@ -161,6 +162,31 @@ class ScreenSizeFeature(metaclass=FeatureMeta): # random updates
     population_update_rates = [
         (0.5, NEVER), (0.35, 20), (0.1, 3), (0.05, 2)
     ]
+
+    def initial_value(self):
+        self.value = self.random_update()
+        # First define maximum different screen resolution number
+        if self.singularity_ratio < 0.9:
+            self.max_screens_nb = 4
+        else:
+            self.max_screens_nb = 7
+        # This set will let us never exceed previously defined max_screens_nb
+        self.used_screens = set({self.value})
+
+    def update(self):
+        # still some available screensize slots :
+        if len(self.used_screens) < self.max_screens_nb: 
+            remaining_values = list(set(self.possible_values) - self.used_screens)
+            index = random.randint(1, len(remaining_values)) - 1
+            value = copy.copy(remaining_values[index])
+            self.used_screens.add(value)
+        else: # pick some value we've already used 
+            remaining_values = list(self.used_screens)
+            index = random.randint(1, len(remaining_values)) - 1
+            value = remaining_values[index]
+            if value == self.value:
+                raise Exception("Keep the same screensize")
+        self.value = value
 
 class InnerSizeFeature(metaclass=FeatureMeta):
     possible_values = [
@@ -198,7 +224,8 @@ class OuterSizeFeature(metaclass=FeatureMeta):
         (0.5, 3), (0.35, 3), (0.1, 3), (0.05, 2)
     ]
 
-class PluginsFeature(metaclass=FeatureMeta): # updates append or remove a plugin
+# updates append or remove a plugin, nevery append twice the same plugin (reducing the update frequency)
+class PluginsFeature(metaclass=FeatureMeta): 
     possible_values = [
         "Adblocks",
         "reading-list",
@@ -207,20 +234,39 @@ class PluginsFeature(metaclass=FeatureMeta): # updates append or remove a plugin
         "evernote",
         "cors-everywhere",
         "google-scholar",
-        "wordreference"
+        "wordreference",
+        "tree-style-tab",
+        # fake plugins
+        "facebooklogin",
+        "weathercheck",
+        "gaumont",
+        "chilltime",
+        "vdmpocket",
+        "recipeidea",
+        "gmailInBrowser",
+        "bookMyHairCut",
+        "jeNeSaisPlus",
+        "airplaneTracker"
     ]
 
     population_update_rates = [
         (0.5, 44), (0.35, 28), (0.1, 12), (0.05, 9)
     ]
 
+    def init(self, singularity_ratio):
+        super().__init__(self, singularity_ratio)
+        self.already_installed = set()
+
     def update(self):
         r = random.random()
-        append_probability_threshold = math.exp(len(self.value) / self.max_plugins) / math.exp(1)
+        append_probability_threshold = min(0.4, (len(self.value) / min(len(self.possible_values), self.max_plugins)))
         if r >= append_probability_threshold: # add a plugin
-            available_plugins = set(self.possible_values) - set(self.value)
+            available_plugins = set(self.possible_values) - set(self.value) - self.already_installed
             r = random.randint(1, len(available_plugins)) - 1
-            self.value.append(list(available_plugins)[r])
+            # If no more plugin to try out, will raise an EmptyRange exception & cancel this update                
+            new_plugin = list(available_plugins)[r]
+            self.value.append(new_plugin)
+            self.already_installed.add(new_plugin)
         else: # remove one
             r = random.randint(1, len(self.value)) - 1
             self.value.pop(r)
@@ -234,12 +280,13 @@ class PluginsFeature(metaclass=FeatureMeta): # updates append or remove a plugin
         elif (0.6 <= self.singularity_ratio <= 0.8):
             self.max_plugins = 6
         else:
-            self.max_plugins = 15
+            self.max_plugins = 12
 
         available_plugins = [*self.possible_values]
         random.shuffle(available_plugins)
-        desired_nb_plugins = random.randint(0, min(len(self.possible_values), self.max_plugins))
-        self.value = self.possible_values[0:desired_nb_plugins]
+        desired_nb_plugins = random.randint(0, min(len(self.possible_values), (self.max_plugins / 3)))
+        self.value = available_plugins[0:desired_nb_plugins]
+        self.already_installed = set(self.value)
         
 class TimezoneOffsetFeature(metaclass=FeatureMeta): # random updates
     possible_values = [600, 540, 480, 420, 360, 300, 240, 180, 120, 60, 0, -60, -120, -180, -240, -300, -360, -420, -480, -540, -600]
