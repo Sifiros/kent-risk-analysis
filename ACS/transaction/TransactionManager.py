@@ -1,7 +1,10 @@
+import threading
 from .TransactionTask import TransactionTask
 from config import HTTP_PORT, PUBLIC_IP
 from acs import AcsPacketFactory
 from Database import database
+from AI.random_forest import generate_model
+from AI.validate_user import validate_identity
 
 # Manage each requests part of the transaction until its entire completion
 # run() is the main loop blocking until reaching state VALIDATED or ABORTED
@@ -64,15 +67,25 @@ class TransactionManager():
 
     def run_ai(self):
         purchase, user_profile = (self.transaction.purchase, self.transaction.user_profile)
-        database.append_user_fingerprint(purchase["acctNumber"], user_profile)
-        fingerprints = database.get_user_fingerprints(purchase["acctNumber"])
-        print("Running AI, a chal is needed ...")
+        user_id = purchase["acctNumber"]
+        database.append_user_fingerprint(user_id, user_profile)
+        fingerprints = database.get_user_fingerprints(user_id)
+        print("Running AI, A chal is needed, Past fingerprints = " + str(fingerprints))
+        # TODO: ensure same input formats than generate_fingerprint output
+        try:
+            validated = validate_identity(user_id, user_profile)[0] == 1
+        except:
+            validated = False
+
         checking_result = AcsPacketFactory.get_aResp_packet(
             threeDSServerTransID=self.transaction.id,
-            transStatus="C", # Y for authentified or C for challenged needed
-            acsChallengeMandated="Y",
+            transStatus="Y" if validated else "C",
+            acsChallengeMandated="N" if validated else "Y",
             acsURL='http://{}:{}/challrequest'.format(PUBLIC_IP, HTTP_PORT)
         )
+        # Re train user model
+        usermodel_training = threading.Thread(target=generate_model, args=(database.get_all_fingerprints(), user_id))
+        usermodel_training.start()
         self.on_step_completion(TransactionTask.WAITING_CHALLENGE_SOLUTION, checking_result)
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED

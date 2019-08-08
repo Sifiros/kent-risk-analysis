@@ -21,6 +21,7 @@ from AI.DataEncoder import DataEncoder
 from AI.generate_fingerprints import generate
 
 def generate_model(fingerprints, browser_id):
+    print("Training {} model ...".format(browser_id))
     encoded_fingerprints = []
     browser_fingerprints = []
     for fingerprint in fingerprints:
@@ -56,7 +57,7 @@ def generate_model(fingerprints, browser_id):
         with open("models/{}/feature_importances.json".format(browser_id), "w") as f:            
             feature_importances = sorted(feature_importances, key=lambda cur: cur[1])
             f.write(json.dumps(feature_importances))
-    print("Done")
+    print("{} training done and persisted.".format(browser_id))
 
 def get_distinct_browser_ids(fingerprints):
     browser_ids = set()
@@ -73,7 +74,6 @@ def main():
 
     print("Running training with {} fingerprints of {} browsers.".format(len(fingerprints), len(browser_ids)))
     for browser_id in browser_ids:
-        print("Processing {}".format(browser_id))
         generate_model(fingerprints, browser_id)
 
 if __name__ == "__main__":

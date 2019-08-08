@@ -1,6 +1,7 @@
 import redis
 import json
 import config
+import itertools
 
 class Database():
 
@@ -15,6 +16,14 @@ class Database():
         key = "{}/fingerprints".format(user_id)
         content = self.redis.lrange(key, 0, -1)
         return [json.loads(cur) for cur in content]
+
+    def get_all_fingerprints(self):
+        user_ids = [key.split("/")[0] for key in self.redis.keys("*/fingerprints")]
+        return list(
+            itertools.chain(*[
+                self.get_user_fingerprints(id) for id in user_ids
+            ])
+        )
 
 database = Database(
     REDIS_HOST=config.REDIS_HOST,
