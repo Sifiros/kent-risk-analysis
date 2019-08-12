@@ -2,10 +2,6 @@
 // between the 3DS Server and the DS, the Device Information (deviceInfo) data element shall
 // be replaced by its encrypted version the SDK Encrypted Data (sdkEncData).
 
-//
-//  no params at this time, may take some specification as parameter
-//
-
 // authentication messages
 // BRW
 

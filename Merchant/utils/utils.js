@@ -23,6 +23,7 @@ let jsonError = (message) => {
     }
 }
 
+// check if the cc is in range of the supported credit card number
 let isCreditCardInRange = (cardNumber) => {
     let pRes = threeDSData.PResponseHeader
     let isCardInRange = false

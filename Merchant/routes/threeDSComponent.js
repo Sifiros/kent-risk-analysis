@@ -10,6 +10,8 @@ const rMessages             = require('../messages/rMessages')
 const eMessages             = require('../messages/protocolError')
 const router                = express.Router()
 
+
+// call the acs with populated aReq and return the promise
 let startAuthentication = (aReq) => {
 
     return threeDSSServerData.AResponseHeader = fetch(config.acsAddr() + '/authrequest', {
@@ -21,6 +23,7 @@ let startAuthentication = (aReq) => {
     })
 }
 
+// return a human readable status concerning the authentication
 let getAresStatus = (response) => {
 
     if (!utils.checkThreeDSVersion(response.messageVersion)) { return 'Bad Version' }
@@ -32,6 +35,7 @@ let getAresStatus = (response) => {
     else { return 'Error' }
 }
 
+// this function uses the returned Ares from the ACS
 let doStartAuthentication = (updatedAreq, oldResponse) => {
 
     startAuthentication(updatedAreq)
@@ -45,6 +49,7 @@ let doStartAuthentication = (updatedAreq, oldResponse) => {
                 response.threeDSServerTransID = uuidv1()
             }
 
+            // respond to the browser with the updated status using the stored response object
             let authStatus = getAresStatus(response)
             switch (authStatus) {
                 case 'Bad Version':
@@ -164,6 +169,7 @@ router.post('/resrequest', (request, response) => {
     response.json(eMessage)
 })
 
+// End of the protocol for the 3DSComponent
 router.post('/challresponse', (request, response) => {
 
     let eMessage = eMessages.getGenericFormatError()
