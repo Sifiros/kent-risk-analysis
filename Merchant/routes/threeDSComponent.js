@@ -38,7 +38,7 @@ let doStartAuthentication = (updatedAreq, oldResponse) => {
         .then((response) => response.json())
         .then((response) => {
 
-            console.log("\n3DS SERVER: RECIEVED ARES");
+            console.log("\n3DS SERVER: RECEIVED ARES");
             console.log(response);
 
             if (!response.threeDSServerTransID) {
@@ -109,7 +109,7 @@ let startTransaction = (clientData, response) => {
         updatedAreq.threeDSCompInd = 'Y'
     }
 
-    console.log("\n3DS SERVER: RECIEVED INITIAL PAYMENT REQUEST FROM MERCHANT");
+    console.log("\n3DS SERVER: RECEIVED INITIAL PAYMENT REQUEST FROM MERCHANT");
 
     doStartAuthentication(updatedAreq, response)
 }
@@ -150,7 +150,7 @@ router.post('/resrequest', (request, response) => {
             return
         }
 
-        console.log("\n3DS SERVER: RECIEVED RREQ, CHECKING AND SENDING BACK RRES:");
+        console.log("\n3DS SERVER: RECEIVED RREQ, CHECKING AND SENDING BACK RRES:");
         console.log(request.body);
 
         (request.body.transStatus === 'Y' || request.body.transStatus === 'N') ? Rres.resultsStatus = '00' : Rres.resultsStatus = '01'
@@ -179,7 +179,7 @@ router.post('/challresponse', (request, response) => {
         return
     }
 
-    console.log("\nCRES RECIEVED BY 3DSSERVER\nTRANSACTION COMPLETE");
+    console.log("\nCRES RECEIVED BY 3DSSERVER\nTRANSACTION COMPLETE");
 
     response.json({
         'status': 'ok',

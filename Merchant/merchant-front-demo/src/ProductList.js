@@ -35,7 +35,7 @@ const ProductList = ({ addToCart }) => (
         {list.map(prod => (
           <TableRow key={prod.name}>
             <TableRowColumn>
-              <img src={prod.image} alt="picture" style={imgStyle} />
+              <img src={prod.image} alt="product" style={imgStyle} />
             </TableRowColumn>
             <TableRowColumn>{prod.name}</TableRowColumn>
             <TableRowColumn><b>{prod.price}€</b></TableRowColumn>

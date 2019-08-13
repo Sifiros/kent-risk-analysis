@@ -7,10 +7,10 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
     rContent.threeDSServerTransID = threeDSServerTransID
     rContent.notificationMethodURL = notificationMethodURL
 
-    console.log('notif url:');
+    console.log('Notification URL:');
     console.log(notificationMethodURL);
     
-    console.log('three DS Method URL:');
+    console.log('3DS Method URL:');
     console.log(threeDSMethodURL);
     
     return fetch(threeDSMethodURL, {
@@ -44,8 +44,6 @@ let startThreeDSProtocol= (trans_details) => {
             alert('Server error, your card may not be enrolled to 3DS2')
             return
         } else {
-            console.log('WESH LE PREMIER PRINT IMPORTANT');
-            
             startAuthentication(response.threeDSServerTransID, trans_details)
 
             setTimeout(() => getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
@@ -147,7 +145,7 @@ let sendConfirmationRequest = (acsTransID) => {
 // send the CReq and spawn the auth Iframe containing the plaintext HTML response
 let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 
-    console.log('IN sendcReq, acsURL = ' + acsURL);
+    console.log('In sendCReq, acsURL = ' + acsURL);
     
     CReq.acsTransID = acsTransID
     CReq.threeDSServerTransID = threeDSServerTransID
@@ -166,20 +164,6 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .catch((error) => alert(error))
 }
 
-window.testiFrame = () => {
-    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallShortMessageService.html", defaults)
-}
-
-// let requestConfirmation = (acsTransID) => {
-//     return fetch('http://localhost:4242/merchant/requestConfirmation', {
-//         method: 'POST',
-//         headers: {"Content-Type": "application/json"},
-//         body: JSON.stringify({
-//             "acsTransID": acsTransID
-//         })
-//     })
-// }
-
 let sendPaymentData = (paymentData) => {
     return fetch('http://localhost:4242/merchant/pay', {
         method: 'POST',
@@ -197,21 +181,15 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
     for (var key in paymentData) {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
-    console.log('PASSAGE A LA SUITE avant de faire l auth');
-    
     
     sendPaymentData(paymentData)
         .then((response) => response.json())
         .then((response) => {
             console.log(response);
             if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
-                console.log('SUPPOSED TO SEND CREQ');
-                
                 sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
             } else if (response.data.messageType === 'ARes' && response.what === 'Authentified') {
-                console.log('final success');
-                
-                // window.$('#final_success_pay').show()   
+                window.$('#final_success_pay').show()   
             }
         })
 }

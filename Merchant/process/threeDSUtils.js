@@ -57,7 +57,7 @@ let requestThreeDSServerConfig = () => {
                 if (!utils.checkThreeDSVersion(response.messageVersion)) { return utils.jsonError('Version not compatible') }
 
 
-                console.log("\n3DS SERVER: RECIEVED A PRES:");
+                console.log("\n3DS SERVER: RECEIVED A PRES:");
                 console.log(response);
 
                 if (!response.cardRangeData) { return utils.jsonError('Missing cardRangeDara in PRES') }

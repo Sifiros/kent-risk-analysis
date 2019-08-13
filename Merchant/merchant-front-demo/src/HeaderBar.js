@@ -12,7 +12,7 @@ function HeaderBar(props) {
     props.onCheckoutClicked(0)
   }
 
-  if (props.status == 1) {
+  if (props.status === 1) {
     return (<header>
       <div className="Bar"/>
         <div className="Title">
@@ -30,7 +30,7 @@ function HeaderBar(props) {
           <span>Buying Products</span>
         </h2>
     </header>)
-  } else if (props.status == 0) {
+  } else if (props.status === 0) {
     return (<header>
       <div className="Bar"/>
         <div className="Title">
@@ -47,25 +47,6 @@ function HeaderBar(props) {
         </div>
         <h2 className="row divided">
           <span>Available Products</span>
-        </h2>
-    </header>)
-  } else {
-    return (<header>
-      <div className="Bar"/>
-        <div className="Title">
-          <div className="Logo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 20 20"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>								
-              Awesome Retailer Demo
-          </div>
-          <RaisedButton
-            label={"Return to list"}
-            onClick={switchToList}
-            icon={<IconShoppingCart />}
-            backgroundColor={"#10101010"}
-            labelColor={"#212121"}/>
-        </div>
-        <h2 className="row divided">
-          <span>Payment processing</span>
         </h2>
     </header>)
   }

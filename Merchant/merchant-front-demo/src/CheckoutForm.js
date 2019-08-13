@@ -1,15 +1,14 @@
 import React  from 'react';
 import startThreeDSProtocol from './ThreeDSProtocolClient.js'
 import './res/CheckoutForm.css'
-import Footer from './Footer';
 
 class CheckoutForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = { price: props.cart.total }
-    this.CcnNumberValid = true //false;
-    this.CcDateValid = true //false;
-    this.CvvValid = true //false;
+    this.CcnNumberValid = false;
+    this.CcDateValid = false;
+    this.CvvValid = false;
     this.paymentResult = 0
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -41,18 +40,18 @@ class CheckoutForm extends React.Component {
     if (/[^0-9-\s]+/.test(value)) return false;
 
     // Luhn Algorithm
-    var nCheck = 0, nDigit = 0, bEven = false;
+    let nCheck = 0, nDigit = 0, bEven = false;
     value = value.replace(/\D/g, "");
     for (var n = value.length - 1; n >= 0; n--) {
-      var cDigit = value.charAt(n),
-        nDigit = parseInt(cDigit, 10);
+      let cDigit = value.charAt(n)
+      nDigit = parseInt(cDigit, 10);
       if (bEven) {
         if ((nDigit *= 2) > 9) nDigit -= 9;
       }
       nCheck += nDigit;
       bEven = !bEven;
     }
-    return (nCheck % 10) == 0;
+    return (nCheck % 10) === 0;
   }
 
   handleCc_numberChange(event) {
@@ -68,7 +67,7 @@ class CheckoutForm extends React.Component {
       expirationYear = Number(date.substr(3, date.length)); //starts at 3 after month's slash
 
     //The expiration date must be atleast one month ahead of current date
-    if ((expirationYear < currentYear) || (expirationYear == currentYear && expirationMonth <= currentMonth)) {
+    if ((expirationYear < currentYear) || (expirationYear === currentYear && expirationMonth <= currentMonth)) {
       return false;
     } else {
       return true;
@@ -159,10 +158,10 @@ class CheckoutForm extends React.Component {
           </div>
           {generateLinkList(this.props.cart)}
           <div id="final_success_pay" className="form-group col-md-6" style={{ display: "none" }}>
-            <p class="success" style={{ fontSize: "x-large", textAlign: "center", color: "#73AF55" }}>Payment successful !</p>
+            <p className="success" style={{ fontSize: "x-large", textAlign: "center", color: "#73AF55" }}>Payment successful !</p>
           </div>
           <div id="final_error_pay" className="form-group col-md-6" style={{ display: "none" }}>
-            <p class="error" style={{ fontSize: "x-large", textAlign: "center", color: "#D06079" }}>Payment failed.</p>
+            <p className="error" style={{ fontSize: "x-large", textAlign: "center", color: "#D06079" }}>Payment failed.</p>
           </div>
         </div>
       </div>)

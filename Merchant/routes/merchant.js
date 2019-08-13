@@ -63,7 +63,7 @@ router.post('/pay', (request, response) => {
 
     clientData.paymentData = checkeddData
     clientData.response = response
-    console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
+    console.log("\nMERCHANT: RECEIVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
 
     // ca existe pas (je crois)
     // threeDSComponent.startThreeDSProtocole(checkeddData, response) // TODO lancer depuis le threeDSComponent le 1er Areq et faire le handler qui attend le 3DSMEthodNotification
@@ -78,7 +78,7 @@ router.post('/notification', (request, response) => {
         return
     }
 
-    console.log('\nNOTIFICATION: RECIEVED: CRES :');
+    console.log('\nNOTIFICATION: RECEIVED: CRES :');
     console.log(request.body);
     
     // let userData = search.getUserWithoutAresByTransID(request.body.acsTransID, clients)
