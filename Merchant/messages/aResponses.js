@@ -1,8 +1,6 @@
 // ARes message samples
-// Not sure about where does it goes and comes from
-// TODO lean about it
 
-// authentication mesages 
+// authentication messages 
 
 // getter for BRW Challenge flow
 // BRW

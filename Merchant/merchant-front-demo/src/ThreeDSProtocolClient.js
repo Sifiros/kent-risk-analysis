@@ -1,7 +1,10 @@
+//
 // here we get the URL + 3dsServerTransID
 // We spawn the iframe (get ID, request wait response and message)
 // in the message handler we send the startPayment request
+//
 
+// This function uses the notificationMethodURL to fetch the URL of the harvester that will be used later to gather browser data
 let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMethodURL) => {
     let rContent = {}
     rContent.threeDSServerTransID = threeDSServerTransID
@@ -24,6 +27,7 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
     .then((response) => response)
 }
 
+// Fetch the 3DSMethod URL from the merchant server
 let getThreeDSMethod_URL = (cc_number) => {
     return fetch('http://localhost:4242/merchant/init', {
     method: 'POST',
@@ -90,7 +94,7 @@ let defaults = {
     "jquery/image/html / ajax / text": undefined,
 }
 
-// CReq content hardcoded
+// CReq content
 let CReq = {
     "threeDSServerTransID": "",
     "acsTransID": "d7c1ee99-9478-44a6-b1f2-391e29c6b340",
@@ -101,6 +105,7 @@ let CReq = {
 // will be used to close the auth Iframe later
 let savedIframe = {}
 
+// Return the populated object that will be sent to the merchant
 let getPaymentData = (threeDSServerTransID, trans_details) => {
     return {
         cc_number: trans_details.cc_number,
@@ -118,6 +123,7 @@ let getPaymentData = (threeDSServerTransID, trans_details) => {
     }
 }
 
+// Send a request to the merchant to initiate a long polling that will be used to notify the completion of the protocol
 let sendConfirmationRequest = (acsTransID) => {
     
     let identifier = {}
@@ -143,6 +149,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     
     CReq.acsTransID = acsTransID
     CReq.threeDSServerTransID = threeDSServerTransID
+
     fetch(acsURL, {
         method: 'POST',
         headers: {
@@ -153,13 +160,11 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .then((response) => response.json())
     .then((response) => {
         sendConfirmationRequest(acsTransID)
+
+        // store and load the challenge Iframe
         savedIframe = window.$.featherlight(response.challengeIframeUrl, defaults)
     })
     .catch((error) => alert(error))
-}
-
-window.testiFrame = () => {
-    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallShortMessageService.html", defaults)
 }
 
 let requestConfirmation = (acsTransID) => {
@@ -172,6 +177,7 @@ let requestConfirmation = (acsTransID) => {
     })
 }
 
+// Send the content of the payment form to the merchant. (usefull for Areq)
 let sendPaymentData = (paymentData) => {
     return fetch('http://localhost:4242/merchant/pay', {
         method: 'POST',
@@ -190,6 +196,7 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
     
+    // Depends on the outcome of the Autenthication requests, takes the challenge paths or the payment complete path
     return sendPaymentData(paymentData)
             .then((response) => response.json())
             .then((response) => {

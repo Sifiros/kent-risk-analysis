@@ -6,6 +6,7 @@ const appData       = require('../utils/appData')
 const uuidv1        = require('uuid/v1')
 const userData      = require('../utils/appData').clientdata
 
+// Fetch the URL of the 3DSMethod corresponding to the credit card number
 let get3DSMethod = (cc_number) => {
 
     let methodData = {}
@@ -37,7 +38,7 @@ let get3DSMethod = (cc_number) => {
 }
 
 let requestThreeDSServerConfig = () => {
-    console.log('debut du get de PRES');
+    console.log('start getting PRES');
     
 
     return appData.PResponseHeader = fetch(config.acsAddr() + '/updatepres', {
@@ -50,16 +51,15 @@ let requestThreeDSServerConfig = () => {
     })
         .then((response) => response.json())
         .then((response) => {
-            console.log('j\'ai recu un truc')
             
             if (response) {
-                console.log('un probleme de version ?');
+                console.log('version issue');
                 console.log(response);
                 
                 
                 if (!utils.checkThreeDSVersion(response.messageVersion)) { return utils.jsonError('Version not compatible') }
 
-                console.log('bah du coup non');
+                console.log('version fine');
 
                 console.log("\n3DS SERVER: RECIEVED A PRES:");
                 console.log(response);
@@ -73,6 +73,7 @@ let requestThreeDSServerConfig = () => {
         })
 }
 
+// format and respond the Ares to the browser 
 let aResponseToBrowser = (aRes, response, what) => {
     let finalResponse = {}
 
@@ -81,6 +82,7 @@ let aResponseToBrowser = (aRes, response, what) => {
     response.json(finalResponse)
 }
 
+// straighforward
 let respondWithError = (why, response, what) => {
     let finalResponse = {}
 

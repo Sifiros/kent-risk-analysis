@@ -5,7 +5,7 @@ const threeDSComponent      = require('./threeDSComponent')
 const clientData            = require('../utils/appData').clientdata
 const router                = express.Router()
 
-//handler the 3dsmethod client side initial request
+//handler of the 3dsmethod client side initial request
 router.post('/init', (request, response) => {
     
     if (request && request.body) {
@@ -44,7 +44,7 @@ let checkPaymentData = (body) => {
 }
 
 
-// Payment route
+// Payment route that handle and store the payment information
 router.post('/pay', (request, response) => {
     
     if (!request || !request.body) {
@@ -61,12 +61,10 @@ router.post('/pay', (request, response) => {
         return
     }
 
+    // store the data and response for future use
     clientData.paymentData = checkeddData
     clientData.response = response
     console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
-
-    // ca existe pas (je crois)
-    // threeDSComponent.startThreeDSProtocole(checkeddData, response) // TODO lancer depuis le threeDSComponent le 1er Areq et faire le handler qui attend le 3DSMEthodNotification
 
 })
 
@@ -81,13 +79,8 @@ router.post('/notification', (request, response) => {
     console.log('\nNOTIFICATION: RECIEVED: CRES :');
     console.log(request.body);
     
-    // let userData = search.getUserWithoutAresByTransID(request.body.acsTransID, clients)
-    // if (userData != null) {
-    //     userData.confirmationResponse.json({ 'status': 'authentified' })
-    // }
 
-
-    // TODO check que tout va vraiment bien et send KO sinon
+    // TODO potential fail
     if (request.body.challengeCompletionInd === 'Y') {
         clientData.confirmationObj.response.json({'status': 'ok'})
     } else {
@@ -113,6 +106,7 @@ router.post('/requestConfirmation', (request, response) => {
     return
 })
 
+// Handle the notification request and tell the client that the Iframe challenge can be closed
 router.post('/notification', (request, response) => {
     if (!request && !request.body) {
         response.json({
