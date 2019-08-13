@@ -10,10 +10,10 @@ let getIframeContent = (threeDSServerTransID, threeDSMethodURL, notificationMeth
     rContent.threeDSServerTransID = threeDSServerTransID
     rContent.notificationMethodURL = notificationMethodURL
 
-    console.log('notif url:');
+    console.log('Notification URL:');
     console.log(notificationMethodURL);
     
-    console.log('three DS Method URL:');
+    console.log('3DS Method URL:');
     console.log(threeDSMethodURL);
     
     return fetch(threeDSMethodURL, {
@@ -49,12 +49,13 @@ let startThreeDSProtocol= (trans_details) => {
             return
         } else {
             startAuthentication(response.threeDSServerTransID, trans_details)
-            getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
+
+            setTimeout(() => getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
             .then((iframe) => {
                 console.log(iframe)
                 console.log(iframe.iframeUrl)
                 document.getElementById('methodIframe').src = iframe.iframeUrl
-            })
+            }), 1000)
         }
     })
 }
@@ -136,16 +137,21 @@ let sendConfirmationRequest = (acsTransID) => {
     })
         .then((response) => response.json())
         .then((response) => {
-            if (response.status === 'authentified') {
-                window.setTimeout(function () { savedIframe.close(); }, 2400);
-            }
+            window.setTimeout(function () {
+                savedIframe.close();
+                if (response.status === 'ok') {
+                    window.$('#final_success_pay').show()
+                } else {
+                    window.$('#final_error_pay').show()
+                }
+            }, 2400); 
         })
 }
 
 // send the CReq and spawn the auth Iframe containing the plaintext HTML response
 let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 
-    console.log('IN sendcReq, acsURL = ' + acsURL);
+    console.log('In sendCReq, acsURL = ' + acsURL);
     
     CReq.acsTransID = acsTransID
     CReq.threeDSServerTransID = threeDSServerTransID
@@ -167,17 +173,6 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
     .catch((error) => alert(error))
 }
 
-let requestConfirmation = (acsTransID) => {
-    return fetch('http://localhost:4242/merchant/requestConfirmation', {
-        method: 'POST',
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            "acsTransID": acsTransID
-        })
-    })
-}
-
-// Send the content of the payment form to the merchant. (usefull for Areq)
 let sendPaymentData = (paymentData) => {
     return fetch('http://localhost:4242/merchant/pay', {
         method: 'POST',
@@ -196,19 +191,16 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
     
-    // Depends on the outcome of the Autenthication requests, takes the challenge paths or the payment complete path
-    return sendPaymentData(paymentData)
-            .then((response) => response.json())
-            .then((response) => {
-                console.log(response);
-                if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
-                    sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
-                    return requestConfirmation(response.data.acsTransID)
-                } else if (response.data.messageType === 'ARes' && response.what === 'Authentified')
-                    return (new Promise(function(resolve, reject) { resolve("Payment complete") }))
-                else
-                    return (new Promise(function(resolve, reject) { reject("An error happened when trying to process your payment.") }))
-            })
+    sendPaymentData(paymentData)
+        .then((response) => response.json())
+        .then((response) => {
+            console.log(response);
+            if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
+                sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
+            } else if (response.data.messageType === 'ARes' && response.what === 'Authentified') {
+                window.$('#final_success_pay').show()   
+            }
+        })
 }
 
 export default startThreeDSProtocol;

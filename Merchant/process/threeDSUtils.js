@@ -31,14 +31,13 @@ let get3DSMethod = (cc_number) => {
         return new Promise((resolve, reject) => reject(utils.jsonError('no methodURL found for this cc_number')))
     }
 
-    methodData.threeDSServerTransID = uuidv1()
+    methodData.threeDSServerTransID = "8a880dc0-d2d2-4067-bcb1-b08d1690b26e"//uuidv1()
     userData.threeDSServerTransID = methodData.threeDSServerTransID
     methodData.notificationMethodURL = config.internalNetworkUrl() + '/threeDSComponent/notificationMethod'
     return new Promise(resolve => resolve(methodData))
 }
 
 let requestThreeDSServerConfig = () => {
-    console.log('start getting PRES');
     
 
     return appData.PResponseHeader = fetch(config.acsAddr() + '/updatepres', {
@@ -53,15 +52,13 @@ let requestThreeDSServerConfig = () => {
         .then((response) => {
             
             if (response) {
-                console.log('version issue');
                 console.log(response);
                 
                 
                 if (!utils.checkThreeDSVersion(response.messageVersion)) { return utils.jsonError('Version not compatible') }
 
-                console.log('version fine');
 
-                console.log("\n3DS SERVER: RECIEVED A PRES:");
+                console.log("\n3DS SERVER: RECEIVED A PRES:");
                 console.log(response);
 
                 if (!response.cardRangeData) { return utils.jsonError('Missing cardRangeDara in PRES') }

@@ -74,7 +74,7 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
         submissionUrl = urllib.parse.quote(submissionUrl ,safe='')
         threedsServerTransId = urllib.parse.quote(threedsServerTransId ,safe='')
         acsTransId = urllib.parse.quote(acsTransId ,safe='')
-        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format(PUBLIC_IP, HTTP_PORT, acsTransId, threedsServerTransId, submissionUrl)
+        return 'http://{}:{}/IframeChallShortMessageService.html?acstrid={}&tdstrid={}&acsurl={}'.format('127.0.0.1', '4242', acsTransId, threedsServerTransId, submissionUrl)
 
     def add_request_fields_to_harvested_content(self, packet):
         if self.headers['accept-encoding'] is not None:
@@ -121,5 +121,4 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     # Handle Submition request
     def onSReqReceived(self, packet):
-        print(packet)
         self.server.on_sReq_packet_received(self, packet)

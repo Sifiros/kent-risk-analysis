@@ -64,7 +64,7 @@ router.post('/pay', (request, response) => {
     // store the data and response for future use
     clientData.paymentData = checkeddData
     clientData.response = response
-    console.log("\nMERCHANT: RECIEVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
+    console.log("\nMERCHANT: RECEIVED COMPLETE INITIAL PAYMENT REQUEST\nWaiting for 3DSMethod completion");
 
 })
 
@@ -76,7 +76,7 @@ router.post('/notification', (request, response) => {
         return
     }
 
-    console.log('\nNOTIFICATION: RECIEVED: CRES :');
+    console.log('\nNOTIFICATION: RECEIVED: CRES :');
     console.log(request.body);
     
 
@@ -104,29 +104,6 @@ router.post('/requestConfirmation', (request, response) => {
     confirmationObj.response = response
     clientData.confirmationObj = confirmationObj
     return
-})
-
-// Handle the notification request and tell the client that the Iframe challenge can be closed
-router.post('/notification', (request, response) => {
-    if (!request && !request.body) {
-        response.json({
-            'status': 'ko',
-            'message': 'request failed'
-        })
-        console.log('NOTIFICATION: REQUEST FAILED');
-        return
-    }
-
-    console.log('\nNOTIFICATION: RECIEVED: CRES :');
-    console.log(request.body);
-    
-    // ici il est probable qu'on doive repondre au client pour confirmer tout TODO
-
-    response.json({
-        'status': 'ok',
-        'message': 'ok'
-    })
-
 })
 
 module.exports = router

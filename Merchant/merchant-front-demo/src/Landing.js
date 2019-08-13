@@ -3,13 +3,11 @@ import ProductList from './ProductList';
 import HeaderBar from './HeaderBar';
 import CheckoutForm from './CheckoutForm';
 import Footer from './Footer';
-import Validation from './Validation';
 
 function Landing() {
   var [cart, setCartTotal] = React.useState({total: 0, list: []})
   var [checkoutStatus, setCheckoutStatus] = React.useState(0)
-  var [paymentStatus, setPaymentStatus] = React.useState(false)
-
+  
   function addToCart(prod) {
     cart.list.push(prod)
     setCartTotal({...cart, 
@@ -23,7 +21,6 @@ function Landing() {
   }
 
   function onPaymentDone(status) {
-    setPaymentStatus(status)
     onCheckoutClicked(2)
   }
 
@@ -41,13 +38,6 @@ function Landing() {
         <Fragment>
             <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
             <CheckoutForm cart={cart} onPaymentDone={onPaymentDone}/>
-        </Fragment>
-      );
-    case 2: 
-      return (
-        <Fragment>
-            <HeaderBar cart={cart} status={checkoutStatus} onCheckoutClicked={onCheckoutClicked}/>
-            <Validation success={paymentStatus}/>
         </Fragment>
       );
     default:
