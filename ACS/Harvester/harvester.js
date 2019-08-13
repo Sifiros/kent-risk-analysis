@@ -2,10 +2,10 @@ function isCanvasSupported() {
     var elem = document.createElement('canvas');
     return !!(elem.getContext && elem.getContext('2d'));                
 }
+
 function getCanvasFingerprint() {
   var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-  // https://www.browserleaks.com/canvas#how-does-it-work
+  var ctx = canvas.getContext('2d');                                    // https://www.browserleaks.com/canvas#how-does-it-work
   var txt = 'CANVAS_FINGERPRINT';
   ctx.textBaseline = "top";
   ctx.font = "14px 'Arial'";
@@ -19,7 +19,7 @@ function getCanvasFingerprint() {
   return canvas.toDataURL();
 }
 
-var getUrlParameter = function getUrlParameter(sParam) {
+var getUrlParameter = function getUrlParameter(sParam) {                // take the parameter's name, return its value if present, otherwise return undefined
     let sPageURL = window.location.search.substring(1)
     let sURLVariables = sPageURL.split('&')
     let sParameterName
@@ -48,24 +48,24 @@ window.sendFingerPrintToACS = () => {
 }
 
 let getAllInfo = (uaparser) => {
-    info.screenSize = screen.width + ":" + screen.height
-    info.innerSize = window.innerWidth + ":" + window.innerHeight
-    info.outerSize = window.outerWidth + ":" + window.outerHeight
+    info.screenSize = screen.width + ":" + screen.height            // monitor's resolution
+    info.innerSize = window.innerWidth + ":" + window.innerHeight   // size of the part of the window where the website is displayed
+    info.outerSize = window.outerWidth + ":" + window.outerHeight   // total size of the window (including navigation bar, borders, etc)
     info.doNotTrack = navigator.doNotTrack
 
-    info.uaInfo = uaparser.getResult()
+    info.uaInfo = uaparser.getResult()                              // using a library returning the parsed user agent, makes for easier use of its info
 
     info.uaInfo.browser.appName = navigator.appName
 
     info.plugins = []
-    let plugins = navigator.plugins
+    let plugins = navigator.plugins                                 // list of plugins installed on the browser. Does not include extensions. 
     for (i = 0; i < plugins.length; i++) {
         info.plugins.push(plugins[i].name)
     }
-    info.timezoneOffset = new Date().getTimezoneOffset()
+    info.timezoneOffset = new Date().getTimezoneOffset()            // in minutes, negative values for positive UTC timezones
 
     info.colorDepth = screen.colorDepth
-    try {
+    try {                                                           // getting Canvas if possible
         if (!isCanvasSupported()) {
             info.canvas = false
         } else {
@@ -77,14 +77,14 @@ let getAllInfo = (uaparser) => {
     }
 
     info.position = {}
-    return new Promise(resolve => {
-        navigator.geolocation.getCurrentPosition((position) => {
+    return new Promise(resolve => {                                 // country request is asynchronous so we return a promise
+        navigator.geolocation.getCurrentPosition((position) => {    // this will trigger the browser's geolocation permission. If refused, go to error
             info.position.latitude = position.coords.latitude
             info.position.longitude = position.coords.longitude
             fetch("http://api.geonames.org/countryCodeJSON?lat=" + info.position.latitude + "&lng=" + info.position.longitude + "&username=riskassessdemo")
             .then(response => {return response.json()})
             .then(body => {
-                info.position.countryCode = body.countryCode
+                info.position.countryCode = body.countryCode        // we get the country based on the geolocation
                 resolve(info)
             })
         }, (positionError) => {
