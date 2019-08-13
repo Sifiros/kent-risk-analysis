@@ -58,6 +58,7 @@
         <script>
             var getUrlParameter = function getUrlParameter(sParam) {
                 let sPageURL = window.location.search.substring(1)
+<<<<<<< HEAD
                 console.log(sPageURL)
                 let sURLVariables = sPageURL.split('&')
                 console.log(sURLVariables);
@@ -74,6 +75,16 @@
                     if (sParameterName[0] === sParam) {
                         console.log(sParameterName[1]);
                         
+=======
+                let sURLVariables = sPageURL.split('&')
+                let sParameterName
+                let i;
+        
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+                    
+                    if (sParameterName[0] === sParam) {
+>>>>>>> 1ffb552855f3acc8d96da927e5d21aa85e64c1dc
                         return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
                     }
                 }
@@ -83,8 +94,11 @@
                     // document.getElementsByClassName("featherlight")[0].style.background = "#00000055";
         
                     let sendChallInputToACS = (formData, acsSubmitURL) => {
+<<<<<<< HEAD
                         console.log('C\'EST LA QUE CA FAIL PUTAIN DE TES MORTS');
                         
+=======
+>>>>>>> 1ffb552855f3acc8d96da927e5d21aa85e64c1dc
                         return fetch(acsSubmitURL, {
                             method: 'POST',
                             headers: {
@@ -119,7 +133,14 @@
                         
                         let acsSubmitURL = decodeURIComponent(toto)
                         console.log(acsSubmitURL);
+<<<<<<< HEAD
         
+=======
+                        if (!$.isNumeric(formData.sms) || formData.sms.length !== 6) {
+                            alert('The SMS input is not compliant')
+                            return
+                        }
+>>>>>>> 1ffb552855f3acc8d96da927e5d21aa85e64c1dc
                         sendChallInputToACS(formData, acsSubmitURL)
                             .then((response) => {
                                 console.log(response);

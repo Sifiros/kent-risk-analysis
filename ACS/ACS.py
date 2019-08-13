@@ -7,7 +7,7 @@ from http.server import HTTPServer
 from transaction import TransactionController
 from acs import AcsPacketFactory, AcsHttpSender, AcsHttpRequestHandler
 from socketserver import ThreadingMixIn
-
+from config import THREE_DS_SERVER_URL
 rReq_rte = '/threeDSComponent/resrequest'
 cRes_rte = '/threeDSComponent/challresponse'
 
@@ -36,11 +36,11 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
             return None
 
     def add_item_into_dic(self, dic, id, item):
-        print('INFO : Adding item id {} into dic {}'.format(id, str(dic)))
+        # print('INFO : Adding item id {} into dic {}'.format(id, str(dic)))
         dic[id] = item
 
     def remove_item_from_dic(self, dic, id):
-        print('INFO : Removing item id {} into dic {}'.format(id, str(dic)))
+        # print('INFO : Removing item id {} into dic {}'.format(id, str(dic)))
         dic.pop(id,  None)
     
     ##### NotifTimer callbacks #####
@@ -48,15 +48,13 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     def notif_timeout(self, *args, **kwargs):
         # args[0] == transaction_id
         print("INFO : Timeout for transaction {}".format(args[0]))
-        self.remove_item_from_dic(self.m_timer_list, args[0])
-        self.remove_item_from_dic(self.m_notification_list, args[0])
-        self.remove_item_from_dic(self.m_request_list, args[0])
-        # TODO : CLEAR TRANSATION INTO TM
+        self.close_transaction(args[0])
 
 
     ##### AcsHttpRequestHandler callbacks #####
 
     def on_hReq_packet_received(self, handler, packet):
+        print("Received harvester iframe request : " + str(packet))
         self.add_item_into_dic(self.m_notification_list, packet["threeDSServerTransID"], packet["notificationMethodURL"])
         
         # Start notif timer (10sec)
@@ -66,10 +64,12 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         self.add_item_into_dic(self.m_timer_list, packet["threeDSServerTransID"], notif_timer)
 
     def on_aReq_packet_received(self, handler, packet):
+        print("Received authentication request : " + str(packet))
         self.add_item_into_dic(self.m_request_list, packet["threeDSServerTransID"], handler)
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)
 
     def on_gReq_packet_received(self, handler, packet):
+        print("Received harvester packet : " + str(packet))
         # Cancel notif timer
         print('INFO : Cancelling timer for transaction {}'.format(packet["threeDSServerTransID"]))
         self.get_item_from_dic(self.m_timer_list, packet["threeDSServerTransID"]).cancel()
@@ -79,6 +79,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         handler.send_complete_response(200, json.dumps(AcsPacketFactory.get_gResp_packet()))
 
     def on_sReq_packet_received(self, handler, packet):
+        print("Received challenge solution packet : " + str(packet))
         self.add_item_into_dic(self.m_request_list, packet["threeDSServerTransID"], handler)
         self.transaction_ctrl.handle_transaction_request(packet["threeDSServerTransID"], packet)        
 
@@ -86,32 +87,48 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
 
     def on_transaction_error_while_sending(self, transaction_id):
         print("TIMEOUT : " + transaction_id + " Aborting transaction...")
-        # TODO : CLEAR TRANSATION INTO TM
+        self.close_transaction(transaction_id)
+
+    def close_transaction(self, transaction_id):
+        self.remove_item_from_dic(self.m_notification_list, transaction_id)
+        self.remove_item_from_dic(self.m_timer_list, transaction_id)
         self.remove_item_from_dic(self.m_request_list, transaction_id)
         self.remove_item_from_dic(self.m_cRes_packets_wainting, transaction_id)
+        self.transaction_ctrl.close_transaction(transaction_id)
 
     def on_rRes_packet_received(self, packet):
+        print("Received result request : " + str(packet))
+        trans_id = packet["threeDSServerTransID"]
+        handler = self.get_item_from_dic(self.m_request_list, trans_id)
+        cRes = self.m_cRes_packets_wainting[trans_id]
+        notificationUrl = self.transaction_ctrl.managers[trans_id].transaction.notification_url
+        cRes.update(notificationURL=notificationUrl)
         # rRes received, post back final response to creq
-        self.get_item_from_dic(self.m_request_list, packet["threeDSServerTransID"]).send_complete_response(200, json.dumps(self.get_packet_in_cRes_packet_waiting_list(packet["threeDSServerTransID"])))
-        self.remove_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
-        self.remove_item_from_dic(self.m_cRes_packets_wainting, packet["threeDSServerTransID"])
+        handler.send_complete_response(200, json.dumps(cRes))
+        # final cRes to 3dsServer
+        AcsHttpSender.post_data_to_endpoint(trans_id, THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
+        # cleans
+        self.close_transaction(trans_id)
 
     ##### TransactionController callbacks #####
     
     def send_response(self, transaction_id, packet):
+        transaction_handler = self.get_item_from_dic(self.m_request_list, transaction_id)
         if packet["messageType"] == "ARes":
             # Send Ares Response
-            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
-            # Then if the current transaction does not need auth chall, post final resul request
-            if packet["transStatus"] == "Y":
-                self.add_item_into_dic(self.m_cRes_packets_wainting, transaction_id, packet)
-                AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + cRes_rte, json.dumps(AcsPacketFactory.get_rReq_packet(transaction_id, packet["transStatus"])), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
-            else:
-                self.remove_item_from_dic(self.m_request_list, transaction_id)
+            transaction_handler.send_complete_response(200, json.dumps(packet))
+            if packet["acsChallengeMandated"] == "N": # if no challenge ; transaction finished, clean it
+                self.close_transaction(transaction_id)
         elif packet["messageType"] == "CRes":
-            # Chall successful, post final Rreq and wait for its response to send final Cres
-            AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], self.get_transaction_from_list(transaction_id).client_address_to_url() + rReq_rte, json.dumps(packet), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
+            if packet["challengeCompletionInd"] == "Y": 
+                # Chall successful, post final Rreq and wait for its response to send final Cres
+                self.add_item_into_dic(self.m_cRes_packets_wainting, transaction_id, packet)
+                aReq = AcsPacketFactory.get_rReq_packet(transaction_id, packet["challengeCompletionInd"])
+                AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], THREE_DS_SERVER_URL + rReq_rte, json.dumps(aReq), self.on_transaction_error_while_sending, 10,  self.on_rRes_packet_received)
+            else: # fail : directly reply cRes
+                transaction_handler.send_complete_response(200, json.dumps(packet))
+
         elif packet["messageType"] == "SRes":
             # Chall failed, send Sres to notify client
-            self.get_item_from_dic(self.m_request_list, transaction_id).send_complete_response(200, json.dumps(packet))
+            transaction_handler.send_complete_response(200, json.dumps(packet))
             self.remove_item_from_dic(self.m_request_list, transaction_id)

@@ -21,10 +21,6 @@ class TransactionManager():
     def is_running(self):
         return self.transaction.state != TransactionTask.VALIDATED and self.transaction.state != TransactionTask.ABORTED
 
-    def abort(self):
-        self.transaction.state = TransactionTask.ABORTED
-        self.feed_data(None)
-
     def process(self, packet):
         cur_state = self.transaction.state
         if not self.is_running:
@@ -56,23 +52,24 @@ class TransactionManager():
             self.run_ai()
 
     def check_user_profile(self, user_profile):
-        print("RECEIVED USER PROFILE ..." + str(user_profile))
+        print("Storing fingerprint ...")
         self.transaction.user_profile = user_profile
         self.on_step_completion(TransactionTask.WAITING_AUTH_REQUEST)
 
     def check_auth_request(self, purchase_info):
-        print("Received auth request" + str(purchase_info))
+        print("Handling auth request ...")
         self.transaction.purchase = purchase_info
+        self.transaction.notification_url = purchase_info["notificationURL"]
         self.on_step_completion(TransactionTask.WAITING_USER_PROFILE)
 
     def run_ai(self):
         purchase, user_profile = (self.transaction.purchase, self.transaction.user_profile)
         database.append_user_fingerprint(purchase["acctNumber"], user_profile)
         fingerprints = database.get_user_fingerprints(purchase["acctNumber"])
-        print("Running AI, A chal is needed, Past fingerprints = " + str(fingerprints))
+        print("Running AI, a chal is needed ...")
         checking_result = AcsPacketFactory.get_aResp_packet(
             threeDSServerTransID=self.transaction.id,
-            transStatus="C",
+            transStatus="C", # Y for authentified or C for challenged needed
             acsChallengeMandated="Y",
             acsURL='http://{}:{}/challrequest'.format(PUBLIC_IP, HTTP_PORT)
         )
@@ -80,8 +77,7 @@ class TransactionManager():
 
     # 3. WAITING_CHALLENGE_SOLUTION  -> VALIDATED
     def check_challenge_solution(self, response):
-        print("Handling CHALLENGE RESPONSE")
-        print(response)
+        print("Handling challenge response ...")
         # if invalid response, reply an error
         # otherwise, store http request in order to reply after final validation
         self.on_step_completion(TransactionTask.VALIDATED, AcsPacketFactory.get_cResp_packet(

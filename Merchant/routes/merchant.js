@@ -108,31 +108,9 @@ router.post('/requestConfirmation', (request, response) => {
     }
     let confirmationObj = {}
     confirmationObj.acsTransID = request.body.acsTransID
-    confirmationObj.confirmationResponse = response
+    confirmationObj.response = response
     clientData.confirmationObj = confirmationObj
     return
-})
-
-router.post('/notification', (request, response) => {
-    if (!request && !request.body) {
-        response.json({
-            'status': 'ko',
-            'message': 'request failed'
-        })
-        console.log('NOTIFICATION: REQUEST FAILED');
-        return
-    }
-
-    console.log('\nNOTIFICATION: RECIEVED: CRES :');
-    console.log(request.body);
-    
-    // ici il est probable qu'on doive repondre au client pour confirmer tout TODO
-
-    response.json({
-        'status': 'ok',
-        'message': 'ok'
-    })
-
 })
 
 module.exports = router

@@ -1,0 +1,30 @@
+threeDSMethodURL: 'http://localhost:8484/harvestcontent
+parler du Preqq/Pres => requetes preparatoires qui permettent d'identifier le marchant et
+de lui fournir une range de carte bleue (tableau cardRangeData) l'URL qui correspond a la 
+3ds method pour cette carte bleue
+Expliquer ce qu'est une 3DS methode et expliquer que l'ACS peut etre different selon les clients
+
+Passer sur la vue du client en expliquant ce que tu fais sur le site en disant qu tu fais un
+parcours d'utilisateur typique, on remplir le formulaire en disant que ca permet de populate
+l'Areq (qui est la requete d'autentication)
+Faudra expliquer qu'au moment ou on clique sur submit il se place plein de choses et bien
+expliquer step by step dans le bon ordre
+On explique le 3DS method, le coup de l'iframe cachée qui est recup depuis l'ACS blabla
+On explique que une fois que la methode est terminée l'acs utilise la notificationMethodURL
+pour dire au 3DS requestor que la methode et terminée (bien ou mal) et qu'on peut continuer.
+On parle ensuite de l'areq qui contient 3 tonnes de data et qui est la demande d'authentication
+
+On parle ensuite de l'IA qui va utiliser les données de l'AREQ et les données de la method
+pour savoir si le dude qui paye est bien le bon dude
+
+On dit que le resulat est transmis dans l'ARes, qui est interprété coté marchand puis retrasmis
+au client qui demande le challenge ou pas selon le content
+
+On parle vite fait du chargement du challenge, on dit en speed qu'il y a encore une suite de
+requete de verification (Rreq/Rres) et qu'a l'issue de ca on peut confirmer ou pas l'authentication
+au client
+
+
+recap alexis:
+
+ 

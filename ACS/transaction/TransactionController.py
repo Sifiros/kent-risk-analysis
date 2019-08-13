@@ -24,12 +24,20 @@ class TransactionController():
         
     # Callback called by a manager each time a step is completed, requiring its HTTP response
     def on_step_completion(self, manager, completed_step, result):
+        if manager.transaction.id not in self.managers:
+            return
         if completed_step == TransactionTask.END:
             del self.managers[manager.transaction.id]
             return
 
-        print("{} has finished step {} with result {}! ".format(
-            manager.transaction.id, completed_step, result
-        ))
+        # print("{} has finished step {} with result {}! ".format(
+        #     manager.transaction.id, completed_step, result
+        # ))
         self.acs_callback(manager.transaction.id, result)
+
+    def close_transaction(self, transaction_id):
+        print("Ending transaction {}".format(transaction_id))
+        self.managers.pop(transaction_id, None)
+
+
         

@@ -16,7 +16,6 @@ function Landing() {
       total: cart.total + prod.price,
       list: cart.list
     })
-    console.log(cart)
   }
 
   function onCheckoutClicked(status) { //0 = list of products, 1 = checkout form, 2 = payment complete

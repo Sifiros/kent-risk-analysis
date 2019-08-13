@@ -45,12 +45,13 @@ let startThreeDSProtocol= (trans_details) => {
             return
         } else {
             startAuthentication(response.threeDSServerTransID, trans_details)
-            getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
+
+            setTimeout(() => getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
             .then((iframe) => {
                 console.log(iframe)
                 console.log(iframe.iframeUrl)
                 document.getElementById('methodIframe').src = iframe.iframeUrl
-            })
+            }), 1000)
         }
     })
 }
@@ -130,9 +131,14 @@ let sendConfirmationRequest = (acsTransID) => {
     })
         .then((response) => response.json())
         .then((response) => {
-            if (response.status === 'authentified') {
-                window.setTimeout(function () { savedIframe.close(); }, 2400);
-            }
+            window.setTimeout(function () { 
+                savedIframe.close();
+                if (response.status === 'ok') {
+                    window.$('#final_success_pay').show()
+                } else {
+                    window.$('#final_error_pay').show()
+                }
+            }, 2400); 
         })
 }
 
@@ -159,7 +165,7 @@ let sendcReq = (acsURL, acsTransID, threeDSServerTransID) => {
 }
 
 window.testiFrame = () => {
-    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallRecaptcha.html", defaults)
+    let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallShortMessageService.html", defaults)
 }
 
 let requestConfirmation = (acsTransID) => {
@@ -190,18 +196,16 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
     
-    return sendPaymentData(paymentData)
-            .then((response) => response.json())
-            .then((response) => {
-                console.log(response);
-                if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
-                    sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
-                    return requestConfirmation(response.data.acsTransID)
-                } else if (response.data.messageType === 'ARes' && response.what === 'Authentified')
-                    return (new Promise(function(resolve, reject) { resolve("Payment complete") }))
-                else
-                    return (new Promise(function(resolve, reject) { reject("An error happened when trying to process your payment.") }))
-            })
+    sendPaymentData(paymentData)
+        .then((response) => response.json())
+        .then((response) => {
+            console.log(response);
+            if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
+                sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
+            } else if (response.data.messageType === 'ARes' && response.what === 'Authentified') {
+                window.$('#final_success_pay').show()   
+            }
+        })
 }
 
 export default startThreeDSProtocol;
