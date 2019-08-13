@@ -44,6 +44,8 @@ let startThreeDSProtocol= (trans_details) => {
             alert('Server error, your card may not be enrolled to 3DS2')
             return
         } else {
+            console.log('WESH LE PREMIER PRINT IMPORTANT');
+            
             startAuthentication(response.threeDSServerTransID, trans_details)
 
             setTimeout(() => getIframeContent(response.threeDSServerTransID, response.threeDSMethodURL, response.notificationMethodURL)
@@ -131,7 +133,7 @@ let sendConfirmationRequest = (acsTransID) => {
     })
         .then((response) => response.json())
         .then((response) => {
-            window.setTimeout(function () { 
+            window.setTimeout(function () {
                 savedIframe.close();
                 if (response.status === 'ok') {
                     window.$('#final_success_pay').show()
@@ -168,15 +170,15 @@ window.testiFrame = () => {
     let savediFrame = window.$.featherlight("http://localhost:3000/IframeChallShortMessageService.html", defaults)
 }
 
-let requestConfirmation = (acsTransID) => {
-    return fetch('http://localhost:4242/merchant/requestConfirmation', {
-        method: 'POST',
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            "acsTransID": acsTransID
-        })
-    })
-}
+// let requestConfirmation = (acsTransID) => {
+//     return fetch('http://localhost:4242/merchant/requestConfirmation', {
+//         method: 'POST',
+//         headers: {"Content-Type": "application/json"},
+//         body: JSON.stringify({
+//             "acsTransID": acsTransID
+//         })
+//     })
+// }
 
 let sendPaymentData = (paymentData) => {
     return fetch('http://localhost:4242/merchant/pay', {
@@ -195,15 +197,21 @@ let startAuthentication = (threeDSServerTransID, trans_details) => {
     for (var key in paymentData) {
         if (!paymentData[key]) { return (new Promise(function(resolve, reject) { reject("Incomplete payment information") })) }
     }
+    console.log('PASSAGE A LA SUITE avant de faire l auth');
+    
     
     sendPaymentData(paymentData)
         .then((response) => response.json())
         .then((response) => {
             console.log(response);
             if (response.data.messageType === 'ARes' && response.what === 'Challenge') {
+                console.log('SUPPOSED TO SEND CREQ');
+                
                 sendcReq(response.data.acsURL, response.data.acsTransID, response.data.threeDSServerTransID)
             } else if (response.data.messageType === 'ARes' && response.what === 'Authentified') {
-                window.$('#final_success_pay').show()   
+                console.log('final success');
+                
+                // window.$('#final_success_pay').show()   
             }
         })
 }

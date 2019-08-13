@@ -118,7 +118,7 @@
                         let acsSubmitURL = decodeURIComponent(toto)
                         console.log(acsSubmitURL);
                         if (!$.isNumeric(formData.sms) || formData.sms.length !== 6) {
-                            alert('The SMS input is not compliant')
+                            alert('The SMS input is not valid, it must contain 6 digits (random works fine for the test)')
                             return
                         }
                         sendChallInputToACS(formData, acsSubmitURL)
