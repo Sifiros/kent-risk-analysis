@@ -22,6 +22,16 @@ class CheckoutForm extends React.Component {
         event.preventDefault();
         console.log(this.state)
         startThreeDSProtocol(this.state)
+        .then((response) => response.json())
+          .then((response) => {
+            if (response.body && response.body.status === "ok")
+            setTimeout(() => {
+              window.$.featherlight.close()}, 1000)
+              window.$('#success_pay').show()
+          })
+          .catch((error) => {
+            window.$('#error_pay').show()
+          })
     }
 
     validCvv(value) {
@@ -158,10 +168,10 @@ class CheckoutForm extends React.Component {
             </form>
             </div>
                 {generateLinkList(this.props.cart)}
-                <div id="final_success_pay" className="form-group col-md-6" style={{display: "none"}}>
+                <div id="success_pay" className="form-group col-md-6" style={{display: "none"}}>
                   <p class="success" style={{fontSize: "x-large", textAlign:"center", color:"#73AF55"}}>Payment successful !</p>
                 </div>
-                <div id="final_error_pay" className="form-group col-md-6" style={{display: "none"}}>
+                <div id="error_pay" className="form-group col-md-6" style={{display: "none"}}>
                   <p class="error" style={{fontSize: "x-large", textAlign:"center", color:"#D06079"}}>Payment failed.</p>
                 </div>
             </div>
