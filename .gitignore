@@ -3,3 +3,5 @@
 /ACS/.vscode/
 /ACS/data/
 **/*.pyc
+.vscode/
+**/dump.rdb
