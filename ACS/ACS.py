@@ -96,19 +96,28 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         self.remove_item_from_dic(self.m_cRes_packets_wainting, transaction_id)
         self.transaction_ctrl.close_transaction(transaction_id)
 
+    # TODO CHECK IF LEGIT
     def on_rRes_packet_received(self, packet):
-        print("Received result request : " + str(packet))
-        trans_id = packet["threeDSServerTransID"]
-        handler = self.get_item_from_dic(self.m_request_list, trans_id)
-        cRes = self.m_cRes_packets_wainting[trans_id]
-        notificationUrl = self.transaction_ctrl.managers[trans_id].transaction.notification_url
+        # print("Received result request : " + str(packet))
+        # trans_id = packet["threeDSServerTransID"]
+        # handler = self.get_item_from_dic(self.m_request_list, trans_id)
+        # cRes = self.m_cRes_packets_wainting[trans_id]
+        # notificationUrl = self.transaction_ctrl.managers[trans_id].transaction.notification_url
+        print("Received rRes packet : " + str(packet))
+        handler = self.get_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
+        cRes = self.m_cRes_packets_wainting[packet["threeDSServerTransID"]]
+        notificationUrl = self.transaction_ctrl.managers[packet["threeDSServerTransID"]].transaction.notification_url
         cRes.update(notificationURL=notificationUrl)
         # rRes received, post back final response to creq
         handler.send_complete_response(200, json.dumps(cRes))
         # final cRes to 3dsServer
-        AcsHttpSender.post_data_to_endpoint(trans_id, THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
+        # AcsHttpSender.post_data_to_endpoint(trans_id, THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
+        # # cleans
+        # self.close_transaction(trans_id)
+        AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
         # cleans
-        self.close_transaction(trans_id)
+        self.remove_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
+        self.remove_item_from_dic(self.m_cRes_packets_wainting, packet["threeDSServerTransID"])
 
     ##### TransactionController callbacks #####
     

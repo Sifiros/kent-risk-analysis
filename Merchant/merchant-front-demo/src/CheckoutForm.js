@@ -22,19 +22,6 @@ class CheckoutForm extends React.Component {
         event.preventDefault();
         console.log(this.state)
         startThreeDSProtocol(this.state)
-<<<<<<< HEAD
-          .then((response) => response.json())
-          .then((response) => {
-            if (response.body && response.body.status === "ok")
-            setTimeout(() => {
-              window.$.featherlight.close()}, 1000)
-              window.$('#success_pay').show()
-          })
-          .catch((error) => {
-            window.$('#error_pay').show()
-          })
-=======
->>>>>>> 1ffb552855f3acc8d96da927e5d21aa85e64c1dc
     }
 
     validCvv(value) {
@@ -171,17 +158,10 @@ class CheckoutForm extends React.Component {
             </form>
             </div>
                 {generateLinkList(this.props.cart)}
-<<<<<<< HEAD
-                <div id="success_pay" className="form-group col-md-6" style={{display: "none"}}>
-                  <p class="success" style={{fontSize: "x-large", textAlign:"center", color:"#73AF55"}}>Payment successful !</p>
-                </div>
-                <div id="error_pay" className="form-group col-md-6" style={{display: "none"}}>
-=======
                 <div id="final_success_pay" className="form-group col-md-6" style={{display: "none"}}>
                   <p class="success" style={{fontSize: "x-large", textAlign:"center", color:"#73AF55"}}>Payment successful !</p>
                 </div>
                 <div id="final_error_pay" className="form-group col-md-6" style={{display: "none"}}>
->>>>>>> 1ffb552855f3acc8d96da927e5d21aa85e64c1dc
                   <p class="error" style={{fontSize: "x-large", textAlign:"center", color:"#D06079"}}>Payment failed.</p>
                 </div>
             </div>
