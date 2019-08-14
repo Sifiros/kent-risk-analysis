@@ -9,6 +9,7 @@ import itertools
 import difflib
 import plac
 
+# This metaclass will provide every features with the same base logic
 class FeatureMeta(type):
     def __new__(cls, name, bases, attrs):
         method_list = [
@@ -40,6 +41,7 @@ class FeatureMeta(type):
 
         return super(FeatureMeta, cls).__new__(cls, name, bases, base_methods)
 
+    # Depdending on feature's update_rate, calculate next update's day
     def set_next_update_day(self):
         if self.update_rate == NEVER:
             self.next_update_day = NEVER
@@ -49,6 +51,8 @@ class FeatureMeta(type):
         # Finally set next update day
         self.next_update_day = self.last_update_day + self.update_rate + uncertainty        
 
+    # Depending on given singularity_ratio and differents population's update rates
+    # define the right update_rate
     def find_profile_update_rate(self):
         ratioSum = 0
         for ratio in self.population_update_rates:
@@ -57,6 +61,7 @@ class FeatureMeta(type):
                 return ratio[1]
         raise Exception("Feature update rates do not sum up to 1")
 
+    # If next_update_date, has been reached, trigger an update & calc next update day
     def check_for_updates(self, day):
         if not hasattr(self, "population_update_rates"):
             raise Exception("Missing updates frequency for daily update")
@@ -69,10 +74,12 @@ class FeatureMeta(type):
         self.last_update_day = day
         self.set_next_update_day()
         return True
-
+    
+    # Default update method : random
     def update(self):
         self.value = self.random_update()
 
+    # Called only once on feature initialization
     def initial_value(self):
         self.value = self.random_update()
 
@@ -81,6 +88,7 @@ class FeatureMeta(type):
         index = random.randint(1, len(self.possible_values)) - 1
         return copy.copy(self.possible_values[index])
 
+    # Find another value at least 75% similar to the current one
     def slight_update(self):
         ratio = 0
         new_value = ""
@@ -89,6 +97,7 @@ class FeatureMeta(type):
             ratio = difflib.SequenceMatcher(None, self.value, new_value).ratio()
         return new_value
 
+    # Given a float version number,returns an object containing incremented major / minor versions
     def incr_version(self, cur_version):
         random_upgrade = round(random.uniform(0, 0.1), 2)
         cur_version = float(cur_version)
@@ -99,6 +108,9 @@ class FeatureMeta(type):
         }
 
 NEVER = 100000000 # For pseudo-NEVER Rates
+
+# Features implementation
+# Features without population_update_rates wont ever change
 
 class AcceptedCharsetFeature(metaclass=FeatureMeta):
     possible_values = [
@@ -187,42 +199,6 @@ class ScreenSizeFeature(metaclass=FeatureMeta):
             if value == self.value:
                 raise Exception("Keep the same screensize")
         self.value = value
-
-class InnerSizeFeature(metaclass=FeatureMeta):
-    possible_values = [
-        "1680:931",
-        "375:635",
-        "1920:937",
-        "1920:1005",
-        "1680:916",
-        "1366:608",
-        "1280:603",
-        "1030:837",
-        "360:526",
-        "412:652"
-    ]
-
-    population_update_rates = [
-        (0.5, 3), (0.35, 3), (0.1, 3), (0.05, 2)
-    ]
-
-class OuterSizeFeature(metaclass=FeatureMeta):
-    possible_values = [
-        "1680:1027",
-        "375:812",
-        "1920:1040",
-        "1936:1096",
-        "1680:979",
-        "1030:900",
-        "360:526",
-        "1912:1020",
-        "600:935",
-        "360:526"
-    ]
-
-    population_update_rates = [
-        (0.5, 3), (0.35, 3), (0.1, 3), (0.05, 2)
-    ]
 
 # updates append or remove a plugin, nevery append twice the same plugin (reducing the update frequency)
 class PluginsFeature(metaclass=FeatureMeta): 
@@ -408,8 +384,6 @@ class BrowserInstance():
             "acceptedLanguages": AcceptedLanguagesFeature(self.singularity_ratio),
             "doNotTrack": DoNotTrackFeature(self.singularity_ratio),
             "screenSize": ScreenSizeFeature(self.singularity_ratio),
-            # "innerSize": InnerSizeFeature(self.singularity_ratio),
-            # "outerSize": OuterSizeFeature(self.singularity_ratio),
             "plugins": PluginsFeature(self.singularity_ratio),
             "timezoneOffset": TimezoneOffsetFeature(self.singularity_ratio),
             "browser": BrowserFeature(self.singularity_ratio),
@@ -426,8 +400,6 @@ class BrowserInstance():
             self.features["browser"],
             self.features["plugins"],
             self.features["screenSize"],
-            # self.features["innerSize"],
-            # self.features["outerSize"],
             self.features["timezoneOffset"],
             self.features["acceptedEncoding"],
             self.features["acceptedMime"],
@@ -473,9 +445,12 @@ class BrowserInstance():
         return fingerprint
 
 
-def generate(nb_browsers, nb_days, only_last_fingerprints=False, min_nb_fingerprints=5):
-    browsers = [BrowserInstance() for _ in range(nb_browsers)]
-    for i in range(nb_days):
+# Generates a <nb_day> days history fingerprints for <nb_browsers> different browsers
+# Browsers with less than <min_nb_fingerprints> fingerprints are filtered out
+# If only_last_fingerprints is True, keep only last browsers' fingerprint instead of whole history
+def generate(nb_browsers=25, nb_days=300, only_last_fingerprints=False, min_nb_fingerprints=5):
+    browsers = [BrowserInstance() for _ in range(int(nb_browsers))]
+    for i in range(int(nb_days)):
         browsers = [browser.check_for_updates(i) for browser in browsers]
     # Filter every browser without enough fingerprint
     browsers = [cur for cur in browsers if len(cur.history) >= min_nb_fingerprints]
@@ -488,4 +463,5 @@ def generate(nb_browsers, nb_days, only_last_fingerprints=False, min_nb_fingerpr
     return [cur.toJson() for cur in browsers]
 
 if __name__ == "__main__":
-    plac.call(generate)
+    fingerprints = plac.call(generate)
+    print(fingerprints)
