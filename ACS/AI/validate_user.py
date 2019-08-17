@@ -3,10 +3,14 @@
 import json
 import pickle
 import sys
+import os
 
+DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
+DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
+sys.path.append(DOSSIER_PARENT)
 import pandas as pd
 import plac
-from DataEncoder import DataEncoder
+from AI.DataEncoder import DataEncoder
 
 
 def validate_identity(user_id: "UserId to test input fingerprint with", fingerprint=None):

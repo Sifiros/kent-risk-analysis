@@ -13,7 +13,6 @@ sys.path.append(DOSSIER_PARENT)
 import numpy as np
 import pandas as pd
 import plac
-from scipy.io import arff
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 

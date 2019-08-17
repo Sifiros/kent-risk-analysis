@@ -3,12 +3,13 @@ import redis
 import json
 import plac
 import re
+from config import REDIS_HOST, REDIS_PORT
 
 # Helper class used to communicate with Redis API 
 class RedisStore():
 
     def __init__(self):
-        self.redis = redis.Redis(host='localhost', port=6379, db=0)
+        self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
     def get_transformation_table(self, table_name):
         key = "transTable/{}".format(table_name)
