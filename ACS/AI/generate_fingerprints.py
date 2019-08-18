@@ -237,6 +237,8 @@ class PluginsFeature(metaclass=FeatureMeta):
         r = random.random()
         append_probability_threshold = min(0.4, (len(self.value) / min(len(self.possible_values), self.max_plugins)))
         if r >= append_probability_threshold: # add a plugin
+            if len(self.value) == self.max_plugins:
+                raise Exception("Max plugins reached")
             available_plugins = set(self.possible_values) - set(self.value) - self.already_installed
             r = random.randint(1, len(available_plugins)) - 1
             # If no more plugin to try out, will raise an EmptyRange exception & cancel this update                
