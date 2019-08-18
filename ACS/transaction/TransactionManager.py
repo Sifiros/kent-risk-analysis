@@ -1,4 +1,5 @@
 import threading
+import time
 from .TransactionTask import TransactionTask
 from config import HTTP_PORT, PUBLIC_IP
 from acs import AcsPacketFactory
@@ -68,14 +69,21 @@ class TransactionManager():
     def run_ai(self):
         purchase, user_profile = (self.transaction.purchase, self.transaction.user_profile)
         user_id = purchase["acctNumber"]
+        user_profile["browser_id"] = user_id # for AI needs
+        user_profile["day"] = int(time.time()) # for AI needs
         database.append_user_fingerprint(user_id, user_profile)
         fingerprints = database.get_user_fingerprints(user_id)
-        print("Running AI, A chal is needed, Past fingerprints = " + str(fingerprints))
+        print("Running AI ...")
         # TODO: ensure same input formats than generate_fingerprint output
         try:
             validated = validate_identity(user_id, user_profile)[0] == 1
         except:
             validated = False
+
+        if validated:
+            print("User {} authentified !".format(user_id))
+        else:
+            print("User {} looks suspicious, asking for a challenge !".format(user_id))
 
         checking_result = AcsPacketFactory.get_aResp_packet(
             threeDSServerTransID=self.transaction.id,

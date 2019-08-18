@@ -12,10 +12,11 @@ import pandas as pd
 import plac
 from AI.DataEncoder import DataEncoder
 
+models_dir = DOSSIER_COURRANT + '/models/'
 
 def validate_identity(user_id: "UserId to test input fingerprint with", fingerprint=None):
     try:
-        model = pickle.load(open("models/{}/model_{}.dat".format(user_id, user_id), 'rb'))
+        model = pickle.load(open(models_dir + "{}/model_{}.dat".format(user_id, user_id), 'rb'))
     except:
         print("No user '{}' found".format(user_id))
         return
@@ -30,8 +31,8 @@ def validate_identity(user_id: "UserId to test input fingerprint with", fingerpr
         return
     fingerprint = pd.DataFrame(fingerprint)
     result = model.predict(fingerprint)
-    print(result)
     return result
 
 if __name__ == "__main__":
-    plac.call(validate_identity)
+    res = plac.call(validate_identity)
+    print(res)
