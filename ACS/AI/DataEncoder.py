@@ -3,12 +3,13 @@ import redis
 import json
 import plac
 import re
+from config import REDIS_HOST, REDIS_PORT
 
 # Helper class used to communicate with Redis API 
 class RedisStore():
 
     def __init__(self):
-        self.redis = redis.Redis(host='localhost', port=6379, db=0)
+        self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
     def get_transformation_table(self, table_name):
         key = "transTable/{}".format(table_name)
@@ -75,8 +76,6 @@ class DataEncoder():
 
         self.m_treatment_units = {
             'colorDepth' : self.colorDepth_formater,
-            'innerSize' : self.innerSize_formater,
-            'outerSize' : self.outerSize_formater,
             'screenSize' : self.screenSize_formater,
             'timezoneOffset' : self.timezoneOffset_formater,
             'plugins' : self.plugins_formater,
@@ -112,11 +111,11 @@ class DataEncoder():
 
     # Perform a OHV (One Hot Vector) encoding on each Json keys
     def format(self):
-        for key in self.m_data:
-            try:
+        for key in self.m_treatment_units:
+            if key in self.m_data:
                 self.m_treatment_units[key](self.m_data[key])
-            except KeyError:
-                print('ERROR : {} key not defined'.format(key))
+            else:
+                self.m_treatment_units[key]()
 
         self.save_table_update_on_redis()
 
@@ -167,43 +166,39 @@ class DataEncoder():
 
     # Format color depth field
     # e.g : in => 16| out => 16
-    def colorDepth_formater(self, data):
+    def colorDepth_formater(self, data=-1):
         self.m_formated_data['color_depth'] = data
-
-    # Format inner size field
-    # e.g : in => "190:134" | out => 1
-    def innerSize_formater(self, data):
-        self.m_formated_data['inner_size'] = self.special_component_formater(data, self.m_inner_size_table)
-
-    # Format outer size field
-    # e.g : in => "190:134" | out => 1
-    def outerSize_formater(self, data):
-        self.m_formated_data['outer_size'] = self.special_component_formater(data, self.m_outer_size_table)
 
     # Format screen size field
     # e.g : in => "1920:1080" | out => 1
-    def screenSize_formater(self, data):
+    def screenSize_formater(self, data=None):
         self.m_formated_data['screen_size'] = self.special_component_formater(data, self.m_screen_size_table)
 
     # Format timezone offset field
     # e.g : in => -120 | out => -120
-    def timezoneOffset_formater(self, data):
+    def timezoneOffset_formater(self, data=-1):
         self.m_formated_data['timezone_offset'] = data
 
     # Format position_latitude and position_longitude fields
     # e.g : in => {"position":{"latitude": 1.1234565, "longitude": 34.2345}} | out => {"position_latitude":1.1234565, "position_longitude":34.2345}
-    def position_formater(self, data):
-        self.m_formated_data['position_latitude'] = data['latitude']
-        self.m_formated_data['position_longitude'] = data['longitude']
+    def position_formater(self, data=None):
+        try:
+            latitude = data['latitude']
+            longitude = data['longitude']
+        except:
+            latitude = -1
+            longitude = -1
+        self.m_formated_data['position_latitude'] = latitude
+        self.m_formated_data['position_longitude'] = longitude
 
     # Format do not track field
     # e.g : in => 0 | out => 0
-    def doNotTrack_formater(self, data):
+    def doNotTrack_formater(self, data=-1):
         self.m_formated_data['do_not_track'] = data
 
     # Format plugins field
     # e.g : in => {"plugins": ["chrome", "netflix"]} | out => {"plugin_0": 1, "plugin_1": 2, "plugin_2": 0, "plugin_3": 0, ..., "plugin_15": 0}
-    def plugins_formater(self, data):
+    def plugins_formater(self, data=[]):
         formated_plugins_list = []
         for plugin in data:
             if plugin in self.m_plugins_table:
@@ -216,13 +211,13 @@ class DataEncoder():
         for entry in formated_plugins_list:
             self.m_formated_data['plugins_{}'.format(i)] = entry
             i += 1
-        while i < 15: # Pad for data consistency with Random Forest
+        while i < 12: # Pad for data consistency with Random Forest
             self.m_formated_data['plugins_{}'.format(i)] = -1
             i += 1
 
     # Format uaInfo fields
     # e.g : in => {"uaInfo": {"browser": {'appName': 'Netscape', 'major': '67', 'name': 'Firefox', 'version': '67.0'}, ..., "os" : {'name': 'Windows', 'version': '10'}}} | out => {"ua_info_browser_appName": 0, "ua_info_browser_major": 68, ..., "ua_info_os_version": 10}
-    def uaInfo_formater(self, data):
+    def uaInfo_formater(self, data={}):
         formated_ua = {}
         
         table_dic = {
@@ -237,16 +232,22 @@ class DataEncoder():
         for key, table in table_dic.items():
             try:
                 if key == "engine":
-                    if not self.is_engine_empty(data[key]):
-                        formated_ua[key] = self.component_formater(data[key], table)
+                    value = {"name": -1, "version": -1} if key not in data or data[key]['name'] == 'Blink' else self.component_formater(data[key], table)
+                    formated_ua[key] = value
                 elif key == "ua":
-                    value = self.ua_formater(data[key])
-                    if value != -1:
-                        formated_ua[key] = value
+                    value = self.ua_formater(data[key]) if key in data else -1
+                    formated_ua[key] = value
                 else:
-                    value = self.component_formater(data[key], table)
-                    if value != -1:
-                        formated_ua[key] = value
+                    formated_ua[key] = self.component_formater(data[key], table)
+                    # Fix missing values 
+                    default_values = {
+                        'device': {'model': -1, 'type': -1, 'vendor': -1},
+                        'cpu': {'architecture': -1},
+                        'os': {'name': -1, 'version': -1}
+                    }[key]
+                    for subkey in default_values.keys():
+                        if subkey not in formated_ua[key]:
+                            formated_ua[key][subkey] = default_values[subkey]
             except KeyError:
                 pass
 
@@ -256,11 +257,6 @@ class DataEncoder():
             else:
                 for subkey, subentry in entry.items():
                     self.m_formated_data['uaInfo_{}_{}'.format(key, subkey)] = subentry
-
-    def is_engine_empty(self, data):
-        if data['name'] == "Blink":
-            return True
-        return False
 
     # Format a generic component by performing a One Hot Vector on it thanks to the values stored on Redis DB
     def component_formater(self, data, table):
@@ -275,6 +271,8 @@ class DataEncoder():
 
     # Format a special formated component by performing a One Hot Vector on it thanks to the values stored on Redis DB
     def special_component_formater(self, data, table):
+        if data is None:
+            return -1
         formated_data = -1
         table_cpy = table.copy()
         if len(table_cpy) == 0:
@@ -299,35 +297,30 @@ class DataEncoder():
 
     # Format accepted charset field
     # e.g : in => {"acceptedCharset": "utf-8, iso-8859-1;q=0.5"} | out => {"acceptedCharset": 0}
-    def acceptedCharset_formater(self, data):
+    def acceptedCharset_formater(self, data=None):
         value = self.special_component_formater(data, self.m_accepted_charset_table)
-        if value != -1:
-            self.m_formated_data['acceptedCharset'] = value
+        self.m_formated_data['acceptedCharset'] = value
 
     # Format accepted encoding field
     # e.g : in =>  {"acceptedEncoding": "gzip, deflate"} | out => {"acceptedEncoding": 0}
-    def acceptedEncoding_formater(self, data):
+    def acceptedEncoding_formater(self, data=None):
         value = self.special_component_formater(data, self.m_accepted_encoding_table)
-        if value != -1:
-            self.m_formated_data['acceptedEncoding'] = value
+        self.m_formated_data['acceptedEncoding'] = value
 
     # Format accepted mime field
     # e.g : in =>  {"acceptedMime": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"} | out => {"acceptedMime": 0}
-    def acceptedMime_formater(self, data):
+    def acceptedMime_formater(self, data=None):
         value = self.special_component_formater(data, self.m_accepted_mime_table)
-        if value != -1:
-            self.m_formated_data['acceptedMime'] = value        
+        self.m_formated_data['acceptedMime'] = value        
 
     # Format accepted language field
     # e.g : in =>  {"acceptedLanguage": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3"} | out => {"acceptedLanguage": 0}
-    def acceptedLanguage_formater(self, data):
+    def acceptedLanguage_formater(self, data=None):
         value = self.special_component_formater(data, self.m_accepted_languages_table)
-        if value != -1:
-            self.m_formated_data['acceptedLanguage'] = value
+        self.m_formated_data['acceptedLanguage'] = value
 
     # Format canvas field
     # e.g : in =>  {"canvas": "U0m1LbbnF/ApP8GoJLFYm125lR164aNff169Hj/rO6CJb4xfjeiVbfOqgllyx7pvmFDH9..."} | out => {"canvas": 0}
-    def canvas_formater(self,  data):
+    def canvas_formater(self,  data=None):
         value = self.special_component_formater(data, self.m_canvas_table)
-        if value != -1:
-            self.m_formated_data['canvas'] = value
+        self.m_formated_data['canvas'] = value

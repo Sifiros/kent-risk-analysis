@@ -51,7 +51,11 @@ let getAllInfo = (uaparser) => {
     info.screenSize = screen.width + ":" + screen.height            // monitor's resolution
     info.innerSize = window.innerWidth + ":" + window.innerHeight   // size of the part of the window where the website is displayed
     info.outerSize = window.outerWidth + ":" + window.outerHeight   // total size of the window (including navigation bar, borders, etc)
-    info.doNotTrack = navigator.doNotTrack
+    if (!navigator.doNotTrack) {
+        info.doNotTrack = 0
+    } else {
+        info.doNotTrack = 1
+    }
 
     info.uaInfo = uaparser.getResult()                              // using a library returning the parsed user agent, makes for easier use of its info
 

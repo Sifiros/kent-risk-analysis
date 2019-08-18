@@ -78,13 +78,13 @@ class AcsHttpRequestHandler(SimpleHTTPRequestHandler):
 
     def add_request_fields_to_harvested_content(self, packet):
         if self.headers['accept-encoding'] is not None:
-            packet['accept-encoding'] = self.headers['accept-encoding']
+            packet['acceptedEncoding'] = self.headers['accept-encoding']
         if self.headers['accept-charset'] is not None:
-            packet['accept-charset'] = self.headers['accept-charset']
+            packet['acceptedCharset'] = self.headers['accept-charset']
         if self.headers['accept-language'] is not None:
-            packet['accept-language'] = self.headers['accept-language']
+            packet['acceptedLanguages'] = self.headers['accept-language']
         if self.headers['accept'] is not None:
-            packet['accept'] = self.headers['accept']
+            packet['acceptedMime'] = self.headers['accept']
 
     ##### Requests Callbacks #####
 

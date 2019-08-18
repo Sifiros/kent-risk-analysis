@@ -9,6 +9,10 @@ verify_ssl = true
 python-decouple = "==3.1"
 redis = "*"
 requests = "*"
+numpy = "*"
+pandas = "*"
+plac = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.7"
