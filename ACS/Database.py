@@ -8,9 +8,14 @@ class Database():
     def __init__(self, REDIS_HOST, REDIS_PORT):
         self.redis = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
+
     def append_user_fingerprint(self, user_id, fingerprint):
         key = "{}/fingerprints".format(user_id)
-        self.redis.rpush(key, json.dumps(fingerprint))
+        if type(fingerprint) == list:
+            fingerprint = [json.dumps(cur) for cur in fingerprint]
+        else:
+            fingerprint = [json.dumps(fingerprint)]
+        self.redis.rpush(key, *fingerprint)
 
     def get_user_fingerprints(self, user_id):
         key = "{}/fingerprints".format(user_id)
@@ -18,7 +23,7 @@ class Database():
         return [json.loads(cur) for cur in content]
 
     def get_all_fingerprints(self):
-        user_ids = [key.split("/")[0] for key in self.redis.keys("*/fingerprints")]
+        user_ids = [key.decode("utf8").split("/")[0] for key in self.redis.keys("*/fingerprints")]
         return list(
             itertools.chain(*[
                 self.get_user_fingerprints(id) for id in user_ids
