@@ -1,7 +1,5 @@
 /ACS/AcsVenv
 /ACS/__pycache__/
 /ACS/.vscode/
-/ACS/data/
 **/*.pyc
 .vscode/
-**/dump.rdb
