@@ -54,7 +54,7 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
     ##### AcsHttpRequestHandler callbacks #####
 
     def on_hReq_packet_received(self, handler, packet):
-        print("Received harvester iframe request : " + str(packet))
+        print("Received harvester iframe request : " + str(packet))   
         self.add_item_into_dic(self.m_notification_list, packet["threeDSServerTransID"], packet["notificationMethodURL"])
         
         # Start notif timer (10sec)
@@ -113,11 +113,9 @@ class AccessControlServer(ThreadingMixIn, HTTPServer):
         # final cRes to 3dsServer
         # AcsHttpSender.post_data_to_endpoint(trans_id, THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
         # # cleans
-        # self.close_transaction(trans_id)
+        self.close_transaction(packet["threeDSServerTransID"])
         AcsHttpSender.post_data_to_endpoint(packet["threeDSServerTransID"], THREE_DS_SERVER_URL + cRes_rte, json.dumps(cRes), self.on_transaction_error_while_sending, 10)
         # cleans
-        self.remove_item_from_dic(self.m_request_list, packet["threeDSServerTransID"])
-        self.remove_item_from_dic(self.m_cRes_packets_wainting, packet["threeDSServerTransID"])
 
     ##### TransactionController callbacks #####
     
