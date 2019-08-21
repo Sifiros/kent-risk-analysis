@@ -3,6 +3,7 @@
 ## Dependencies
 
 NodeJS (https://nodejs.org/en/)
+
 Docker and docker-compose
 
 ## Usage
