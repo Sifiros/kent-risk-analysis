@@ -22,6 +22,9 @@ from Database import database
 
 models_dir = DOSSIER_COURRANT + '/models/'
 
+if not os.path.exists(models_dir):
+    os.mkdir(models_dir)
+
 def generate_model(fingerprints, browser_id, validation_stage=False, add_to_database=False, debug=False):
     print("Training {} model ...".format(browser_id))
     encoded_fingerprints = []
