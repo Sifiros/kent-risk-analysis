@@ -91,6 +91,7 @@ let getUpdatedAreq = (body, transID) => {
     aReq.acctNumber = body.cc_number
     aReq.shipAddrPostCode = body.postcode
     aReq.cardExpiryDate = body.cc_date
+    aReq.purchaseAmount = body.price
     aReq.cardholderName = body.name
     aReq.threeDSServerTransID = transID
     return aReq
