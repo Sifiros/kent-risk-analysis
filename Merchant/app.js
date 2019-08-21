@@ -29,7 +29,7 @@ app.listen(port, serverIp)
 setInterval(threeDSUtils.requestThreeDSServerConfig, 3600000)
 
 console.log('wrap pre');
-status = threeDSUtils.requestThreeDSServerConfig()
+status = setTimeout(threeDSUtils.requestThreeDSServerConfig, 5000)
 console.log('wrap post');
 
 if (status.status && status.status === 'ko') {
