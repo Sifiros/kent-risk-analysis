@@ -76,7 +76,7 @@ class TransactionManager():
         print("Running AI ...")
         # TODO: ensure same input formats than generate_fingerprint output
         try:
-            if purchase['purchaseAmount'] > 500:
+            if int(purchase['purchaseAmount']) > 500:
                 raise Exception("High purchase amount, trigger a challenge")
             validated = validate_identity(user_id, user_profile)[0] == 1
         except:
