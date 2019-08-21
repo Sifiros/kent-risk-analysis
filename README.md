@@ -1,8 +1,8 @@
 # kent-risk-analysis
 
-## Dependencies
+You can have additional information about the project by lauching source.html in a web browser.
 
-NodeJS (https://nodejs.org/en/)
+## Dependencies
 
 Docker and docker-compose
 
@@ -11,7 +11,7 @@ Docker and docker-compose
 docker-compose up 
 ```
 
-The build may fail using docker-compose up for the first time, in this case:
+The build may fail using docker-compose up for the first time, in this case, install nodeJS on your computer and:
 
 ```
 ./startup.sh
