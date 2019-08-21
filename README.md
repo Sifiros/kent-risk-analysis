@@ -1,9 +1,19 @@
 # kent-risk-analysis
 
+## Dependencies
+
+NodeJS (https://nodejs.org/en/)
+Docker and docker-compose
 
 ## Usage
 ```
 docker-compose up 
+```
+
+The build may fail using docker-compose up for the first time, in this case:
+
+```
+./startup.sh
 ```
 
 Once the 3 Docker containers have been built and launched, a web server will be listening on http://localhost:4242.  
